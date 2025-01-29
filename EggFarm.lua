@@ -1,4 +1,4 @@
--- Egg Farm hotdogs v3.8
+-- Egg Farm hotdogs v3.9
 getgenv().eggToFarm = "garden_2024_egg"
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
@@ -128,15 +128,15 @@ print('Anti-Rejoin', 'Teleportation prevention is now active.')
                     game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible = false
                     task.wait(1)
                 end
-                local DoneAutoPlay = true
-            end
 
-            if game:GetService("Players").LocalPlayer.PlayerGui.DailyLoginApp.Enabled then
-                task.wait(5)
-                FireSig(game:GetService("Players").LocalPlayer.PlayerGui.DailyLoginApp.Frame.Body.Buttons.ClaimButton)
-                task.wait(1)
-                FireSig(game:GetService("Players").LocalPlayer.PlayerGui.DailyLoginApp.Frame.Body.Buttons.ClaimButton)
-                task.wait(1)
+                if game:GetService("Players").LocalPlayer.PlayerGui.DailyLoginApp.Enabled then
+                    task.wait(5)
+                    FireSig(game:GetService("Players").LocalPlayer.PlayerGui.DailyLoginApp.Frame.Body.Buttons.ClaimButton)
+                    task.wait(1)
+                    FireSig(game:GetService("Players").LocalPlayer.PlayerGui.DailyLoginApp.Frame.Body.Buttons.ClaimButton)
+                    task.wait(1)
+                end
+                local DoneAutoPlay = true
             end
 
         end)
