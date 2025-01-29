@@ -1,4 +1,4 @@
--- Replaced version (https://github.com/Hiraeth127/WorkingVersions.lua/blob/main/FarmPet105d.lua) -hotdogs
+-- Replaced version (https://github.com/Hiraeth127/WorkingVersions.lua/blob/main/FarmPet105d.lua) -hotdogsv1
 -- Currrent version FarmPet105e.lua
 -- Added pet me task
 
@@ -308,6 +308,8 @@ print('Anti-Rejoin', 'Teleportation prevention is now active.')
             
                 local equipManager = fsys.get("equip_manager")
                 local equipManagerPets = equipManager and equipManager.pets
+                local inventory = fsys.get("inventory")
+                local inventoryPets = inventory and inventory.pets
             
                 if equipManagerPets and equipManagerPets[1] and equipManagerPets[1].kind then
                     local currentPetKind = equipManagerPets[1].kind
@@ -315,8 +317,7 @@ print('Anti-Rejoin', 'Teleportation prevention is now active.')
             
                     -- Check if we need to set petToEquip
                     if petToEquip == nil or (currentPetUnique ~= petToEquip) then
-                        local inventory = fsys.get("inventory")
-                        local inventoryPets = inventory and inventory.pets
+                        
                         local foundPet = false
             
                         for _, pet in pairs(inventoryPets or {}) do
@@ -333,6 +334,13 @@ print('Anti-Rejoin', 'Teleportation prevention is now active.')
                     end
                 else
                     warn("equip_manager or equip_manager.pets[1] is nil")
+                    for _, pet in pairs(inventoryPets or {}) do
+                        if string.find(pet.kind:lower(), "egg") then  -- Checks if 'egg' is in the string (case insensitive)
+                            petToEquip = pet.unique
+                            foundPet = true
+                            break
+                        end
+                    end
                 end
             
     
