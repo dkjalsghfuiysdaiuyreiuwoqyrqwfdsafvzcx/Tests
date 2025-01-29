@@ -1,4 +1,4 @@
--- Egg Farm hotdogs v3.4
+-- Egg Farm hotdogs v3.5
 getgenv().eggToFarm = "garden_2024_egg"
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
@@ -196,9 +196,16 @@ print('Anti-Rejoin', 'Teleportation prevention is now active.')
                         while not HasTradeLic do
                             print("no trade lic")
                             if ClientData.get_data()[game.Players.LocalPlayer.Name].inventory.toys then 
-                                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AnswerQuizQuestion"):FireServer("not safe")
-                                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AnswerQuizQuestion"):FireServer("safe")
-                                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AnswerQuizQuestion"):FireServer("not safe")
+                                fsys = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
+                                local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
+                                fsys("RouterClient").get("SettingsAPI/SetBooleanFlag"):FireServer("has_talked_to_trade_quest_npc", true)
+                                task.wait()
+                                fsys("RouterClient").get("TradeAPI/BeginQuiz"):FireServer()
+                                task.wait(1)
+                                for i, v in pairs(fsys('ClientData').get("trade_license_quiz_manager")["quiz"]) do
+                                        fsys("RouterClient").get("TradeAPI/AnswerQuizQuestion"):FireServer(v["answer"])
+                                    task.wait()
+                                end
                                 for i, v in pairs(ClientData.get_data()[game.Players.LocalPlayer.Name].inventory.toys) do
                                     if v.id == "trade_license" then
                                         print("have trade lic")
