@@ -1,4 +1,4 @@
--- Egg Farm hotdogs v3.1
+-- Egg Farm hotdogs v3.2
 getgenv().eggToFarm = "garden_2024_egg"
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
@@ -179,6 +179,10 @@ print('Anti-Rejoin', 'Teleportation prevention is now active.')
                         game:GetService("ReplicatedStorage").API:FindFirstChild("SettingsAPI/SetBooleanFlag"):FireServer("tutorial_v2_completed",true)
                         game:GetService("ReplicatedStorage").API:FindFirstChild("SettingsAPI/SetBooleanFlag"):FireServer("tutorial_v3_completed",true)
                         HasTradeLic = true
+                    else
+                        print("New account")
+                        HasTradeLic = false
+                        NewAcc = true
                     end
                 end
             else
