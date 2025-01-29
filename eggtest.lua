@@ -1,4 +1,4 @@
--- Egg Farm hotdogs v3
+-- Egg Farm hotdogs v3.1
 getgenv().eggToFarm = "garden_2024_egg"
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
@@ -145,6 +145,7 @@ print('Anti-Rejoin', 'Teleportation prevention is now active.')
                 for i, v in pairs(ClientData.get_data()[game.Players.LocalPlayer.Name].inventory.toys) do
                     xc = xc + 1
                     if v.id == "trade_license" then
+                        print("has trade lic")
                         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("npc_interaction")
                         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TutorialAPI/ChoosePet"):FireServer("cat")
                         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(2, {["chosen_pet"] = "cat"})
@@ -183,9 +184,11 @@ print('Anti-Rejoin', 'Teleportation prevention is now active.')
             else
                 if not HasTradeLic then
                     NewAcc = true
+                    print("New account")
                 end
 
                 if NewAcc then
+                    print("Inside new account")
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("npc_interaction")
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TutorialAPI/ChoosePet"):FireServer("cat")
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(2, {["chosen_pet"] = "cat"})
