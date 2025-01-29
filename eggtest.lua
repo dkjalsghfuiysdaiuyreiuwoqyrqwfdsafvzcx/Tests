@@ -1,4 +1,4 @@
--- Replaced version (https://github.com/Hiraeth127/WorkingVersions.lua/blob/main/FarmPet105d.lua) -hotdogsv1
+-- Replaced version (https://github.com/Hiraeth127/WorkingVersions.lua/blob/main/FarmPet105d.lua) -hotdogsv2
 -- Currrent version FarmPet105e.lua
 -- Added pet me task
 
@@ -321,7 +321,7 @@ print('Anti-Rejoin', 'Teleportation prevention is now active.')
                         local foundPet = false
             
                         for _, pet in pairs(inventoryPets or {}) do
-                            if string.find(pet.kind:lower(), "egg") then  -- Checks if 'egg' is in the string (case insensitive)
+                            if pet.kind:lower():match("egg$") then -- Matches 'egg' only at the end of the string
                                 petToEquip = pet.unique
                                 foundPet = true
                                 break
@@ -330,16 +330,20 @@ print('Anti-Rejoin', 'Teleportation prevention is now active.')
                         
                         if not foundPet then
                             petToEquip = getHighestLevelPet() -- Fallback to highest level pet
-                        end                        
+                        end                    
                     end
                 else
                     warn("equip_manager or equip_manager.pets[1] is nil")
                     for _, pet in pairs(inventoryPets or {}) do
-                        if string.find(pet.kind:lower(), "egg") then  -- Checks if 'egg' is in the string (case insensitive)
+                        if pet.kind:lower():match("egg$") then -- Matches 'egg' only at the end of the string
                             petToEquip = pet.unique
                             foundPet = true
                             break
                         end
+                    end
+                    
+                    if not foundPet then
+                        petToEquip = getHighestLevelPet() -- Fallback to highest level pet
                     end
                 end
             
