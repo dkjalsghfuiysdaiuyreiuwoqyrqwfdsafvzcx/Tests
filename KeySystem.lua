@@ -1,4 +1,4 @@
-_G.key = "adminstest0000"
+_G.key = "adminstest0000" 
 local HttpService = game:GetService("HttpService")
 local Webhook_URL = "http://54.179.120.243/KeySystem.php" -- Replace with your actual URL
 
