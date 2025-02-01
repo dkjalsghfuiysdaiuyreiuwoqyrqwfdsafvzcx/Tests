@@ -1,3 +1,5 @@
+-- edited Player
+
 if not _G.ScriptRunning then
     -- Prioritize legendary
 
@@ -1481,7 +1483,7 @@ if not _G.ScriptRunning then
         -- Create a ScreenGui
         local screenGui = Instance.new("ScreenGui")
         screenGui.Name = "CustomGui"
-        screenGui.Parent = player:WaitForChild("PlayerGui")
+        screenGui.Parent = Player:WaitForChild("PlayerGui")
         screenGui.IgnoreGuiInset = true -- Ignore default GUI insets
 
         -- Main background frame
