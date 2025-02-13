@@ -1,4 +1,4 @@
--- Egg Farm hotdogs v6
+-- Egg Farm hotdogs v7
 -- Auto Egg Fixed
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
@@ -1298,7 +1298,7 @@ if not _G.ScriptRunning then
                             repeat task.wait(1)
                                 t = 1 + t
                                 print('doing bored')
-                            until not ClientData.get_data()[game.Players.LocalPlayer.Name].ailments_manager.baby_ailments["bored"] or t>60
+                            until not ClientData.get_data()[game.Players.LocalPlayer.Name].ailments_manager.baby_ailments["bored"] or t > 60
                             BabyJump()
                             removeItemByValue(BabyAilmentsArray, "bored")
                         else
