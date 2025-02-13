@@ -1,4 +1,4 @@
--- Egg Farm hotdogs v6
+-- Egg Farm hotdogs v7
 -- Auto Egg Fixed
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
