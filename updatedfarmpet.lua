@@ -1,3 +1,4 @@
+print("should not run")
 -- getgenv().PetFarm = true
 -- getgenv().NoSakuraFarm = true
 -- _G.key = "admins0000"
