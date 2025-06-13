@@ -41,7 +41,7 @@ if not getgenv().AutoGet then
             game:GetService("ReplicatedStorage"):WaitForChild("API")
                 :WaitForChild("LootBoxAPI/ExchangeItemForReward")
                 :InvokeServer("butterfly_2025_snapdragon_flower", item.unique)
-            task.wait(1)
+            task.wait(.1)
         end
     end
 
