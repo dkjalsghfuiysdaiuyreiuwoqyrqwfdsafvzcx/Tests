@@ -78,7 +78,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/S
 local bucks = ClientData.get_data()[game.Players.LocalPlayer.Name].money
 local loopCount = math.floor(bucks / 39000)
 
-while true do
+for i = 1, loopCount do    
     -- your loop logic here
     task.wait(10)
     
