@@ -83,7 +83,7 @@ if not getgenv().AutoGet then
         for _, gift in pairs(gifts) do
             if table.find({
                 "butterfly_2025_moonbeam_butterfly",
-                "butterfly_2025_amber_butterfly"
+                "butterfly_2025_seafoam_butterfly"
             }, gift.kind) then
                 table.insert(availableBoxes, gift.unique)
             end
