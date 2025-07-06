@@ -135,10 +135,11 @@ while true do
 		checkDistance()
         -- Keep clicking while still inside
         while targetInterior.Parent == Interiors do
-			local buttonFire = game:GetService("Players").LocalPlayer.PlayerGui.MinigameHotbarApp.Hotbar.SwordButton.Button
+			
 
 			while true do
 				local success, err = pcall(function()
+					local buttonFire = game:GetService("Players").LocalPlayer.PlayerGui.MinigameHotbarApp.Hotbar.SwordButton.Button
 					FireSig(buttonFire)
 				end)
 				if success then
