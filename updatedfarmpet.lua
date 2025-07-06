@@ -1,6 +1,6 @@
 local sound = require(game.ReplicatedStorage:WaitForChild("Fsys")).load("SoundPlayer")
 local UI = require(game.ReplicatedStorage:WaitForChild("Fsys")).load("UIManager")
-
+task.wait(2)
 sound.FX:play("BambooButton")
 UI.set_app_visibility("NewsApp", false)
 
@@ -22,6 +22,23 @@ end
 teleportToMainmap()
 task.wait(2)
 
+    local function FireSig(button)
+        pcall(function()
+            for _, connection in pairs(getconnections(button.MouseButton1Down)) do
+                connection:Fire()
+            end
+            task.wait(0.1)
+            for _, connection in pairs(getconnections(button.MouseButton1Up)) do
+                connection:Fire()
+            end
+            task.wait(0.1)
+            for _, connection in pairs(getconnections(button.MouseButton1Click)) do
+                connection:Fire()
+                -- print(button.Name.." clicked!")
+            end
+        end)
+    end
+	
 local function teleportPlayerNeeds(x, y, z)
 
 	if x == 0 and y == 350 and z == 0 then
@@ -36,6 +53,30 @@ local function teleportPlayerNeeds(x, y, z)
 end
 
 teleportPlayerNeeds(-589.408, 35.7978, -1669.11828)
+
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local focusPetApp = Player.PlayerGui.FocusPetApp.Frame
+local ailments = focusPetApp.Ailments
+local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
+
+getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
+
+
+local virtualUser = game:GetService("VirtualUser")
+
+Player.Idled:Connect(function()
+	virtualUser:CaptureController()
+	virtualUser:ClickButton2(Vector2.new())
+end)
+
+task.spawn(function()
+	while true do
+		task.wait(1200) -- every 20 minutes 
+		game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+		print("Anti-AFK jump")
+	end
+end)
 
 task.wait(2)
 
@@ -56,7 +97,7 @@ local function clickCenter()
 end
 
 
-local radius = 10
+local radius = 3
 
 local function checkDistance()
     if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
@@ -89,15 +130,26 @@ while true do
 		task.wait(10)
         print("Entered:", targetInterior.Name)
 
-        task.wait(5)
         -- Teleport to target position
         teleportPlayerNeeds(12028.45, 9904.26, 5982.73)
 		checkDistance()
-        task.wait(30)
         -- Keep clicking while still inside
         while targetInterior.Parent == Interiors do
-            clickCenter()
-            task.wait(2)
+			local buttonFire = game:GetService("Players").LocalPlayer.PlayerGui.MinigameHotbarApp.Hotbar.SwordButton.Button
+
+			while true do
+				local success, err = pcall(function()
+					FireSig(buttonFire)
+				end)
+				if success then
+					print("FireSig succeeded.")
+					break
+				else
+					warn("FireSig failed, retrying... Error:", err)
+					task.wait(0.2)  -- wait a bit before retrying to avoid spamming too hard
+				end
+			end
+            task.wait(0.3)
         end
 
         print("Exited:", targetInterior.Name)
