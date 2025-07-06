@@ -93,11 +93,11 @@ while true do
         -- Teleport to target position
         teleportPlayerNeeds(12028.45, 9904.26, 5982.73)
 		checkDistance()
-        task.wait(5)
+        task.wait(30)
         -- Keep clicking while still inside
         while targetInterior.Parent == Interiors do
             clickCenter()
-            task.wait(0.1)
+            task.wait(2)
         end
 
         print("Exited:", targetInterior.Name)
