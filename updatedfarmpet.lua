@@ -52,7 +52,7 @@ local function teleportPlayerNeeds(x, y, z)
 	end
 end
 
-Needs(-589.408, 35.7978, -1669.11828)
+teleportPlayerNeeds(-589.408, 35.7978, -1669.11828)
 
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
@@ -87,7 +87,7 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 local Interiors = workspace:WaitForChild("Interiors")
-local targetPosition = Vector3.new(12028.45, 9904.26, 5982.73)
+local targetPosition = Vector3.new(-8971.2568359375, 9904.51953125, 8981.8720703125)
 
 -- Function to simulate clicking the center of the screen
 local function clickCenter()
@@ -109,7 +109,7 @@ local function checkDistance()
             -- you can add more logic here, like triggering an event
         else
             print("You are outside the detection radius.")
-			Needs(12028.45, 9904.26, 5982.73)
+			teleportPlayerNeeds(-8971.2568359375, 9904.51953125, 8981.8720703125)
         end
     end
 end
