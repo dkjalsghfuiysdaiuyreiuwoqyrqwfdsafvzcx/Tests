@@ -52,7 +52,7 @@ local function teleportPlayerNeeds(x, y, z)
 	end
 end
 
-teleportPlayerNeeds(-589.408, 35.7978, -1669.11828)
+Needs(-589.408, 35.7978, -1669.11828)
 
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
@@ -109,7 +109,7 @@ local function checkDistance()
             -- you can add more logic here, like triggering an event
         else
             print("You are outside the detection radius.")
-			teleportPlayerNeeds(12028.45, 9904.26, 5982.73)
+			Needs(12028.45, 9904.26, 5982.73)
         end
     end
 end
@@ -131,7 +131,7 @@ while true do
         print("Entered:", targetInterior.Name)
 
         -- Teleport to target position
-        teleportPlayerNeeds(12028.45, 9904.26, 5982.73)
+        teleportPlayerNeeds(-8971.2568359375, 9904.51953125, 8981.8720703125)
 		checkDistance()
         -- Keep clicking while still inside
         while targetInterior.Parent == Interiors do
