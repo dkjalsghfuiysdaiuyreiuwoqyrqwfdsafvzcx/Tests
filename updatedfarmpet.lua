@@ -78,8 +78,7 @@ if not getgenv().AutoGet then
     end
     
     -- Only feed 16 or less depending on available pets and potions
-    local targetCount = 3
-    local maxRuns = math.min(targetCount, #saruUniques, math.floor(#potions / 10))
+    local maxRuns = math.min(#saruUniques, math.floor(#potions / 10))
     
     print("⚙️ Feeding " .. maxRuns .. " Super Sarus with 10 potions each")
     
