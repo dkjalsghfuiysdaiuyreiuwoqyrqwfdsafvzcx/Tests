@@ -1,3 +1,15 @@
+local router
+for i, v in next, getgc(true) do
+    if type(v) == 'table' and rawget(v, 'get_remote_from_cache') then
+        router = v
+    end
+end
+
+local function rename(remotename, hashedremote)
+    hashedremote.Name = remotename
+end
+table.foreach(debug.getupvalue(router.get_remote_from_cache, 1), rename)
+
 local sound = require(game.ReplicatedStorage:WaitForChild("Fsys")).load("SoundPlayer")
 local UI = require(game.ReplicatedStorage:WaitForChild("Fsys")).load("UIManager")
 task.wait(2)
@@ -5,7 +17,6 @@ sound.FX:play("BambooButton")
 UI.set_app_visibility("NewsApp", false)
 
 task.wait(5)
-
 
 getgenv().fsysCore = require(game:GetService("ReplicatedStorage").ClientModules.Core.InteriorsM.InteriorsM)
 local function teleportToMainmap()
@@ -53,6 +64,38 @@ local function teleportPlayerNeeds(x, y, z)
 end
 
 teleportPlayerNeeds(-589.408, 35.7978, -1669.11828)
+
+for i = 1, 7 do
+	local args = {
+		{
+			cannon_key = tostring(i)
+		}
+	}
+	game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("SummerfestEventAPI/CrowsNestHit"):FireServer(unpack(args))
+    task.wait(.1)
+end
+
+-- Spawn loop in a background thread
+task.spawn(function()
+    while true do
+        -- Buy keys
+        for i = 1, 5 do
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("SummerfestEventAPI/RequestBuyTreasureKey"):InvokeServer()
+            task.wait(0.1)
+        end
+
+        -- Open chests 1 to 6
+        for i = 1, 6 do
+            local args = {
+                i
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("SummerfestEventAPI/RequestOpenTideChest"):InvokeServer(unpack(args))
+            task.wait(0.1)
+        end
+
+        task.wait(0.1)
+    end
+end)
 
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
@@ -129,7 +172,24 @@ while true do
     if targetInterior then
 		task.wait(10)
         print("Entered:", targetInterior.Name)
+        local minigameId
 
+        for _, child in pairs(workspace.StaticMap:GetChildren()) do
+            if child:IsA("Folder") and string.match(child.Name, "^coconut_bonk::.+_minigame_state$") then
+                -- Remove the `_minigame_state` part to get the ID
+                minigameId = string.gsub(child.Name, "_minigame_state$", "")
+                break
+            end
+        end
+
+        if minigameId then
+            local args = {
+                minigameId,
+                "release_parrot"
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
+        end
+        task.wait(.1)
         -- Teleport to target position
         teleportPlayerNeeds(-8971.2568359375, 9904.51953125, 8981.8720703125)
 		checkDistance()
@@ -143,7 +203,6 @@ while true do
 					FireSig(buttonFire)
 				end)
 				if success then
-					print("FireSig succeeded.")
 					break
 				else
 					warn("FireSig failed, retrying... Error:", err)
