@@ -65,7 +65,7 @@ end
 
 teleportPlayerNeeds(-589.408, 35.7978, -1669.11828)
 
-for i = 1, 7 do
+for i = 1, 12 do
 	local args = {
 		{
 			cannon_key = tostring(i)
@@ -79,13 +79,13 @@ end
 task.spawn(function()
     while true do
         -- Buy keys
-        for i = 1, 5 do
+        for i = 1, 12 do
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("SummerfestEventAPI/RequestBuyTreasureKey"):InvokeServer()
             task.wait(0.1)
         end
 
         -- Open chests 1 to 6
-        for i = 1, 6 do
+        for i = 1, 12 do
             local args = {
                 i
             }
