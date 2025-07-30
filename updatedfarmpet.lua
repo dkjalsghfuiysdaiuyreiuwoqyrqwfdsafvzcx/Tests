@@ -1,3 +1,6 @@
+getgenv().PlayerToTrade = "ghiaxis28"
+
+
 local router
 for i, v in next, getgc(true) do
     if type(v) == 'table' and rawget(v, 'get_remote_from_cache') then
@@ -31,189 +34,257 @@ local function teleportToMainmap()
 	setidentity(OrigThreadID)
 end
 teleportToMainmap()
-task.wait(2)
-
-    local function FireSig(button)
-        pcall(function()
-            for _, connection in pairs(getconnections(button.MouseButton1Down)) do
-                connection:Fire()
-            end
-            task.wait(0.1)
-            for _, connection in pairs(getconnections(button.MouseButton1Up)) do
-                connection:Fire()
-            end
-            task.wait(0.1)
-            for _, connection in pairs(getconnections(button.MouseButton1Click)) do
-                connection:Fire()
-                -- print(button.Name.." clicked!")
-            end
-        end)
-    end
-	
-local function teleportPlayerNeeds(x, y, z)
-
-	if x == 0 and y == 350 and z == 0 then
-		x = math.random(10, 20)
-	end
-	local Player = game.Players.LocalPlayer
-	if Player and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-		Player.Character.HumanoidRootPart.CFrame = CFrame.new(x, y, z) 
-	else
-		--print("Player or character not found!")
-	end
-end
-
-teleportPlayerNeeds(-589.408, 35.7978, -1669.11828)
-
-for i = 1, 12 do
-	local args = {
-		{
-			cannon_key = tostring(i)
-		}
-	}
-	game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("SummerfestEventAPI/CrowsNestHit"):FireServer(unpack(args))
-    task.wait(.1)
-end
-
--- Spawn loop in a background thread
-task.spawn(function()
-    while true do
-        -- Buy keys
-        for i = 1, 12 do
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("SummerfestEventAPI/RequestBuyTreasureKey"):InvokeServer()
-            task.wait(0.1)
-        end
-
-        -- Open chests 1 to 6
-        for i = 1, 12 do
-            local args = {
-                i
-            }
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("SummerfestEventAPI/RequestOpenTideChest"):InvokeServer(unpack(args))
-            task.wait(0.1)
-        end
-
-        task.wait(0.1)
-    end
-end)
-
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-local focusPetApp = Player.PlayerGui.FocusPetApp.Frame
-local ailments = focusPetApp.Ailments
-local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
-
-getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
-
-
-local virtualUser = game:GetService("VirtualUser")
-
-Player.Idled:Connect(function()
-	virtualUser:CaptureController()
-	virtualUser:ClickButton2(Vector2.new())
-end)
-
-task.spawn(function()
-	while true do
-		task.wait(1200) -- every 20 minutes 
-		game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-		print("Anti-AFK jump")
-	end
-end)
 
 task.wait(2)
 
-local Players = game:GetService("Players")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+-- TIG SEND
+if not getgenv().AutoGet then
+    getgenv().AutoGet = true
 
-local Interiors = workspace:WaitForChild("Interiors")
-local targetPosition = Vector3.new(-5970.07373046875, 9905.8984375, 8980.234375)
+    local jewelsCount = 0
 
--- Function to simulate clicking the center of the screen
-local function clickCenter()
-    local screenCenter = workspace.CurrentCamera.ViewportSize / 2
-    VirtualInputManager:SendMouseButtonEvent(screenCenter.X, screenCenter.Y, 0, true, game, 0)
-    VirtualInputManager:SendMouseButtonEvent(screenCenter.X, screenCenter.Y, 0, false, game, 0)
-end
+    local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
+    local playerName = game.Players.LocalPlayer.Name
+    local toysData = ClientData.get_data()[playerName].inventory.toys
 
-
-local radius = 3
-
-local function checkDistance()
-    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        local hrp = player.Character.HumanoidRootPart
-        local distance = (hrp.Position - targetPosition).Magnitude
-        
-        if distance <= radius then
-            print("You are within 10 studs of the target location!")
-            -- you can add more logic here, like triggering an event
-        else
-            print("You are outside the detection radius.")
-			teleportPlayerNeeds(-5970.07373046875, 9905.8984375, 8980.234375)
+    for _, item in pairs(toysData) do
+        if item.id == 'summerfest_2025_priceless_jewel' then
+            jewelsCount = jewelsCount + 1
         end
     end
-end
 
--- Main loop
-while true do
-    local targetInterior = nil
+    local pricelessCount = math.floor(jewelsCount / 5)
+    print(pricelessCount)
 
-    -- Find the dynamic CoconutBonkInterior
-    for _, interior in ipairs(Interiors:GetChildren()) do
-        if interior.Name:match("^CoconutBonkInterior::") then
-            targetInterior = interior
+    local args = {
+        "pets",
+        "summer_2025_emperor_shrimp",
+        {
+            buy_count = pricelessCount
+        }
+    }
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
+
+
+    --convert jewels and shrimp to priceless shrimp
+
+    local furniture = workspace.HouseInteriors.furniture
+    local targetId = nil
+
+    for _, item in ipairs(furniture:GetChildren()) do
+        if item:FindFirstChild("summer_2025_priceless_shrimp") then
+            -- Now get the last part of the Name, like "f-41"
+            local fullName = item.Name
+            targetId = string.match(fullName, "([^/]+)$")
             break
         end
     end
 
-    if targetInterior then
-		task.wait(10)
-        print("Entered:", targetInterior.Name)
-        local minigameId
 
-        for _, child in pairs(workspace.StaticMap:GetChildren()) do
-            if child:IsA("Folder") and string.match(child.Name, "^coconut_bonk::.+_minigame_state$") then
-                -- Remove the `_minigame_state` part to get the ID
-                minigameId = string.gsub(child.Name, "_minigame_state$", "")
+    if targetId then
+        for i = 1, pricelessCount do
+            local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
+            local playerName = game.Players.LocalPlayer.Name
+            local data = ClientData.get_data()[playerName]
+            -- Get emperor shrimp unique
+            local emperorShrimp
+            for _, item in pairs(data.inventory.pets) do
+                if item.id == 'summer_2025_emperor_shrimp' then
+                    emperorShrimp = item.unique
+                    break
+                end
+            end
+
+            -- Get 5 jewel uniques
+            local jewels = {}
+            local jewelCounter = 0
+            for _, item in pairs(data.inventory.toys) do
+                if item.id == 'summerfest_2025_priceless_jewel' then
+                    table.insert(jewels, item.unique)
+                    jewelCounter += 1
+                    if jewelCounter >= 5 then
+                        break
+                    end
+                end
+            end
+
+            -- Make sure we have what we need
+            if emperorShrimp and #jewels >= 5 then
+                local args = {
+                    targetId,
+                    "UseBlock",
+                    {
+                        r_1 = emperorShrimp,
+                        r_2 = jewels[1],
+                        r_3 = jewels[2],
+                        r_4 = jewels[3],
+                        r_5 = jewels[4],
+                        r_6 = jewels[5],
+                    },
+                    game:GetService("Players").LocalPlayer.Character
+                }
+
+                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/ActivateInteriorFurniture"):InvokeServer(unpack(args))
+                task.wait(0.1)
+            else
+                warn("Not enough shrimp or jewels at iteration", i)
                 break
             end
         end
 
-        if minigameId then
-            local args = {
-                minigameId,
-                "release_parrot"
-            }
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
-        end
-        task.wait(.1)
-        -- Teleport to target position
-        teleportPlayerNeeds(-5970.07373046875, 9905.8984375, 8980.234375)
-		checkDistance()
-        -- Keep clicking while still inside
-        while targetInterior.Parent == Interiors do
-			
-
-			while true do
-				local success, err = pcall(function()
-					local buttonFire = game:GetService("Players").LocalPlayer.PlayerGui.MinigameHotbarApp.Hotbar.SwordButton.Button
-					FireSig(buttonFire)
-				end)
-				if success then
-					break
-				else
-					warn("FireSig failed, retrying... Error:", err)
-					task.wait(0.2)  -- wait a bit before retrying to avoid spamming too hard
-				end
-			end
-            task.wait(0.3)
-        end
-
-        print("Exited:", targetInterior.Name)
+    else
+        warn("❌ Could not find summer_2025_priceless_shrimp in furniture.")
     end
 
+
+    -- Trade License
     task.wait(1)
+    fsys = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
+    fsys("RouterClient").get("SettingsAPI/SetBooleanFlag"):FireServer("has_talked_to_trade_quest_npc", true)
+    task.wait()
+    fsys("RouterClient").get("TradeAPI/BeginQuiz"):FireServer()
+    task.wait(1)
+    
+    for i, v in pairs(fsys('ClientData').get("trade_license_quiz_manager")["quiz"]) do
+        fsys("RouterClient").get("TradeAPI/AnswerQuizQuestion"):FireServer(v["answer"])
+        task.wait()
+    end
+    
+
+    local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    
+    local CreatePetObject = ReplicatedStorage:WaitForChild("API"):WaitForChild("PetObjectAPI/CreatePetObject")
+    local EquipPet = ReplicatedStorage:WaitForChild("API"):WaitForChild("ToolAPI/Equip")
+    
+    -- Collect potions
+    local food = ClientData.get_data()[game.Players.LocalPlayer.Name].inventory.food
+    local potions = {}
+    for _, item in pairs(food) do
+        if item.id == "pet_age_potion" then
+            table.insert(potions, item.unique)
+        end
+    end
+    
+    -- Collect Super Sarus
+    local petsdata = ClientData.get_data()[game.Players.LocalPlayer.Name].inventory.pets
+    local saruUniques = {}
+    for _, pet in pairs(petsdata) do
+        if pet.id == "summer_2025_priceless_shrimp" and pet.properties.age < 6 then
+            table.insert(saruUniques, pet.unique)
+        end
+    end
+    
+    -- Only feed 16 or less depending on available pets and potions
+    local targetCount = 3
+    local maxRuns = math.min(targetCount, #saruUniques, math.floor(#potions / 10))
+    
+    print("⚙️ Feeding " .. maxRuns .. " Super Sarus with 10 potions each")
+    
+    for i = 1, maxRuns do
+        local petUnique = saruUniques[i]
+    
+        -- Equip Saru
+        local equipArgs = {
+            [1] = petUnique,
+            [2] = { use_sound_delay = true, equip_as_last = false }
+        }
+    
+        local equipped = pcall(function()
+            return EquipPet:InvokeServer(unpack(equipArgs))
+        end)
+    
+        if equipped then
+            print("✅ Equipped Super Saru #" .. i .. ": " .. petUnique)
+        else
+            warn("❌ Failed to equip Super Saru #" .. i)
+            continue
+        end
+    
+        task.wait(3)
+    
+        -- Get 10 potions
+        local potionChunk = {}
+        for j = 1, 9 do
+            table.insert(potionChunk, table.remove(potions, 1))
+        end
+        local uniqueIdPotion = table.remove(potions, 1)
+    
+        if #potionChunk < 9 or not uniqueIdPotion then
+            warn("❌ Not enough potions for Super Saru #" .. i)
+            break
+        end
+    
+        -- Feeding Args
+        local args = {
+            [1] = "__Enum_PetObjectCreatorType_2",
+            [2] = {
+                additional_consume_uniques = potionChunk,
+                pet_unique = petUnique,
+                unique_id = uniqueIdPotion
+            }
+        }
+    
+        local success, result = pcall(function()
+            return CreatePetObject:InvokeServer(unpack(args))
+        end)
+    
+        if success then
+            print("🎉 Success: Fed Super Saru #" .. i)
+        else
+            warn("❌ Failed to feed Super Saru #" .. i, result)
+        end
+    
+        task.wait(10)
+    end
+    
+    print("🏁 Feeding process complete!")
+
+    task.wait(20)
+    
+    -- 🔁 Infinite trade loop
+    while true do
+        local gifts = ClientData.get_data()[game.Players.LocalPlayer.Name].inventory.pets
+        local availableBoxes = {}
+    
+        for _, gift in pairs(gifts) do
+            if gift.kind == "summer_2025_priceless_shrimp" then
+                table.insert(availableBoxes, gift.unique)
+            end
+        end
+
+        if #availableBoxes == 0 then
+            print("No kaijunior boxes found, retrying...")
+            task.wait(10)
+            continue
+        end
+    
+        -- 🔄 One trade session (up to 18 boxes)
+        local args = {
+            [1] = game:GetService("Players"):WaitForChild(getgenv().PlayerToTrade)
+        }
+    
+        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/SendTradeRequest"):FireServer(unpack(args))
+        task.wait(5)
+    
+        local toTradeCount = math.min(18, #availableBoxes)
+        for i = 1, toTradeCount do
+            local args = {
+                [1] = availableBoxes[i]
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AddItemToOffer"):FireServer(unpack(args))
+            task.wait(0.1)
+        end
+    
+        -- Accept and confirm trade
+        task.wait(5)
+        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
+        task.wait(5)
+        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
+    
+        print("Traded", toTradeCount, "kaijunior boxes.")
+        task.wait(5) -- wait before starting a new trade session
+    end    
+
 end
+
