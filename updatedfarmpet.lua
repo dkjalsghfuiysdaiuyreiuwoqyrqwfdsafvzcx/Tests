@@ -1,142 +1,44 @@
-getgenv().PlayerToTrade = "ghiaxis28"
-
-
-local router
-for i, v in next, getgc(true) do
-    if type(v) == 'table' and rawget(v, 'get_remote_from_cache') then
-        router = v
-    end
-end
-
-local function rename(remotename, hashedremote)
-    hashedremote.Name = remotename
-end
-table.foreach(debug.getupvalue(router.get_remote_from_cache, 1), rename)
-
-local sound = require(game.ReplicatedStorage:WaitForChild("Fsys")).load("SoundPlayer")
-local UI = require(game.ReplicatedStorage:WaitForChild("Fsys")).load("UIManager")
-task.wait(2)
-sound.FX:play("BambooButton")
-UI.set_app_visibility("NewsApp", false)
-
-task.wait(5)
-
-getgenv().fsysCore = require(game:GetService("ReplicatedStorage").ClientModules.Core.InteriorsM.InteriorsM)
-local function teleportToMainmap()
-	local targetCFrame = CFrame.new(-275.9091491699219, 25.812084197998047, -1548.145751953125, -0.9798217415809631, 0.0000227206928684609, 0.19986890256404877, -0.000003862579433189239, 1, -0.00013261348067317158, -0.19986890256404877, -0.00013070966815575957, -0.9798217415809631)
-	local OrigThreadID = getthreadidentity()
-	task.wait(1)
-	setidentity(2)
-	task.wait(1)
-	fsysCore.enter_smooth("MainMap", "MainDoor", {
-		["spawn_cframe"] = targetCFrame * CFrame.Angles(0, 0, 0)
-	})
-	setidentity(OrigThreadID)
-end
-teleportToMainmap()
-
-task.wait(2)
-
 -- TIG SEND
+getgenv().PlayerToTrade = "ghiaxis28"
 if not getgenv().AutoGet then
     getgenv().AutoGet = true
 
-    local jewelsCount = 0
-
+    local router
+    for i, v in next, getgc(true) do
+        if type(v) == 'table' and rawget(v, 'get_remote_from_cache') then
+            router = v
+        end
+    end
+    
+    local function rename(remotename, hashedremote)
+        hashedremote.Name = remotename
+    end
+    
+    table.foreach(debug.getupvalue(router.get_remote_from_cache, 1), rename)
+    
     local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
     local playerName = game.Players.LocalPlayer.Name
-    local toysData = ClientData.get_data()[playerName].inventory.toys
+    local playerData = ClientData.get_data()[playerName]
 
-    for _, item in pairs(toysData) do
-        if item.id == 'summerfest_2025_priceless_jewel' then
-            jewelsCount = jewelsCount + 1
-        end
-    end
+    local coins = 0
 
-    local pricelessCount = math.floor(jewelsCount / 5)
-    print(pricelessCount)
-
-    local args = {
-        "pets",
-        "summer_2025_emperor_shrimp",
-        {
-            buy_count = pricelessCount
-        }
-    }
-    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
-
-
-    --convert jewels and shrimp to priceless shrimp
-
-    local furniture = workspace.HouseInteriors.furniture
-    local targetId = nil
-
-    for _, item in ipairs(furniture:GetChildren()) do
-        if item:FindFirstChild("summer_2025_priceless_shrimp") then
-            -- Now get the last part of the Name, like "f-41"
-            local fullName = item.Name
-            targetId = string.match(fullName, "([^/]+)$")
-            break
-        end
-    end
-
-
-    if targetId then
-        for i = 1, pricelessCount do
-            local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
-            local playerName = game.Players.LocalPlayer.Name
-            local data = ClientData.get_data()[playerName]
-            -- Get emperor shrimp unique
-            local emperorShrimp
-            for _, item in pairs(data.inventory.pets) do
-                if item.id == 'summer_2025_emperor_shrimp' then
-                    emperorShrimp = item.unique
-                    break
-                end
-            end
-
-            -- Get 5 jewel uniques
-            local jewels = {}
-            local jewelCounter = 0
-            for _, item in pairs(data.inventory.toys) do
-                if item.id == 'summerfest_2025_priceless_jewel' then
-                    table.insert(jewels, item.unique)
-                    jewelCounter += 1
-                    if jewelCounter >= 5 then
-                        break
-                    end
-                end
-            end
-
-            -- Make sure we have what we need
-            if emperorShrimp and #jewels >= 5 then
-                local args = {
-                    targetId,
-                    "UseBlock",
-                    {
-                        r_1 = emperorShrimp,
-                        r_2 = jewels[1],
-                        r_3 = jewels[2],
-                        r_4 = jewels[3],
-                        r_5 = jewels[4],
-                        r_6 = jewels[5],
-                    },
-                    game:GetService("Players").LocalPlayer.Character
-                }
-
-                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/ActivateInteriorFurniture"):InvokeServer(unpack(args))
-                task.wait(0.1)
-            else
-                warn("Not enough shrimp or jewels at iteration", i)
-                break
-            end
-        end
-
+    if playerData and playerData.cranky_coins_2025 then
+        coins = tonumber(playerData.cranky_coins_2025) or 0
+        coins = coins / 145000
     else
-        warn("❌ Could not find summer_2025_priceless_shrimp in furniture.")
+        warn("Missing or invalid cranky_coins_2025 for player:", playerName)
     end
 
+            local args = {
+                "pets",
+                "summerfest_2025_coconut_friend",
+                {
+                    buy_count = coins
+                }
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
 
+    
     -- Trade License
     task.wait(1)
     fsys = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
@@ -170,7 +72,7 @@ if not getgenv().AutoGet then
     local petsdata = ClientData.get_data()[game.Players.LocalPlayer.Name].inventory.pets
     local saruUniques = {}
     for _, pet in pairs(petsdata) do
-        if pet.id == "summer_2025_priceless_shrimp" and pet.properties.age < 6 then
+        if pet.id == "summerfest_2025_coconut_friend" and pet.properties.age < 6 then
             table.insert(saruUniques, pet.unique)
         end
     end
@@ -248,11 +150,11 @@ if not getgenv().AutoGet then
         local availableBoxes = {}
     
         for _, gift in pairs(gifts) do
-            if gift.kind == "summer_2025_priceless_shrimp" then
+            if gift.kind == "summerfest_2025_coconut_friend" then
                 table.insert(availableBoxes, gift.unique)
             end
         end
-
+    
         if #availableBoxes == 0 then
             print("No kaijunior boxes found, retrying...")
             task.wait(10)
@@ -285,81 +187,5 @@ if not getgenv().AutoGet then
         print("Traded", toTradeCount, "kaijunior boxes.")
         task.wait(5) -- wait before starting a new trade session
     end    
-
-end
-
-
-
-
-
-
--- TIG ACCEPT
-if not getgenv().AutoGet then
-    getgenv().AutoGet = true
-    -- Rename hashed remotes
-    local router
-    for i, v in next, getgc(true) do
-        if type(v) == 'table' and rawget(v, 'get_remote_from_cache') then
-            router = v
-            break
-        end
-    end
-
-    local function rename(remotename, hashedremote)
-        hashedremote.Name = remotename
-    end
-    for name, remote in pairs(debug.getupvalue(router.get_remote_from_cache, 1)) do
-        rename(name, remote)
-    end
-
-    -- Services
-    local Players = game:GetService("Players")
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local LocalPlayer = Players.LocalPlayer
-    local TextChatService = game:GetService("TextChatService")
-    local chatChannel = TextChatService.TextChannels.RBXGeneral
-    local UI = require(game.ReplicatedStorage:WaitForChild("Fsys")).load("UIManager")
-
-    while true do
-        local textLabel = LocalPlayer:FindFirstChild("PlayerGui")
-            and LocalPlayer.PlayerGui:FindFirstChild("DialogApp")
-            and LocalPlayer.PlayerGui.DialogApp.Dialog.NormalDialog.Info.TextLabel
-
-        if textLabel then
-            local text = textLabel.Text
-            UI.set_app_visibility("DialogApp", false)
-
-            for _, player in ipairs(Players:GetPlayers()) do
-                if player ~= LocalPlayer then
-                    print("Attempting trade with:", player.Name)
-
-                    local success, err = pcall(function()
-                        local args = {
-                            [1] = player,
-                            [2] = true
-                        }
-
-                        ReplicatedStorage:WaitForChild("API"):WaitForChild("TradeAPI/AcceptOrDeclineTradeRequest"):InvokeServer(unpack(args))
-                        task.wait(3)
-
-                        ReplicatedStorage:WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
-                        task.wait(1)
-
-                        ReplicatedStorage:WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
-                        task.wait(1)
-                    end)
-
-                    if not success then
-                        warn("Trade with " .. player.Name .. " failed: " .. tostring(err))
-                    end
-
-                    UI.set_app_visibility("DialogApp", true)
-                    task.wait(1) -- Short pause before next player
-                end
-            end
-        end
-
-        task.wait(1) -- Repeat after a short delay
-    end
 
 end
