@@ -48,7 +48,7 @@ local args = {
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("SettingsAPI/SetSetting"):FireServer(unpack(args))
 task.wait(.1)
 local args = {
-	"VISITS"
+	"NEXT"
 }
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("CodeRedemptionAPI/AttemptRedeemCode"):InvokeServer(unpack(args))
 
