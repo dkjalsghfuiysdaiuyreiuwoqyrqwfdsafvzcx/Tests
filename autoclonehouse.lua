@@ -13,7 +13,7 @@ table.foreach(debug.getupvalue(router.get_remote_from_cache, 1), rename)
 
 -- tp to ghittoyah
 local args = {
-	game:GetService("Players"):WaitForChild("GHITTOYAH")
+	game:GetService("Players"):WaitForChild("bubb1egumh")
 }
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("LocationAPI/TeleToPlayer"):InvokeServer(unpack(args))
 
@@ -50,21 +50,37 @@ end
 -- Build the furniture args table
 local furnitureArgs = { [1] = {} }
 local i = 1
-for _, item in pairs(FurnitureData) do
-    local cframeValue = rebuildCFrame(item.cframe)
-    furnitureArgs[1][i] = {
-        ["kind"] = item.id,
-        ["properties"] = {
-            ["scale"] = item.scale,
-            ["cframe"] = cframeValue,
-            ["colors"] = {}
-        }
-    }
 
-    for colorIndex, colorValue in pairs(item.colors) do
-        furnitureArgs[1][i].properties.colors[colorIndex] = colorValue
+-- List of IDs to skip
+local skipIDs = {
+    racehouse_2023_square_tree = true,
+    racehouse_2023_wizard_tree = true,
+    racehouse_2023_simple_tree = true
+}
+
+for _, item in pairs(FurnitureData) do
+    -- Skip any furniture with "_tutorial" in its ID or matching the 3 specific IDs
+    if not string.find(item.id, "_tutorial") and not skipIDs[item.id] then
+        local cframeValue = rebuildCFrame(item.cframe)
+        furnitureArgs[1][i] = {
+            ["kind"] = item.id,
+            ["properties"] = {
+                ["scale"] = item.scale,
+                ["cframe"] = cframeValue,
+                ["colors"] = {}
+            }
+        }
+
+        for colorIndex, colorValue in pairs(item.colors) do
+            if typeof(colorValue) ~= "Color3" and typeof(colorValue) == "table" then
+                furnitureArgs[1][i].properties.colors[colorIndex] = Color3.new(unpack(colorValue))
+            else
+                furnitureArgs[1][i].properties.colors[colorIndex] = colorValue
+            end
+        end
+
+        i = i + 1
     end
-    i = i + 1
 end
 
 _G.HouseData.FurnitureArgs = furnitureArgs
@@ -76,7 +92,7 @@ task.wait(10)
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
 
 local bucks = ClientData.get_data()[game.Players.LocalPlayer.Name].money
-local loopCount = math.floor(bucks / 39000)
+local loopCount = math.floor(bucks / 38000)
 
 for i = 1, loopCount do    
     -- your loop logic here
@@ -98,6 +114,7 @@ for i = 1, loopCount do
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
 
     task.wait(60)
+    
     
     --PASTE THE TEXTURE AND FURNITURE
 
@@ -133,3 +150,4 @@ for i = 1, loopCount do
         BuyFurnitures:InvokeServer(unpack(furnitureArgs))
     end
 end
+
