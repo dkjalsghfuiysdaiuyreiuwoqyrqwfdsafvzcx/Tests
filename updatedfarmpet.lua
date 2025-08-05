@@ -49,7 +49,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("SettingsA
 
 task.wait(.1)
 local args = {
-	"NEXT"
+	"EGG"
 }
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("CodeRedemptionAPI/AttemptRedeemCode"):InvokeServer(unpack(args))
 
