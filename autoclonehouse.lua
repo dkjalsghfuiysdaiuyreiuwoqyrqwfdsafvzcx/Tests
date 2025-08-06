@@ -13,7 +13,7 @@ table.foreach(debug.getupvalue(router.get_remote_from_cache, 1), rename)
 
 -- tp to ghittoyah
 local args = {
-	game:GetService("Players"):WaitForChild("bubb1egumh")
+	game:GetService("Players"):WaitForChild("GHITTOYAH")
 }
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("LocationAPI/TeleToPlayer"):InvokeServer(unpack(args))
 
