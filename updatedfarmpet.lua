@@ -47,12 +47,6 @@ local args = {
 }
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("SettingsAPI/SetSetting"):FireServer(unpack(args))
 
-task.wait(.1)
-local args = {
-	"AZTEC"
-}
-game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("CodeRedemptionAPI/AttemptRedeemCode"):InvokeServer(unpack(args))
-
 
 local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
 local PetData = ClientData.get_data()[game.Players.LocalPlayer.Name].inventory.pets
@@ -124,6 +118,66 @@ if not _G.ScriptRunning then
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DailyLoginAPI/ClaimDailyReward"):InvokeServer()
     sound.FX:play("BambooButton")
     UI.set_app_visibility("DailyLoginApp", false)
+
+    task.wait(5)
+
+    
+    -- Create the Ruin Rush lobby
+    local createArgs = {
+        "ruin_rush"
+    }
+    local lobbyId = game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/LobbyCreate"):InvokeServer(unpack(createArgs))
+
+    -- Wait for a moment
+    task.wait(2)
+
+    -- Start the Ruin Rush lobby
+    local startArgs = {
+        {
+            startup_settings = {}
+        }
+    }
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/LobbyStart"):FireServer(unpack(startArgs))
+
+    -- Wait for the game to initialize (adjust time if needed)
+    task.wait(10)
+
+    -- Replace with the actual instance name dynamically
+    -- (Assumes only one RuinRushInterior exists for simplicity)
+    local ruinRushInterior = nil
+
+    for _, child in ipairs(workspace.StaticMap:GetChildren()) do
+        if string.match(child.Name, "^ruin_rush::.+_minigame_state$") then
+            ruinRushInterior = string.gsub(child.Name, "_minigame_state$", "")
+            break
+        end
+    end
+
+
+    print("Ruin Rush Interior Found:", ruinRushInterior)
+
+    -- Pick up 3 skulls
+    for i = 1, 3 do
+        local skullArgs = {
+            ruinRushInterior, -- Dynamic minigame instance ID
+            "pickup_skull",
+            i
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(skullArgs))
+        task.wait(1)
+    end
+
+    -- Optional: Wait before attempting join
+    task.wait(2)
+
+    -- Attempt to join the same game
+    local joinArgs = {
+        ruinRushInterior,
+        false
+    }
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/AttemptJoin"):FireServer(unpack(joinArgs))
+
+    task.wait(5)
     
     -- local RunService = game:GetService("RunService")
     -- local DoneAutoPlay = false
