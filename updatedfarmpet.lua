@@ -178,6 +178,10 @@ if not _G.ScriptRunning then
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/AttemptJoin"):FireServer(unpack(joinArgs))
 
     task.wait(5)
+
+	game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
+
+	task.wait(5)
     
     -- local RunService = game:GetService("RunService")
     -- local DoneAutoPlay = false
