@@ -1,4 +1,4 @@
--- Farm 8/30/25 9:56 PM
+-- Farm 8/30/25 9:58 PM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -529,8 +529,8 @@ if not _G.ScriptRunning then
                                     x
                                 }
                                 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/OpenGift"):InvokeServer(unpack(args))
-                                break
                                 giftOpened = true
+                                break
                             end
                         end
                     end
