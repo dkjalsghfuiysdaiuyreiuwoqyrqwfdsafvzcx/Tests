@@ -492,6 +492,7 @@ if not _G.ScriptRunning then
         print(requiredRarity)
         
         local currentPet = equipManagerPets[1]
+		print(currentPet)
         local shouldEquipNewPet = not currentPet or not petToEquip or (currentPet.unique ~= petToEquip) or (requiredRarity ~= CheckRarity(currentPet.unique))
         
 		
@@ -519,8 +520,6 @@ if not _G.ScriptRunning then
                 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Equip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
             end
         end
-		print(CheckRarity(currentPet.unique), currentPet.unique, requiredRarity)
-        
         -- Handle pet ailments
         task.wait(0.3)
         PetAilmentsArray = {}
