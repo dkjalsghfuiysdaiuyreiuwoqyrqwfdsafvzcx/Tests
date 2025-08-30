@@ -539,8 +539,8 @@ if not _G.ScriptRunning then
                                     x
                                 }
                                 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/OpenGift"):InvokeServer(unpack(args))
-                                break
                                 giftOpened = true
+                                break
                             end
                         end
                     end
