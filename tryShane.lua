@@ -492,8 +492,10 @@ if not _G.ScriptRunning then
         print(requiredRarity)
         
         local currentPet = equipManagerPets[1]
-		print(currentPet)
         local shouldEquipNewPet = not currentPet or not petToEquip or (currentPet.unique ~= petToEquip) or (requiredRarity ~= CheckRarity(currentPet.unique))
+		if currentPet then
+			print(currentPet.unique, CheckRarity(currentPet.unique), requiredRarity)
+		end
         
 		
         if shouldEquipNewPet then
