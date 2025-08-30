@@ -985,8 +985,6 @@ if not _G.ScriptRunning then
                     equipPet()
 
 
-
-					local fsys = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
 					local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
 					local Data = ClientData.get_data()[game.Players.LocalPlayer.Name].quest_manager.quests_cached
 
