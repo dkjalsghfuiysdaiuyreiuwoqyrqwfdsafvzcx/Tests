@@ -490,7 +490,7 @@ if not _G.ScriptRunning then
                     }
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/RerollQuest"):FireServer(unpack(args))
                 elseif string.find(y.entry_name, "hatch") then
-                    Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money     
+                    local Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money     
                     inventory = fsys.get("inventory")
                     inventoryPets = inventory and inventory.pets or {}
                     for _, pet in pairs(inventoryPets) do
@@ -501,7 +501,7 @@ if not _G.ScriptRunning then
                         end
                     end
 				elseif string.find(y.entry_name, "gift") then
-                    Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
+                    local Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
                     local AllData = ClientData.get_data()[playerName].inventory.gifts
                     local giftOpened = false
 
@@ -517,7 +517,7 @@ if not _G.ScriptRunning then
                     end
 
 
-                    if Cash > 70 and giftOpened == false then
+                    if Cash > 70 and not giftOpened then
                         local args = {
                             "gifts",
                             "smallgift",
