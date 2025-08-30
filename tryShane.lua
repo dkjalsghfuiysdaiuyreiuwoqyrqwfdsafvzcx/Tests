@@ -484,7 +484,30 @@ if not _G.ScriptRunning then
 				elseif string.find(y.entry_name, "common") then
 					requiredRarity = "Common"
 				elseif string.find(y.entry_name, "gift") then
-					-- buy gift, then open it
+					local args = {
+						"gifts",
+						"smallgift",
+						{
+							buy_count = 1
+						}
+					}
+					game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
+					
+					task.wait(1)
+					
+					local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
+					local playerName = game.Players.LocalPlayer.Name
+					local AllData = ClientData.get_data()[playerName].inventory.gifts
+					
+					for x, y in pairs(AllData) do
+						if y.kind == "smallgift" then
+							local args = {
+								x
+							}
+							game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/IndicateOpenGift"):FireServer(unpack(args))
+							break
+						end
+					end
 				end
 			end
 		end
