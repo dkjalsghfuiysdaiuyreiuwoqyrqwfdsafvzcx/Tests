@@ -1,4 +1,4 @@
--- Farm 8/30/25 10:43 PM
+-- Farm 8/30/25 11:08 PM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -451,7 +451,7 @@ if not _G.ScriptRunning then
 	end
     
     while true do
-        for i = 1, 20 then
+        for i = 1, 20 do
             local args = {
                 "house_pets_2025_pass_1",
                 i
