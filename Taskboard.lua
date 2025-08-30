@@ -1,4 +1,4 @@
--- Farm 8/30/25 11:08 PM
+-- Farm 8/30/25 11:13 PM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -450,15 +450,17 @@ if not _G.ScriptRunning then
 		return Rarity
 	end
     
-    while true do
-        for i = 1, 20 do
-            local args = {
-                "house_pets_2025_pass_1",
-                i
-            }
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("BattlePassAPI/ClaimReward"):InvokeServer(unpack(args))
+    task.spawn(function()
+        while true do
+            for i = 1, 20 do
+                local args = {
+                    "house_pets_2025_pass_1",
+                    i
+                }
+                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("BattlePassAPI/ClaimReward"):InvokeServer(unpack(args))
+            end
         end
-    end
+    end)
 
     local function equipPet()
         -- Attempt to require ClientData module
