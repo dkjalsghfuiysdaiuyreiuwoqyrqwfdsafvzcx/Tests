@@ -992,16 +992,19 @@ if not _G.ScriptRunning then
 
 					for x,y in pairs(Data) do
 						print("==========================================")
-						if(y.steps_completed == 1) then
-							local args = {
-								y.unique_id
-							}
-							game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/ClaimQuest"):InvokeServer(unpack(args))
-							task.wait(1)
-							print(y.entry_name, "is finished")
-							Data = ClientData.get_data()[game.Players.LocalPlayer.Name].quest_manager.quests_cached
+						for i,j in pairs(y) do
+							if(y.steps_completed == 1) then
+								local args = {
+									y.unique_id
+								}
+								game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/ClaimQuest"):InvokeServer(unpack(args))
+								task.wait(1)
+								print(y.entry_name, "is finished")
+								Data = ClientData.get_data()[game.Players.LocalPlayer.Name].quest_manager.quests_cached
+							end
 						end
 					end
+
 
 
 
