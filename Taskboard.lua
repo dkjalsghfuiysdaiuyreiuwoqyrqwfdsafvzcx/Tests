@@ -1,4 +1,4 @@
--- Farm 8/30/25 10:11 PM
+-- Farm 8/30/25 10:16 PM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -449,6 +449,17 @@ if not _G.ScriptRunning then
 		Rarity = string.gsub(Rarity, "^.", string.upper)
 		return Rarity
 	end
+    
+    while true do
+        for i = 1, 20 then
+            local args = {
+                "house_pets_2025_pass_1",
+                i
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("BattlePassAPI/ClaimReward"):InvokeServer(unpack(args))
+        end
+    end
+
     local function equipPet()
         -- Attempt to require ClientData module
         
