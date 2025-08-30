@@ -490,13 +490,34 @@ if not _G.ScriptRunning then
                     }
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/RerollQuest"):FireServer(unpack(args))
                 elseif string.find(y.entry_name, "hatch") then
-                    Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
-                    if Cash > 750 then
-                        requiredRarity = "Egg"
+                    Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money     
+                    inventory = fsys.get("inventory")
+                    inventoryPets = inventory and inventory.pets or {}
+                    for _, pet in pairs(inventoryPets) do
+                        if pet.kind ~= "practice_dog" then
+                            if pet.kind == "aztec_egg_2025_aztec_egg" and Cash > 750 then
+                                requiredRarity = "Egg"
+                            end
+                        end
                     end
 				elseif string.find(y.entry_name, "gift") then
                     Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
-                    if Cash > 70 then
+                    local AllData = ClientData.get_data()[playerName].inventory.gifts
+                    local giftOpened = false
+
+                    for x, y in pairs(AllData) do
+                        if y.kind == "smallgift" then
+                            local args = {
+                                x
+                            }
+                            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/OpenGift"):InvokeServer(unpack(args))
+                            giftOpened = true
+                            break
+                        end
+                    end
+
+
+                    if Cash > 70 and giftOpened == false then
                         local args = {
                             "gifts",
                             "smallgift",
@@ -519,6 +540,7 @@ if not _G.ScriptRunning then
                                 }
                                 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/OpenGift"):InvokeServer(unpack(args))
                                 break
+                                giftOpened = true
                             end
                         end
                     end
