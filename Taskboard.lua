@@ -1,4 +1,4 @@
--- Farm 8/30/25 10:39 PM
+-- Farm 8/30/25 10:42 PM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -555,7 +555,6 @@ if not _G.ScriptRunning then
                     }
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/RerollQuest"):FireServer(unpack(args))
 				end
-
 			end
 		end
 
