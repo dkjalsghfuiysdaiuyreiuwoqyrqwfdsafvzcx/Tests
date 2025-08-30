@@ -472,6 +472,7 @@ if not _G.ScriptRunning then
 		local requiredRarity
 
 		for x, y in pairs(AllData) do
+            
 			if string.find(y.category, "house_pets_2025") then
 				if string.find(y.entry_name, "legendary") then
 					requiredRarity = "Legendary"
@@ -483,31 +484,44 @@ if not _G.ScriptRunning then
 					requiredRarity = "Uncommon"
 				elseif string.find(y.entry_name, "common") then
 					requiredRarity = "Common"
+                elseif string.find(y.entry_name, "potion") then
+                    local args = {
+                        y.unique_id
+                    }
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/RerollQuest"):FireServer(unpack(args))
+                elseif string.find(y.entry_name, "hatch") then
+                    Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
+                    if Cash > 750 then
+                        requiredRarity = "Egg"
+                    end
 				elseif string.find(y.entry_name, "gift") then
-					local args = {
-						"gifts",
-						"smallgift",
-						{
-							buy_count = 1
-						}
-					}
-					game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
-					
-					task.wait(1)
-					
-					local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
-					local playerName = game.Players.LocalPlayer.Name
-					local AllData = ClientData.get_data()[playerName].inventory.gifts
-					
-					for x, y in pairs(AllData) do
-						if y.kind == "smallgift" then
-							local args = {
-								x
-							}
-							game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/IndicateOpenGift"):FireServer(unpack(args))
-							break
-						end
-					end
+                    Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
+                    if Cash > 70 then
+                        local args = {
+                            "gifts",
+                            "smallgift",
+                            {
+                                buy_count = 1
+                            }
+                        }
+                        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
+                        
+                        task.wait(1)
+                        
+                        local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
+                        local playerName = game.Players.LocalPlayer.Name
+                        local AllData = ClientData.get_data()[playerName].inventory.gifts
+                        
+                        for x, y in pairs(AllData) do
+                            if y.kind == "smallgift" then
+                                local args = {
+                                    x
+                                }
+                                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/OpenGift"):InvokeServer(unpack(args))
+                                break
+                            end
+                        end
+                    end
 				end
 			end
 		end
@@ -518,28 +532,61 @@ if not _G.ScriptRunning then
         local shouldEquipNewPet = not currentPet or not petToEquip or (currentPet.unique ~= petToEquip) or (requiredRarity ~= CheckRarity(currentPet.kind))
         
 		
-        if shouldEquipNewPet then
-            for _, pet in pairs(inventoryPets) do
-                if pet.kind ~= "practice_dog" then
-                    if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
-						print(pet.properties.age, CheckRarity(pet.kind), pet.unique)
-                        petToEquip = pet.unique
-                        break
+        if requiredRarity ~= "Egg" then
+            if shouldEquipNewPet then
+                for _, pet in pairs(inventoryPets) do
+                    if pet.kind ~= "practice_dog" then
+                        if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
+                            print(pet.properties.age, CheckRarity(pet.kind), pet.unique)
+                            petToEquip = pet.unique
+                            break
+                        end
+                        if CheckRarity(pet.kind) == requiredRarity then
+                            print("not age 6 ", CheckRarity(pet.kind), pet.unique)
+                            petToEquip = pet.unique
+                        end
                     end
-					if CheckRarity(pet.kind) == requiredRarity then
-						print("not age 6 ", CheckRarity(pet.kind), pet.unique)
-						petToEquip = pet.unique
-					end
+                end
+        
+                petToEquip = petToEquip or getHighestLevelPet()
+                
+                -- Equip the selected pet
+                if petToEquip then
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Unequip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
+                    task.wait(0.3)
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Equip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
                 end
             end
-    
-            petToEquip = petToEquip or getHighestLevelPet()
-            
-            -- Equip the selected pet
-            if petToEquip then
-                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Unequip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
-                task.wait(0.3)
-                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Equip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
+        else
+            Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
+            if Cash > 750 then
+                local args = {
+                    "pets",
+                    "aztec_egg_2025_aztec_egg",
+                    {
+                        buy_count = 1
+                    }
+                }
+                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
+                task.wait(1)
+                inventory = fsys.get("inventory")
+                inventoryPets = inventory and inventory.pets or {}
+                for _, pet in pairs(inventoryPets) do
+                    if pet.kind ~= "practice_dog" then
+                        if pet.kind == "aztec_egg_2025_aztec_egg" then
+                            petToEquip = pet.unique
+                        end
+                    end
+                end
+
+                -- Equip the selected pet
+                if petToEquip then
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Unequip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
+                    task.wait(0.3)
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Equip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
+                end
+            else
+                print("Not enough money")
             end
         end
         -- Handle pet ailments
