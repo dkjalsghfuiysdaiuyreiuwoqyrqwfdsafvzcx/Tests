@@ -1,4 +1,4 @@
--- Farm 8/30/25 9:30 PM
+-- Farm 8/30/25 9:56 PM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -489,17 +489,8 @@ if not _G.ScriptRunning then
                         y.unique_id
                     }
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/RerollQuest"):FireServer(unpack(args))
-                elseif string.find(y.entry_name, "hatch") then
-                    local Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money     
-                    inventory = fsys.get("inventory")
-                    inventoryPets = inventory and inventory.pets or {}
-                    for _, pet in pairs(inventoryPets) do
-                        if pet.kind ~= "practice_dog" then
-                            if pet.kind == "aztec_egg_2025_aztec_egg" and Cash > 750 then
-                                requiredRarity = "Egg"
-                            end
-                        end
-                    end
+                elseif string.find(y.entry_name, "hatch") then   
+                    requiredRarity = "Egg"
 				elseif string.find(y.entry_name, "gift") then
                     local Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
                     local AllData = ClientData.get_data()[playerName].inventory.gifts
@@ -512,7 +503,6 @@ if not _G.ScriptRunning then
                             }
                             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/OpenGift"):InvokeServer(unpack(args))
                             giftOpened = true
-                            break
                         end
                     end
 
@@ -582,14 +572,7 @@ if not _G.ScriptRunning then
         else
             Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
             if Cash > 750 then
-                local args = {
-                    "pets",
-                    "aztec_egg_2025_aztec_egg",
-                    {
-                        buy_count = 1
-                    }
-                }
-                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
+                
                 task.wait(1)
                 inventory = fsys.get("inventory")
                 inventoryPets = inventory and inventory.pets or {}
@@ -603,6 +586,28 @@ if not _G.ScriptRunning then
 
                 -- Equip the selected pet
                 if petToEquip then
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Unequip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
+                    task.wait(0.3)
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Equip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
+                else
+                    local args = {
+                        "pets",
+                        "aztec_egg_2025_aztec_egg",
+                        {
+                            buy_count = 1
+                        }
+                    }
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
+                    task.wait(1)
+                    inventory = fsys.get("inventory")
+                    inventoryPets = inventory and inventory.pets or {}
+                    for _, pet in pairs(inventoryPets) do
+                        if pet.kind ~= "practice_dog" then
+                            if pet.kind == "aztec_egg_2025_aztec_egg" then
+                                petToEquip = pet.unique
+                            end
+                        end
+                    end
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Unequip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
                     task.wait(0.3)
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Equip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
