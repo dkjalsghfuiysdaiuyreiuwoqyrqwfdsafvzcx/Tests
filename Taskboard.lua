@@ -1,4 +1,4 @@
--- Farm 8/30/25 9:58 PM
+-- Farm 8/30/25 10:11 PM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -489,8 +489,17 @@ if not _G.ScriptRunning then
                         y.unique_id
                     }
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/RerollQuest"):FireServer(unpack(args))
-                elseif string.find(y.entry_name, "hatch") then   
-                    requiredRarity = "Egg"
+                elseif string.find(y.entry_name, "hatch") then
+                    Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
+                    inventory = fsys.get("inventory")
+                    inventoryPets = inventory and inventory.pets or {}
+                    for _, pet in pairs(inventoryPets) do
+                        if pet.kind ~= "practice_dog" then
+                            if pet.kind == "aztec_egg_2025_aztec_egg" or Cash > 750 then
+                                requiredRarity = "Egg"
+                            end
+                        end
+                    end
 				elseif string.find(y.entry_name, "gift") then
                     local Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
                     local AllData = ClientData.get_data()[playerName].inventory.gifts
@@ -547,7 +556,7 @@ if not _G.ScriptRunning then
         if requiredRarity ~= "Egg" then
             if shouldEquipNewPet then
                 for _, pet in pairs(inventoryPets) do
-                    if pet.kind ~= "practice_dog" then
+                    if pet.kind ~= "practice_dog" and not suffix:match("_egg$") then
                         if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
                             print(pet.properties.age, CheckRarity(pet.kind), pet.unique)
                             petToEquip = pet.unique
