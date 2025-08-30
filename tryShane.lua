@@ -985,26 +985,17 @@ if not _G.ScriptRunning then
                     equipPet()
 
 
+
 					local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
 					local Data = ClientData.get_data()[game.Players.LocalPlayer.Name].quest_manager.quests_cached
 
 					for x,y in pairs(Data) do
-						print("==========================================")
-						for i,j in pairs(y) do
-							if(y.steps_completed == 1) then
-								local args = {
-									y.unique_id
-								}
-								game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/ClaimQuest"):InvokeServer(unpack(args))
-								task.wait(1)
-								print(y.entry_name, "is finished")
-								Data = ClientData.get_data()[game.Players.LocalPlayer.Name].quest_manager.quests_cached
-							end
-						end
+						local args = {
+							y.unique_id
+						}
+						game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/ClaimQuest"):InvokeServer(unpack(args))
+						task.wait(1)
 					end
-
-
-
 
                     if table.find(PetAilmentsArray, "hungry") or table.find(PetAilmentsArray, "thirsty") then
                         EatDrinkSafeCall(true)
