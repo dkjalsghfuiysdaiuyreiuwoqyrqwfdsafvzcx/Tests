@@ -1,4 +1,4 @@
--- Farm 8/30/25 10:16 PM
+-- Farm 8/30/25 10:39 PM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -495,11 +495,6 @@ if not _G.ScriptRunning then
 					requiredRarity = "Uncommon"
 				elseif string.find(y.entry_name, "common") then
 					requiredRarity = "Common"
-                elseif string.find(y.entry_name, "potion") then
-                    local args = {
-                        y.unique_id
-                    }
-                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/RerollQuest"):FireServer(unpack(args))
                 elseif string.find(y.entry_name, "hatch") then
                     Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
                     inventory = fsys.get("inventory")
@@ -554,7 +549,13 @@ if not _G.ScriptRunning then
                             end
                         end
                     end
+                elseif string.find(y.entry_name, "potion") then
+                    local args = {
+                        y.unique_id
+                    }
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/RerollQuest"):FireServer(unpack(args))
 				end
+
 			end
 		end
 
