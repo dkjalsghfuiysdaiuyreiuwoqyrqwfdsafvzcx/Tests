@@ -492,22 +492,19 @@ if not _G.ScriptRunning then
         print(requiredRarity)
         
         local currentPet = equipManagerPets[1]
-        local shouldEquipNewPet = not currentPet or not petToEquip or (currentPet.unique ~= petToEquip) or (requiredRarity ~= CheckRarity(currentPet.unique))
-		if currentPet then
-			print(currentPet.unique, CheckRarity(currentPet.unique), requiredRarity)
-		end
+        local shouldEquipNewPet = not currentPet or not petToEquip or (currentPet.unique ~= petToEquip) or (requiredRarity ~= CheckRarity(currentPet.kind))
         
 		
         if shouldEquipNewPet then
             for _, pet in pairs(inventoryPets) do
                 if pet.kind ~= "practice_dog" then
-                    if pet.properties.age == 6 and CheckRarity(pet.unique) == requiredRarity then
-						print(pet.properties.age, CheckRarity(pet.unique), pet.unique)
+                    if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
+						print(pet.properties.age, CheckRarity(pet.kind), pet.unique)
                         petToEquip = pet.unique
                         break
                     end
-					if CheckRarity(pet.unique) == requiredRarity then
-						print("not age 6 ", CheckRarity(pet.unique), pet.unique)
+					if CheckRarity(pet.kind) == requiredRarity then
+						print("not age 6 ", CheckRarity(pet.kind), pet.unique)
 						petToEquip = pet.unique
 					end
                 end
