@@ -569,7 +569,7 @@ if not _G.ScriptRunning then
         if requiredRarity ~= "Egg" then
             if shouldEquipNewPet then
                 for _, pet in pairs(inventoryPets) do
-                    if pet.kind ~= "practice_dog" and not suffix:match("_egg$") then
+                    if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
                         if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
                             print(pet.properties.age, CheckRarity(pet.kind), pet.unique)
                             petToEquip = pet.unique
