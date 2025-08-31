@@ -1,4 +1,4 @@
--- Farm 8/30/25 11:45 PM
+-- Farm 8/31/25 10:42 AM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -488,15 +488,73 @@ if not _G.ScriptRunning then
             
 			if string.find(y.category, "house_pets_2025") then
 				if string.find(y.entry_name, "legendary") then
-					requiredRarity = "Legendary"
+                    for _, pet in pairs(inventoryPets) do
+                        if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
+                            if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
+                                print("Legendary")
+                                requiredRarity = "Legendary"
+                            end
+                            if CheckRarity(pet.kind) == requiredRarity then
+                                print("not age 6 ", CheckRarity(pet.kind), pet.unique)
+                                requiredRarity = "Legendary"
+                            end
+                        end
+                    end
+					
 				elseif string.find(y.entry_name, "ultra_rare") then
-					requiredRarity = "Ultra_rare"
+                    for _, pet in pairs(inventoryPets) do
+                        if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
+                            if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
+                                print("Ultra_rare")
+                                requiredRarity = "Ultra_rare"
+                            end
+                            if CheckRarity(pet.kind) == requiredRarity then
+                                print("not age 6 ", CheckRarity(pet.kind), pet.unique)
+                                requiredRarity = "Ultra_rare"
+                            end
+                        end
+                    end
+					
 				elseif string.find(y.entry_name, "rare") then
-					requiredRarity = "Rare"
+                    for _, pet in pairs(inventoryPets) do
+                        if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
+                            if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
+                                print("Rare")
+                                requiredRarity = "Rare"
+                            end
+                            if CheckRarity(pet.kind) == requiredRarity then
+                                print("not age 6 ", CheckRarity(pet.kind), pet.unique)
+                                requiredRarity = "Rare"
+                            end
+                        end
+                    end
+                    
 				elseif string.find(y.entry_name, "uncommon") then
-					requiredRarity = "Uncommon"
+                    for _, pet in pairs(inventoryPets) do
+                        if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
+                            if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
+                                print("Uncommon")
+                                requiredRarity = "Uncommon"
+                            end
+                            if CheckRarity(pet.kind) == requiredRarity then
+                                print("not age 6 ", CheckRarity(pet.kind), pet.unique)
+                                requiredRarity = "Uncommon"
+                            end
+                        end
+                    end
 				elseif string.find(y.entry_name, "common") then
-					requiredRarity = "Common"
+                    for _, pet in pairs(inventoryPets) do
+                        if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
+                            if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
+                                print("Common")
+                                requiredRarity = "Common"
+                            end
+                            if CheckRarity(pet.kind) == requiredRarity then
+                                print("not age 6 ", CheckRarity(pet.kind), pet.unique)
+                                requiredRarity = "Common"
+                            end
+                        end
+                    end
                 elseif string.find(y.entry_name, "hatch") then
                     Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
                     inventory = fsys.get("inventory")
@@ -557,6 +615,21 @@ if not _G.ScriptRunning then
                     }
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/RerollQuest"):FireServer(unpack(args))
 				end
+
+
+                if string.find(y.entry_name, "gumball") then
+                    Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
+                    if Cash > 750 then
+                        local args = {
+                            "pets",
+                            "aztec_egg_2025_aztec_egg",
+                            {
+                                buy_count = 1
+                            }
+                        }
+                        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
+                    end
+                end
 			end
 		end
 
@@ -593,6 +666,7 @@ if not _G.ScriptRunning then
             end
         else
             Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
+            local petToEquip = false
             if Cash > 750 then
                 
                 task.wait(1)
