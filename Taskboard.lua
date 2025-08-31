@@ -1,4 +1,4 @@
--- Farm 8/31/25 11:14 AM
+-- Farm 8/31/25 11:20 AM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -471,25 +471,35 @@ if not _G.ScriptRunning then
     local inventoryPets = inventory and inventory.pets or {}
     for _, pet in pairs(inventoryPets) do
         if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
-            if pet.properties.age == 6 and CheckRarity(pet.kind) == "Legendary" then
-                print("Have Legendary")
-                haveLegendary = true
+            if not haveLegendary then
+                if pet.properties.age == 6 and CheckRarity(pet.kind) == "Legendary" then
+                    print("Have Legendary")
+                    haveLegendary = true
+                end
             end
-            if pet.properties.age == 6 and CheckRarity(pet.kind) == "Ultra_rare" then
-                print("Have Ultra_rare")
-                haveUltra_rare = true
+            if not haveUltra_rare then
+                if pet.properties.age == 6 and CheckRarity(pet.kind) == "Ultra_rare" then
+                    print("Have Ultra_rare")
+                    haveUltra_rare = true
+                end
             end
-            if pet.properties.age == 6 and CheckRarity(pet.kind) == "Rare" then
-                print("Have Rare")
-                haveRare = true
+            if not haveRare then
+                if pet.properties.age == 6 and CheckRarity(pet.kind) == "Rare" then
+                    print("Have Rare")
+                    haveRare = true
+                end
             end
-            if pet.properties.age == 6 and CheckRarity(pet.kind) == "Uncommon" then
-                print("Have Uncommon")
-                haveUncommon = true
+            if not haveUncommon then
+                if pet.properties.age == 6 and CheckRarity(pet.kind) == "Uncommon" then
+                    print("Have Uncommon")
+                    haveUncommon = true
+                end
             end
-            if pet.properties.age == 6 and CheckRarity(pet.kind) == "Common" then
-                print("Have Common")
-                haveCommon = true
+            if not haveCommon then
+                if pet.properties.age == 6 and CheckRarity(pet.kind) == "Common" then
+                    print("Have Common")
+                    haveCommon = true
+                end
             end
         end
     end
