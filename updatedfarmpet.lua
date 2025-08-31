@@ -703,7 +703,7 @@ if not _G.ScriptRunning then
             end
         else
             Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
-            local petToEquip = false
+            local petToEquip = nil
             if Cash > 750 then
                 
                 task.wait(1)
