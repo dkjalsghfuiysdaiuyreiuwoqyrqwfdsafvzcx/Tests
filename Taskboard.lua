@@ -1,4 +1,4 @@
--- Farm 8/31/25 10:42 AM
+-- Farm 8/31/25 10:54 AM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -490,7 +490,7 @@ if not _G.ScriptRunning then
 				if string.find(y.entry_name, "legendary") then
                     for _, pet in pairs(inventoryPets) do
                         if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
-                            if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
+                            if pet.properties.age == 6 and CheckRarity(pet.kind) == "Legendary" then
                                 print("Legendary")
                                 requiredRarity = "Legendary"
                             end
@@ -504,7 +504,7 @@ if not _G.ScriptRunning then
 				elseif string.find(y.entry_name, "ultra_rare") then
                     for _, pet in pairs(inventoryPets) do
                         if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
-                            if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
+                            if pet.properties.age == 6 and CheckRarity(pet.kind) == "Ultra_rare" then
                                 print("Ultra_rare")
                                 requiredRarity = "Ultra_rare"
                             end
@@ -518,7 +518,7 @@ if not _G.ScriptRunning then
 				elseif string.find(y.entry_name, "rare") then
                     for _, pet in pairs(inventoryPets) do
                         if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
-                            if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
+                            if pet.properties.age == 6 and CheckRarity(pet.kind) == "Rare" then
                                 print("Rare")
                                 requiredRarity = "Rare"
                             end
@@ -532,7 +532,7 @@ if not _G.ScriptRunning then
 				elseif string.find(y.entry_name, "uncommon") then
                     for _, pet in pairs(inventoryPets) do
                         if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
-                            if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
+                            if pet.properties.age == 6 and CheckRarity(pet.kind) == "Uncommon" then
                                 print("Uncommon")
                                 requiredRarity = "Uncommon"
                             end
@@ -545,7 +545,7 @@ if not _G.ScriptRunning then
 				elseif string.find(y.entry_name, "common") then
                     for _, pet in pairs(inventoryPets) do
                         if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
-                            if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
+                            if pet.properties.age == 6 and CheckRarity(pet.kind) == "Common" then
                                 print("Common")
                                 requiredRarity = "Common"
                             end
