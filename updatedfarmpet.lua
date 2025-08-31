@@ -703,16 +703,18 @@ if not _G.ScriptRunning then
             end
         else
             Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
-            local petToEquip = nil
             if Cash > 750 then
-                
-                task.wait(1)
+                petToEquip = nil
                 inventory = fsys.get("inventory")
                 inventoryPets = inventory and inventory.pets or {}
+                task.wait(1)
                 for _, pet in pairs(inventoryPets) do
                     if pet.kind ~= "practice_dog" then
+                        print("not aztec egg: ", pet.kind)
                         if pet.kind == "aztec_egg_2025_aztec_egg" then
                             petToEquip = pet.unique
+                            print("FOUND aztec egg!!!!!!!!!!!!!!!!!: ", pet.kind)
+                            break
                         end
                     end
                 end
