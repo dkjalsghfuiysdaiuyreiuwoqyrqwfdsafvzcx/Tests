@@ -1,4 +1,4 @@
--- Farm 8/31/25 12:24 AM
+-- Farm 8/31/25 12:37 AM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -545,7 +545,7 @@ if not _G.ScriptRunning then
 		for x, y in pairs(AllData) do
             
 			if string.find(y.category, "house_pets_2025") then
-				if string.find(y.entry_name, "legendary") then
+				if y.entry_name:match("ailments_legendary$") then
                     if haveLegendary then
                         requiredRarity = "Legendary"
                         print("Legendary Home Task")
@@ -554,7 +554,7 @@ if not _G.ScriptRunning then
                     end
                 end
 
-				if string.find(y.entry_name, "ultra_rare") then
+				if y.entry_name:match("ailments_ultra_rare$") then
                     if haveUltra_rare then
                         requiredRarity = "Ultra_rare"
                         print("Ultra rare Home Task")
@@ -563,7 +563,7 @@ if not _G.ScriptRunning then
                     end
                 end
 
-				if string.find(y.entry_name, "rare") then
+				if y.entry_name:match("ailments_rare$") then
                     if haveRare then
                         requiredRarity = "Rare"
                         print("Rare Home Task")
@@ -572,7 +572,7 @@ if not _G.ScriptRunning then
                     end
                 end
 
-				if string.find(y.entry_name, "uncommon") then
+				if y.entry_name:match("ailments_uncommon$") then
                     if haveUncommon then
                         requiredRarity = "Uncommon"
                         print("Uncommon Home Task")
@@ -581,7 +581,7 @@ if not _G.ScriptRunning then
                     end
                 end
 
-				if string.find(y.entry_name, "common") then
+				if y.entry_name:match("ailments_common$") then
                     if haveCommon then
                         requiredRarity = "Common"
                         print("Common Home Task")
