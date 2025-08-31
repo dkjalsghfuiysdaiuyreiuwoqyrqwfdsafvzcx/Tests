@@ -1,4 +1,4 @@
--- Farm 8/31/25 11:51 AM
+-- Farm 8/31/25 11:52 AM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
