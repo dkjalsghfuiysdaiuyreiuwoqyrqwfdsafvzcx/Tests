@@ -1,4 +1,4 @@
--- Farm 8/31/25 11:48 AM
+-- Farm 8/31/25 11:51 AM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -512,6 +512,7 @@ if not _G.ScriptRunning then
 
             end
         end
+        print("done checking")
     end)
     
 
