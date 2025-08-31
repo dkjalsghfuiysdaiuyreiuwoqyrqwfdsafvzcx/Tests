@@ -1,4 +1,4 @@
--- Farm 8/31/25 12:07 AM
+-- Farm 8/31/25 12:24 AM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -549,6 +549,8 @@ if not _G.ScriptRunning then
                     if haveLegendary then
                         requiredRarity = "Legendary"
                         print("Legendary Home Task")
+                    else
+                        print("No Legendary Home Task")
                     end
                 end
 
@@ -556,6 +558,8 @@ if not _G.ScriptRunning then
                     if haveUltra_rare then
                         requiredRarity = "Ultra_rare"
                         print("Ultra rare Home Task")
+                    else
+                        print("No Ultra rare Home Task")
                     end
                 end
 
@@ -563,6 +567,8 @@ if not _G.ScriptRunning then
                     if haveRare then
                         requiredRarity = "Rare"
                         print("Rare Home Task")
+                    else
+                        print("No Rare Home Task")
                     end
                 end
 
@@ -570,6 +576,8 @@ if not _G.ScriptRunning then
                     if haveUncommon then
                         requiredRarity = "Uncommon"
                         print("Uncommon Home Task")
+                    else
+                        print("No Uncommon Home Task")
                     end
                 end
 
@@ -577,6 +585,8 @@ if not _G.ScriptRunning then
                     if haveCommon then
                         requiredRarity = "Common"
                         print("Common Home Task")
+                    else
+                        print("No Common Home Task")
                     end
                 end
                 if string.find(y.entry_name, "hatch") then
