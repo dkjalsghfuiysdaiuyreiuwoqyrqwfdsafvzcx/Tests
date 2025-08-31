@@ -1,4 +1,4 @@
--- Farm 8/31/25 12:37 AM
+-- Farm 8/31/25 4:47 PM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -655,17 +655,10 @@ if not _G.ScriptRunning then
 
 
                 if string.find(y.entry_name, "gumball") then
-                    Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
-                    if Cash > 750 then
-                        local args = {
-                            "pets",
-                            "aztec_egg_2025_aztec_egg",
-                            {
-                                buy_count = 1
-                            }
-                        }
-                        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
-                    end
+                    local args = {
+                        y.unique_id
+                    }
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/RerollQuest"):FireServer(unpack(args))
                 end
 			end
 		end
@@ -703,12 +696,11 @@ if not _G.ScriptRunning then
             end
         else
             Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
-            local petToEquip = false
             if Cash > 750 then
-                
-                task.wait(1)
+                petToEquip = nil
                 inventory = fsys.get("inventory")
                 inventoryPets = inventory and inventory.pets or {}
+                task.wait(1)
                 for _, pet in pairs(inventoryPets) do
                     if pet.kind ~= "practice_dog" then
                         if pet.kind == "aztec_egg_2025_aztec_egg" then
