@@ -1,4 +1,4 @@
--- Farm 8/31/25 11:52 AM
+-- Farm 8/31/25 11:59 AM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -477,39 +477,43 @@ if not _G.ScriptRunning then
             task.wait(0.1)
             if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
                 if not haveLegendary then
-                    if pet.properties.age == 6 and CheckRarity(pet.kind) == "Legendary" then
+                    if CheckRarity(pet.kind) == "Legendary" then
                         print("Have Legendary")
                         haveLegendary = true
                     end
                 end
                 if not haveUltra_rare then
-                    if pet.properties.age == 6 and CheckRarity(pet.kind) == "Ultra_rare" then
+                    if CheckRarity(pet.kind) == "Ultra_rare" then
                         print("Have Ultra_rare")
                         haveUltra_rare = true
                     end
                 end
 
                 if not haveRare then
-                    if pet.properties.age == 6 and CheckRarity(pet.kind) == "Rare" then
+                    if CheckRarity(pet.kind) == "Rare" then
                         print("Have Rare")
                         haveRare = true
                     end
                 end
 
                 if not haveUncommon then
-                    if pet.properties.age == 6 and CheckRarity(pet.kind) == "Uncommon" then
+                    if CheckRarity(pet.kind) == "Uncommon" then
                         print("Have Uncommon")
                         haveUncommon = true
                     end
                 end
 
                 if not haveCommon then
-                    if pet.properties.age == 6 and CheckRarity(pet.kind) == "Common" then
+                    if CheckRarity(pet.kind) == "Common" then
                         print("Have Common")
                         haveCommon = true
                     end
                 end
 
+                if haveLegendary and haveUltra_rare and haveRare and haveUncommon and haveCommon then
+                    print("Done Checking")
+                    break
+                end
             end
         end
         print("done checking")
