@@ -1,4 +1,4 @@
--- Farm 8/31/25 11:20 AM
+-- Farm 8/31/25 11:35 AM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -469,6 +469,7 @@ if not _G.ScriptRunning then
     local haveCommon = false
     local inventory = fsys.get("inventory")
     local inventoryPets = inventory and inventory.pets or {}
+    task.wait(5)
     for _, pet in pairs(inventoryPets) do
         if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
             if not haveLegendary then
@@ -477,30 +478,35 @@ if not _G.ScriptRunning then
                     haveLegendary = true
                 end
             end
+            task.wait(1)
             if not haveUltra_rare then
                 if pet.properties.age == 6 and CheckRarity(pet.kind) == "Ultra_rare" then
                     print("Have Ultra_rare")
                     haveUltra_rare = true
                 end
             end
+            task.wait(1)
             if not haveRare then
                 if pet.properties.age == 6 and CheckRarity(pet.kind) == "Rare" then
                     print("Have Rare")
                     haveRare = true
                 end
             end
+            task.wait(1)
             if not haveUncommon then
                 if pet.properties.age == 6 and CheckRarity(pet.kind) == "Uncommon" then
                     print("Have Uncommon")
                     haveUncommon = true
                 end
             end
+            task.wait(1)
             if not haveCommon then
                 if pet.properties.age == 6 and CheckRarity(pet.kind) == "Common" then
                     print("Have Common")
                     haveCommon = true
                 end
             end
+            task.wait(1)
         end
     end
     
