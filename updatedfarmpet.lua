@@ -1,4 +1,4 @@
--- Farm 8/30/25 11:13 PM
+-- Farm 8/31/25 12:37 AM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -462,6 +462,64 @@ if not _G.ScriptRunning then
         end
     end)
 
+    local haveLegendary = false
+    local haveUltra_rare = false
+    local haveRare = false
+    local haveUncommon = false
+    local haveCommon = false
+
+    task.spawn(function()
+        local inventory = fsys.get("inventory")
+        local inventoryPets = inventory and inventory.pets or {}
+        task.wait(2)
+        print("checking rarities")
+        for _, pet in pairs(inventoryPets) do
+            task.wait(0.1)
+            if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
+                if not haveLegendary then
+                    if CheckRarity(pet.kind) == "Legendary" then
+                        print("Have Legendary")
+                        haveLegendary = true
+                    end
+                end
+                if not haveUltra_rare then
+                    if CheckRarity(pet.kind) == "Ultra_rare" then
+                        print("Have Ultra_rare")
+                        haveUltra_rare = true
+                    end
+                end
+
+                if not haveRare then
+                    if CheckRarity(pet.kind) == "Rare" then
+                        print("Have Rare")
+                        haveRare = true
+                    end
+                end
+
+                if not haveUncommon then
+                    if CheckRarity(pet.kind) == "Uncommon" then
+                        print("Have Uncommon")
+                        haveUncommon = true
+                    end
+                end
+
+                if not haveCommon then
+                    if CheckRarity(pet.kind) == "Common" then
+                        print("Have Common")
+                        haveCommon = true
+                    end
+                end
+
+                if haveLegendary and haveUltra_rare and haveRare and haveUncommon and haveCommon then
+                    print("Done Checking")
+                    break
+                end
+            end
+        end
+        print("done checking")
+    end)
+    
+
     local function equipPet()
         -- Attempt to require ClientData module
         
@@ -487,17 +545,51 @@ if not _G.ScriptRunning then
 		for x, y in pairs(AllData) do
             
 			if string.find(y.category, "house_pets_2025") then
-				if string.find(y.entry_name, "legendary") then
-					requiredRarity = "Legendary"
-				elseif string.find(y.entry_name, "ultra_rare") then
-					requiredRarity = "Ultra_rare"
-				elseif string.find(y.entry_name, "rare") then
-					requiredRarity = "Rare"
-				elseif string.find(y.entry_name, "uncommon") then
-					requiredRarity = "Uncommon"
-				elseif string.find(y.entry_name, "common") then
-					requiredRarity = "Common"
-                elseif string.find(y.entry_name, "hatch") then
+				if y.entry_name:match("ailments_legendary$") then
+                    if haveLegendary then
+                        requiredRarity = "Legendary"
+                        print("Legendary Home Task")
+                    else
+                        print("No Legendary Home Task")
+                    end
+                end
+
+				if y.entry_name:match("ailments_ultra_rare$") then
+                    if haveUltra_rare then
+                        requiredRarity = "Ultra_rare"
+                        print("Ultra rare Home Task")
+                    else
+                        print("No Ultra rare Home Task")
+                    end
+                end
+
+				if y.entry_name:match("ailments_rare$") then
+                    if haveRare then
+                        requiredRarity = "Rare"
+                        print("Rare Home Task")
+                    else
+                        print("No Rare Home Task")
+                    end
+                end
+
+				if y.entry_name:match("ailments_uncommon$") then
+                    if haveUncommon then
+                        requiredRarity = "Uncommon"
+                        print("Uncommon Home Task")
+                    else
+                        print("No Uncommon Home Task")
+                    end
+                end
+
+				if y.entry_name:match("ailments_common$") then
+                    if haveCommon then
+                        requiredRarity = "Common"
+                        print("Common Home Task")
+                    else
+                        print("No Common Home Task")
+                    end
+                end
+                if string.find(y.entry_name, "hatch") then
                     Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
                     inventory = fsys.get("inventory")
                     inventoryPets = inventory and inventory.pets or {}
@@ -508,7 +600,9 @@ if not _G.ScriptRunning then
                             end
                         end
                     end
-				elseif string.find(y.entry_name, "gift") then
+                end
+
+				if string.find(y.entry_name, "gift") then
                     local Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
                     local AllData = ClientData.get_data()[playerName].inventory.gifts
                     local giftOpened = false
@@ -551,12 +645,28 @@ if not _G.ScriptRunning then
                             end
                         end
                     end
-                elseif string.find(y.entry_name, "potion") then
+                end
+                if string.find(y.entry_name, "potion") then
                     local args = {
                         y.unique_id
                     }
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/RerollQuest"):FireServer(unpack(args))
 				end
+
+
+                if string.find(y.entry_name, "gumball") then
+                    Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
+                    if Cash > 750 then
+                        local args = {
+                            "pets",
+                            "aztec_egg_2025_aztec_egg",
+                            {
+                                buy_count = 1
+                            }
+                        }
+                        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
+                    end
+                end
 			end
 		end
 
@@ -593,6 +703,7 @@ if not _G.ScriptRunning then
             end
         else
             Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
+            local petToEquip = false
             if Cash > 750 then
                 
                 task.wait(1)
