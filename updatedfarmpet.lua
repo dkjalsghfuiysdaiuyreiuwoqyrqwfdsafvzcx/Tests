@@ -462,6 +462,7 @@ if not _G.ScriptRunning then
             end
         end
 		task.wait(1)
+		-- please work
 		local args = {
 			"house_pets_2025_pass_1"
 		}
