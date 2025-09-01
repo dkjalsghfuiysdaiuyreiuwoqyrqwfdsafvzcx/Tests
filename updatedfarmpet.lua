@@ -1,9 +1,7 @@
-
 -- Farm 8/31/25 12:37 AM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
-
 local TeleportService = game:GetService("TeleportService")
 local oldIndex
 local oldNamecall
@@ -28,7 +26,6 @@ oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
 end)
 
 print('Anti-Rejoin', 'Teleportation prevention is now active.')
-
 
 local router
 for i, v in next, getgc(true) do
@@ -79,7 +76,6 @@ if not _G.ScriptRunning then
     local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
     local Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
     
-
     local function FireSig(button)
         pcall(function()
             for _, connection in pairs(getconnections(button.MouseButton1Down)) do
@@ -119,36 +115,6 @@ if not _G.ScriptRunning then
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DailyLoginAPI/ClaimDailyReward"):InvokeServer()
     sound.FX:play("BambooButton")
     UI.set_app_visibility("DailyLoginApp", false)
-
-    -- local RunService = game:GetService("RunService")
-    -- local DoneAutoPlay = false
-    -- -- Connect to Heartbeat
-    -- RunService.Heartbeat:Connect(function()
-    --     if game:GetService("Players").LocalPlayer.PlayerGui.NewsApp.Enabled then
-    --         FireSig(game:GetService("Players").LocalPlayer.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Buttons.PlayButton)
-    --         task.wait(1)
-    --         if game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-    --             FireSig(game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby)
-    --             task.wait(1)
-    --         end
-            
-    --         if game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
-    --             game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible = false
-    --             task.wait(1)
-    --         end
-
-    --         if game:GetService("Players").LocalPlayer.PlayerGui.DailyLoginApp.Enabled then
-    --             task.wait(5)
-    --             FireSig(game:GetService("Players").LocalPlayer.PlayerGui.DailyLoginApp.Frame.Body.Buttons.ClaimButton)
-    --             task.wait(1)
-    --             FireSig(game:GetService("Players").LocalPlayer.PlayerGui.DailyLoginApp.Frame.Body.Buttons.ClaimButton)
-    --             task.wait(1)
-    --         end
-    --         local DoneAutoPlay = true
-    --     end
-
-    -- end)
-
 
     local NewAcc = false
     local HasTradeLic = false
