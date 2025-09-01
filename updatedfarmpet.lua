@@ -126,7 +126,6 @@ if not _G.ScriptRunning then
             end
         end
     end
-
     if Cash <= 10000 and not HasTradeLic then
         print("New account")
         print("Inside new account")
