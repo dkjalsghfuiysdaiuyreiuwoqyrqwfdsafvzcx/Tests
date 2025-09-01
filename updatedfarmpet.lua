@@ -461,6 +461,7 @@ if not _G.ScriptRunning then
                 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("BattlePassAPI/ClaimReward"):InvokeServer(unpack(args))
             end
         end
+		task.wait(1)
 		local args = {
 			"house_pets_2025_pass_1"
 		}
