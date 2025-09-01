@@ -654,19 +654,12 @@ if not _G.ScriptRunning then
 				end
 
 
-                -- if string.find(y.entry_name, "gumball") then
-                --     Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
-                --     if Cash > 750 then
-                --         local args = {
-                --             "pets",
-                --             "aztec_egg_2025_aztec_egg",
-                --             {
-                --                 buy_count = 1
-                --             }
-                --         }
-                --         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
-                --     end
-                -- end
+                if string.find(y.entry_name, "gumball") then
+                    local args = {
+                        y.unique_id
+                    }
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("QuestAPI/RerollQuest"):FireServer(unpack(args))
+                end
 			end
 		end
 
