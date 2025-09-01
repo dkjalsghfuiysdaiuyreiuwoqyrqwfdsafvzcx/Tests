@@ -461,6 +461,10 @@ if not _G.ScriptRunning then
                 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("BattlePassAPI/ClaimReward"):InvokeServer(unpack(args))
             end
         end
+		local args = {
+			"house_pets_2025_pass_1"
+		}
+		game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("BattlePassAPI/AttemptBattlePassReset"):InvokeServer(unpack(args))
     end)
 
     local haveLegendary = false
