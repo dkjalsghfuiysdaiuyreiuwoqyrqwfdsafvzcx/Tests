@@ -2431,3 +2431,5 @@ if not _G.ScriptRunning then
 else
     print("Script already running")
 end
+
+--not work
