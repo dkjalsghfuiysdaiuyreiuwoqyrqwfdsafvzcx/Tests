@@ -1,6 +1,6 @@
 
 -- TIG SEND
-getgenv().PlayerToTrade = "GHITTOYAH"
+getgenv().PlayerToTrade = "ghiaxis28"
 if not getgenv().AutoGet then
     getgenv().AutoGet = true
 
