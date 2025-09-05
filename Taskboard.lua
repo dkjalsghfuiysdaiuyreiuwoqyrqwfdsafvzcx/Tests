@@ -1,8 +1,7 @@
--- Farm 8/31/25 4:47 PM
+-- Farm 9/6/25 12:37 AM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
-
 local TeleportService = game:GetService("TeleportService")
 local oldIndex
 local oldNamecall
@@ -27,7 +26,6 @@ oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
 end)
 
 print('Anti-Rejoin', 'Teleportation prevention is now active.')
-
 
 local router
 for i, v in next, getgc(true) do
@@ -78,7 +76,6 @@ if not _G.ScriptRunning then
     local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
     local Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
     
-
     local function FireSig(button)
         pcall(function()
             for _, connection in pairs(getconnections(button.MouseButton1Down)) do
@@ -119,36 +116,6 @@ if not _G.ScriptRunning then
     sound.FX:play("BambooButton")
     UI.set_app_visibility("DailyLoginApp", false)
 
-    -- local RunService = game:GetService("RunService")
-    -- local DoneAutoPlay = false
-    -- -- Connect to Heartbeat
-    -- RunService.Heartbeat:Connect(function()
-    --     if game:GetService("Players").LocalPlayer.PlayerGui.NewsApp.Enabled then
-    --         FireSig(game:GetService("Players").LocalPlayer.PlayerGui.NewsApp.EnclosingFrame.MainFrame.Buttons.PlayButton)
-    --         task.wait(1)
-    --         if game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Visible then
-    --             FireSig(game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.RoleChooserDialog.Baby)
-    --             task.wait(1)
-    --         end
-            
-    --         if game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible then
-    --             game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.RobuxProductDialog.Visible = false
-    --             task.wait(1)
-    --         end
-
-    --         if game:GetService("Players").LocalPlayer.PlayerGui.DailyLoginApp.Enabled then
-    --             task.wait(5)
-    --             FireSig(game:GetService("Players").LocalPlayer.PlayerGui.DailyLoginApp.Frame.Body.Buttons.ClaimButton)
-    --             task.wait(1)
-    --             FireSig(game:GetService("Players").LocalPlayer.PlayerGui.DailyLoginApp.Frame.Body.Buttons.ClaimButton)
-    --             task.wait(1)
-    --         end
-    --         local DoneAutoPlay = true
-    --     end
-
-    -- end)
-
-
     local NewAcc = false
     local HasTradeLic = false
     if ClientData.get_data()[game.Players.LocalPlayer.Name].inventory.toys then 
@@ -159,7 +126,6 @@ if not _G.ScriptRunning then
             end
         end
     end
-
     if Cash <= 10000 and not HasTradeLic then
         print("New account")
         print("Inside new account")
@@ -452,14 +418,21 @@ if not _G.ScriptRunning then
     
     task.spawn(function()
         while true do
-            for i = 1, 20 do
-                local args = {
-                    "house_pets_2025_pass_1",
-                    i
-                }
-                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("BattlePassAPI/ClaimReward"):InvokeServer(unpack(args))
-            end
-        end
+          for i = 1, 20 do
+              local args = {
+                  "house_pets_2025_pass_1",
+                  i
+              }
+              game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("BattlePassAPI/ClaimReward"):InvokeServer(unpack(args))
+              task.wait(.1)
+          end
+          task.wait(.1)
+          -- please work
+          local args = {
+              "house_pets_2025_pass_1"
+          }
+          game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("BattlePassAPI/AttemptBattlePassReset"):InvokeServer(unpack(args))
+      end
     end)
 
     local haveLegendary = false
@@ -2424,3 +2397,5 @@ if not _G.ScriptRunning then
 else
     print("Script already running")
 end
+
+--not work
