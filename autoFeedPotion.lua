@@ -1,6 +1,6 @@
-getgenv().PetToFeed = "house_pets_2025_mini_schnauzer"
--- getgenv().PetToFeed = "house_pets_2025_munchkin_cat"
-getgenv().FeedPetMode = "Neon"
+getgenv().PetToFeed = "house_pets_2025_siamese_cat"
+-- getgenv().PetToFeed = "house_pets_2025_french_bulldog"
+getgenv().FeedPetMode = "Normal"
 getgenv().FeedPotions = true
 getgenv().PetRarity = 6
 local router
