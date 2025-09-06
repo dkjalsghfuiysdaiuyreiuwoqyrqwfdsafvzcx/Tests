@@ -420,7 +420,7 @@ if not _G.ScriptRunning then
         while true do
           for i = 1, 20 do
               local args = {
-                  "house_pets_2025_pass_1",
+                  "house_pets_2025_pass_2",
                   i
               }
               game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("BattlePassAPI/ClaimReward"):InvokeServer(unpack(args))
@@ -429,7 +429,7 @@ if not _G.ScriptRunning then
           task.wait(.1)
           -- please work
           local args = {
-              "house_pets_2025_pass_1"
+              "house_pets_2025_pass_2"
           }
           game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("BattlePassAPI/AttemptBattlePassReset"):InvokeServer(unpack(args))
       end
