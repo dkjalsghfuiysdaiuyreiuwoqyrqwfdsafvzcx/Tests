@@ -164,7 +164,7 @@ if not getgenv().AutoGet then
         local availableBoxes = {}
     
         for _, pet in pairs(pets) do
-            if pet.kind == "house_pets_2025_siamese_cat" or pet.kind == "house_pets_2025_munchkin_cat" then
+            if pet.kind == "house_pets_2025_siamese_cat" or pet.kind == "house_pets_2025_munchkin_cat" or pet.kind == "house_pets_2025_french_bulldog" then
                 table.insert(availableBoxes, pet.unique)
             end
         end
