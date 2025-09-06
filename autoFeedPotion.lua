@@ -1,8 +1,8 @@
-getgenv().PetToFeed = "house_pets_2025_siamese_cat"
--- getgenv().PetToFeed = "house_pets_2025_french_bulldog"
+-- getgenv().PetToFeed = "house_pets_2025_siamese_cat"
+getgenv().PetToFeed = "house_pets_2025_french_bulldog"
 getgenv().FeedPetMode = "Normal"
 getgenv().FeedPotions = true
-getgenv().PetRarity = 6
+getgenv().PetRarity = 4
 local router
 
 for i, v in next, getgc(true) do
