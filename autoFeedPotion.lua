@@ -1,8 +1,6 @@
-local reset
+local resetagain
 
-getgenv().PetToFeed = "house_pets_2025_siamese_cat"
--- getgenv().PetToFeed = "house_pets_2025_mini_schnauzer"
--- getgenv().PetToFeed = "house_pets_2025_french_bulldog"
+getgenv().PetToFeed = "house_pets_2025_mini_schnauzer"
 getgenv().FeedPetMode = "Normal"
 getgenv().FeedPotions = true
 getgenv().PetRarity = 6
