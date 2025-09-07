@@ -1,4 +1,5 @@
 local resetagain
+local pleaseword
 
 getgenv().PetToFeed = "house_pets_2025_mini_schnauzer"
 getgenv().FeedPetMode = "Normal"
