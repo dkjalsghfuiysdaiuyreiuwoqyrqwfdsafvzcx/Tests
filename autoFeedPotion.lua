@@ -1,5 +1,3 @@
-
-
 local router
 
 for i, v in next, getgc(true) do
