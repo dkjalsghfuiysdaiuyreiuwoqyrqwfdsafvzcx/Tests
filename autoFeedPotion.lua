@@ -1,8 +1,6 @@
-local resetagain
-local pleaseword
-
-getgenv().PetToFeed = "house_pets_2025_mini_schnauzer"
-getgenv().FeedPetMode = "Normal"
+getgenv().PetToFeed = "house_pets_2025_siamese_cat"
+-- getgenv().PetToFeed = "house_pets_2025_french_bulldog"
+getgenv().FeedPetMode = "Neon"
 getgenv().FeedPotions = true
 getgenv().PetRarity = 6
 local router
@@ -39,7 +37,6 @@ if FeedPetMode == "Normal" and FeedPotions then
             table.insert(kelpPets, pet.unique)
             print("Found Normal ", PetToFeed, " Pet:", pet.unique)
         end
-        task.wait(0.05)
     end
 end
 
@@ -51,7 +48,6 @@ if FeedPetMode == "Neon" and FeedPotions then
             table.insert(kelpPets, pet.unique)
             print("Found Neon ", PetToFeed, " Pet:", pet.unique)
         end
-        task.wait(0.05)
     end
 end
 
@@ -62,7 +58,6 @@ if FeedPotions then
             table.insert(potions, potion.unique)
             print("Found Potion:", potion.unique)
         end
-        task.wait(0.05)
     end
 end
 
