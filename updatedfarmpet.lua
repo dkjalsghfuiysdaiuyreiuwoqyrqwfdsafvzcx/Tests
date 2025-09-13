@@ -321,6 +321,7 @@ if not _G.ScriptRunning then
     task.wait(1)
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/DisablePopups"):FireServer()
     task.wait(5)
+	-- hoping this should work
     -- Function to get current money value
     local function getCurrentMoney()
         local currentMoneyText = Player.PlayerGui.BucksIndicatorApp.CurrencyIndicator.Container.Amount.Text
