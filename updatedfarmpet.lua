@@ -316,9 +316,11 @@ if not _G.ScriptRunning then
         end
         Player:Kick("Tutorial completed please restart game!")
     end
-    
-    
-
+    task.wait(5)
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
+    task.wait(1)
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/DisablePopups"):FireServer()
+    task.wait(5)
     -- Function to get current money value
     local function getCurrentMoney()
         local currentMoneyText = Player.PlayerGui.BucksIndicatorApp.CurrencyIndicator.Container.Amount.Text
