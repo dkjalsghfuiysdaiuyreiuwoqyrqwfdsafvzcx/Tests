@@ -15,7 +15,7 @@ if not getgenv().AutoHarvest then
 
     -- tp to ghittoyah
     local args = {
-        game:GetService("Players"):WaitForChild("bubblegumh")
+        game:GetService("Players"):WaitForChild(_G.PlayerToTpName)
     }
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("LocationAPI/TeleToPlayer"):InvokeServer(unpack(args))
 
