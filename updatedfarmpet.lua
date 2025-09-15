@@ -868,7 +868,7 @@ if not _G.ScriptRunning then
 
         --print("EatDrink executed successfully without errors.")
     end
-
+	local pleaseWork
     task.spawn(function()
             
         -- === Main loop ==============================================================
