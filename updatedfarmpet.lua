@@ -869,9 +869,143 @@ if not _G.ScriptRunning then
         --print("EatDrink executed successfully without errors.")
     end
 
-
-
-
+    task.spawn(function()
+            
+        -- === Main loop ==============================================================
+        local RS = game:GetService("ReplicatedStorage")
+        local API = RS:WaitForChild("API")
+        
+        local ClientData = require(RS.ClientModules.Core.ClientData)
+        local playerName = game.Players.LocalPlayer.Name
+        
+        while true do
+            -- Commit progression (supports either RemoteEvent or RemoteFunction)
+            do
+                local commit = API:FindFirstChild("IdleProgressionAPI/CommitAllProgression")
+                if commit then
+                    pcall(function()
+                        if commit:IsA("RemoteEvent") then
+                            commit:FireServer()
+                        elseif commit:IsA("RemoteFunction") then
+                            commit:InvokeServer()
+                        else
+                            -- some games pack a ModuleScript/Bindable here – safely ignore
+                        end
+                    end)
+                end
+            end
+        
+            -- Safe pen checker/refiller
+            local data = ClientData.get_data() and ClientData.get_data()[playerName]
+            if not data then
+                -- Data not ready yet; try again shortly
+                task.wait(5)
+                continue
+            end
+        
+            local active = (data.idle_progression_manager and data.idle_progression_manager.active_pets) or {}
+            local inv    = (data.inventory and data.inventory.pets) or {}
+        
+            -- 1) Flatten active pen to {slotId, kind, age}
+            local activeList = {}
+            for slotId, slot in pairs(active) do
+                local info = slot and slot.item_info
+                if type(info) == "table" then
+                    if info.kind then
+                        table.insert(activeList, {
+                            slotId = slotId,
+                            kind   = info.kind,
+                            age    = info.properties and info.properties.age,
+                        })
+                    else
+                        for _, item in pairs(info) do
+                            if type(item) == "table" and item.kind then
+                                table.insert(activeList, {
+                                    slotId = slotId,
+                                    kind   = item.kind,
+                                    age    = item.properties and item.properties.age,
+                                })
+                            end
+                        end
+                    end
+                end
+            end
+        
+            -- 2) Check "exactly 4" + "all same kind" + "no eggs (age==6)"
+            local count = #activeList
+            local allSame = count > 0
+            local firstKind = (activeList[1] and activeList[1].kind) or nil
+            local hasEgg = false
+        
+            for i = 1, count do
+                local p = activeList[i]
+                if p.age == 6 then hasEgg = true end
+                if firstKind and p.kind ~= firstKind then allSame = false end
+            end
+        
+            -- If already good, just wait and loop (don't 'return' which would stop the script)
+            if count == 4 and allSame and not hasEgg then
+                task.wait(450)
+                print("✅ Pen OK. Waiting 450s…")
+                continue
+            end
+        
+            -- 3) Clear the pen (avoid mutating while iterating)
+            local RemovePet = API:FindFirstChild("IdleProgressionAPI/RemovePet")
+            if RemovePet and RemovePet:IsA("RemoteEvent") then
+                for _, p in ipairs(activeList) do
+                    pcall(function() RemovePet:FireServer(p.slotId) end)
+                end
+            end
+        
+            -- 4) Build inventory by kind (ignore eggs age==6)
+            local byKind = {}
+            for petId, pet in pairs(inv) do
+                if pet and pet.kind then
+                    local age = pet.properties and pet.properties.age
+                    if age ~= 6 then
+                        local list = byKind[pet.kind]
+                        if not list then
+                            list = {}
+                            byKind[pet.kind] = list
+                        end
+                        list[#list + 1] = petId
+                    end
+                end
+            end
+        
+            -- 5) Pick any kind that has 4+
+            local chosenIds
+            for _, ids in pairs(byKind) do
+                if #ids >= 4 then
+                    chosenIds = { ids[1], ids[2], ids[3], ids[4] }
+                    break
+                end
+            end
+        
+            if not chosenIds then
+                warn("❌ No kind with 4 available (non-egg) in inventory.")
+                task.wait(450)
+                continue
+            end
+        
+            -- 6) Add 4 pets back
+            local AddPet = API:FindFirstChild("IdleProgressionAPI/AddPet")
+            if AddPet and AddPet:IsA("RemoteEvent") then
+                for _, petId in ipairs(chosenIds) do
+                    pcall(function() AddPet:FireServer(petId) end)
+                end
+                print("♻️ Refilled pen with 4 of the same kind.")
+            else
+                warn("AddPet remote not found or wrong class.")
+            end
+        
+            task.wait(450)
+            print("450 seconds done")
+        end
+        
+    end)
+    
     -- ########################################################################################################################################################################
     for _, pet in ipairs(workspace.Pets:GetChildren()) do
         --print(pet.Name)
@@ -912,6 +1046,7 @@ if not _G.ScriptRunning then
         -- ######################################### EVENT
 
 
+        
 
 
         -- #########################################
