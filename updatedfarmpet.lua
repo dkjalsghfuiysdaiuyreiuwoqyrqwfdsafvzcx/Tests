@@ -1047,6 +1047,16 @@ if not _G.ScriptRunning then
             -- If already good, just wait and loop (don't 'return' which would stop the script)
             if count == 4 and allSame and not hasEgg then
                 task.wait(450)
+				local active = getActiveUids()
+	            local neonBuckets, megaBuckets = buildBuckets(active)
+	        
+	            -- Quick counts without extra loops
+	            local function count(arrs) local c=0 for _,v in pairs(arrs) do c=c+#v end return c end
+	            -- print(("[Neon ready] %d | [Mega ready] %d"):format(count(neonBuckets), count(megaBuckets)))
+	        
+	            local neonFused = fuseBuckets(neonBuckets, "Neon")
+	            local megaFused = fuseBuckets(megaBuckets, "Mega")
+	            print(("[Fusion] Neon groups: %d | Mega groups: %d"):format(neonFused, megaFused))
                 print("✅ Pen OK. Waiting 450s…")
                 continue
             end
