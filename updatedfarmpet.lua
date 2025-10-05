@@ -76,6 +76,12 @@ while true do
 	-- Always claim treat bag
 	game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HalloweenEventAPI/ClaimTreatBag"):InvokeServer()
 
+    local args = {
+        true
+    }
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HalloweenEventAPI/ProgressTaming"):InvokeServer(unpack(args))
+
+
 	-- Try to find the current hauntlet
 	hauntletId = nil
 	for _, obj in pairs(workspace.StaticMap:GetChildren()) do
