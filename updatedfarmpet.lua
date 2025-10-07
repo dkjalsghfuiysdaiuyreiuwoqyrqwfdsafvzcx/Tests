@@ -105,15 +105,19 @@ while true do
 			end
 
 			-- Pick a door
-			local args = {
-				hauntletId,
-				"player_selected_door",
-				currentRoom,
-				2
-			}
-			game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
 
-			task.wait(10)
+            for door = 1, 3 do
+                local args = {
+                    hauntletId,
+                    "player_selected_door",
+                    currentRoom,
+                    door
+                }
+                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("MinigameAPI/MessageServer"):FireServer(unpack(args))
+                task.wait(1)
+            end
+
+			task.wait(7)
 
 			-- Use items
 			local args1 = { hauntletId, "player_used_item", "MonsterRepellant" }
