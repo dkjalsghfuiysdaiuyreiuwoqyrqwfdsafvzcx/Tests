@@ -1,4 +1,4 @@
-getgenv().PlayerToTrade = "ghiaxis28"
+getgenv().PlayerToTrade = "GHITTOYAH"
 -- TIG SEND
 
 if not getgenv().AutoGet then
