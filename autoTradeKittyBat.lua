@@ -1,4 +1,4 @@
-getgenv().PlayerToTrade = "ghiaxis28"
+getgenv().PlayerToTrade = "GHITTOYAH"
 -- TIG SEND
 
 if not getgenv().AutoGet then
@@ -21,13 +21,13 @@ if not getgenv().AutoGet then
     local playerName = game.Players.LocalPlayer.Name
     local playerData = ClientData.get_data()[playerName]
     local candies = ClientData.get_data()[playerName].candy_2025
-    local totalBoxes = math.floor(candies / 44000)
+    local totalBoxes = math.floor(candies / 70000)
     local ShopAPI = game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem")
 
     for i = 1, math.ceil(totalBoxes / 99) do
         local buyCount = math.min(99, totalBoxes - (i - 1) * 99)
         if buyCount <= 0 then break end
-        ShopAPI:InvokeServer("pets", "halloween_2025_dj_snooze", { buy_count = buyCount })
+        ShopAPI:InvokeServer("pets", "halloween_2025_ghostly_cat", { buy_count = buyCount })
         task.wait(0.5)
     end
 
@@ -64,7 +64,7 @@ if not getgenv().AutoGet then
     local petsdata = ClientData.get_data()[game.Players.LocalPlayer.Name].inventory.pets
     local saruUniques = {}
     for _, pet in pairs(petsdata) do
-        if pet.id == "halloween_2025_bat_cat" or pet.id == "halloween_2025_dj_snooze" or pet.id == "house_pets_2025_munchkin_cat" then
+        if pet.id == "halloween_2025_bat_cat" or pet.id == "halloween_2025_ghostly_cat" or pet.id == "house_pets_2025_munchkin_cat" then
             table.insert(saruUniques, pet.unique)
         end
     end
@@ -143,7 +143,7 @@ if not getgenv().AutoGet then
         local availableBoxes = {}
     
         for _, pet in pairs(pets) do
-            if pet.kind == "halloween_2025_bat_cat" or pet.id == "halloween_2025_dj_snooze" or pet.id == "house_pets_2025_munchkin_cat" then
+            if pet.kind == "halloween_2025_bat_cat" or pet.id == "halloween_2025_ghostly_cat" or pet.id == "house_pets_2025_munchkin_cat" then
                 table.insert(availableBoxes, pet.unique)
             end
         end
