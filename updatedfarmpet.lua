@@ -1137,22 +1137,6 @@ if not _G.ScriptRunning then
 
     _G.FarmTypeRunning = "none"
 
-
-    task.spawn(function()    
-        while true do
-            -- Always claim treat bag
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HalloweenEventAPI/ClaimTreatBag"):InvokeServer()
-    
-            task.wait(5)
-            local args = {
-                true
-            }
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HalloweenEventAPI/ProgressTaming"):InvokeServer(unpack(args))
-    
-            task.wait(20)
-        end
-    end)
-    
     local function startPetFarm()
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/ChooseTeam"):InvokeServer("Babies",{["dont_send_back_home"] = true, ["source_for_logging"] = "avatar_editor"})
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
