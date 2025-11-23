@@ -94,7 +94,7 @@ if not getgenv().AutoHarvest then
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
 
     local bucks = ClientData.get_data()[game.Players.LocalPlayer.Name].money
-    local loopCount = math.floor(bucks / 38000)
+    local loopCount = math.floor(bucks / 30000)
 
     for i = 1, loopCount do    
         -- your loop logic here
