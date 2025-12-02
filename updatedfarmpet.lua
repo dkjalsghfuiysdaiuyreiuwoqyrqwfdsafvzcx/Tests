@@ -869,7 +869,20 @@ if not _G.ScriptRunning then
 
         --print("EatDrink executed successfully without errors.")
     end
-
+	task.spawn(function()
+	    while true do
+	        
+	        local day = tonumber(os.date("%d"))
+	        local admday = day - 1
+	        
+	        local args = {
+	            admday
+	        }
+	        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("WinterEventAPI/AdventCalendarTryTakeReward"):InvokeServer(unpack(args))
+	    
+	        task.wait(3600)
+	    end    
+	end)
     task.spawn(function()
             
         -- === Main loop ==============================================================
