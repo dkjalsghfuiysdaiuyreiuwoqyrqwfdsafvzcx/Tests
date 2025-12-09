@@ -583,12 +583,12 @@ if not _G.ScriptRunning then
     end
 
 	local function getNecessary()
-    getgenv().BedID = GetFurniture("EggCrib")
-    getgenv().ShowerID = GetFurniture("StylishShower")
-    getgenv().PianoID = GetFurniture("Piano")
-    getgenv().WaterID = GetFurniture("PetWaterBowl")
-    getgenv().FoodID = GetFurniture("PetFoodBowl")
-    getgenv().ToiletID = GetFurniture("Toilet")
+	    getgenv().BedID = GetFurniture("EggCrib")
+	    getgenv().ShowerID = GetFurniture("StylishShower")
+	    getgenv().PianoID = GetFurniture("Piano")
+	    getgenv().WaterID = GetFurniture("PetWaterBowl")
+	    getgenv().FoodID = GetFurniture("PetFoodBowl")
+	    getgenv().ToiletID = GetFurniture("Toilet")
 	end
 
 	getNecessary()
