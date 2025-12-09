@@ -582,14 +582,24 @@ if not _G.ScriptRunning then
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("AdoptAPI/ExitSeatStates"):FireServer()
     end
 
+	getgenv().BedID
+    getgenv().ShowerID
+    getgenv().PianoID
+    getgenv().WaterID
+    getgenv().FoodID
+    getgenv().ToiletID
 
-
+	
+	local function getNecessary()
     getgenv().BedID = GetFurniture("EggCrib")
     getgenv().ShowerID = GetFurniture("StylishShower")
     getgenv().PianoID = GetFurniture("Piano")
     getgenv().WaterID = GetFurniture("PetWaterBowl")
     getgenv().FoodID = GetFurniture("PetFoodBowl")
     getgenv().ToiletID = GetFurniture("Toilet")
+	end
+
+	getNecessary()
 
     -- Get current money
     local startingMoney = getCurrentMoney()
@@ -996,6 +1006,7 @@ end)
             --print("doing hungry")
             taskName = "🍔"
             getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
+			getNecessary()
             if getgenv().FoodID then
                 game:GetService("ReplicatedStorage").API["HousingAPI/ActivateFurniture"]:InvokeServer(game:GetService("Players").LocalPlayer,getgenv().FoodID,"UseBlock",{['cframe'] = CFrame.new(game:GetService("Players").LocalPlayer.Character.Head.Position + Vector3.new(0, .5, 0))},fsys.get("pet_char_wrappers")[1]["char"])
                 local t = 0
@@ -1030,6 +1041,7 @@ end)
             --print("doing thristy")
             taskName = "🥛"
             getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
+			getNecessary()
             if getgenv().WaterID then
                 game:GetService("ReplicatedStorage").API["HousingAPI/ActivateFurniture"]:InvokeServer(game:GetService("Players").LocalPlayer,getgenv().WaterID,"UseBlock",{['cframe'] = CFrame.new(game:GetService("Players").LocalPlayer.Character.Head.Position + Vector3.new(0, .5, 0))},fsys.get("pet_char_wrappers")[1]["char"])
                 local t = 0
@@ -1628,6 +1640,7 @@ end)
                         taskName = "🥱"
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
                         task.wait(3)
+						getNecessary()
                         if getgenv().PianoID then
                             game:GetService("ReplicatedStorage").API["HousingAPI/ActivateFurniture"]:InvokeServer(game:GetService("Players").LocalPlayer,getgenv().PianoID,"Seat1",{['cframe'] = CFrame.new(game:GetService("Players").LocalPlayer.Character.Head.Position + Vector3.new(0, .5, 0))},fsys.get("pet_char_wrappers")[1]["char"])
                             local t = 0
@@ -1661,6 +1674,7 @@ end)
                     if table.find(BabyAilmentsArray, "bored") then
                         --print("doing bored")
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
+						getNecessary()
                         if getgenv().PianoID then
                             task.spawn(function()
                                 game:GetService("ReplicatedStorage").API["HousingAPI/ActivateFurniture"]:InvokeServer(game:GetService("Players").LocalPlayer,getgenv().PianoID,"Seat1",{['cframe'] = CFrame.new(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position)},fsys.get("char_wrapper")["char"])
@@ -1798,6 +1812,7 @@ end)
                         taskName = "🚿"
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
                         task.wait(3)
+						getNecessary()
                         if getgenv().ShowerID then
                             game:GetService("ReplicatedStorage").API["HousingAPI/ActivateFurniture"]:InvokeServer(game:GetService("Players").LocalPlayer,getgenv().ShowerID,"UseBlock",{['cframe'] = CFrame.new(game:GetService("Players").LocalPlayer.Character.Head.Position + Vector3.new(0, .5, 0))},fsys.get("pet_char_wrappers")[1]["char"])
                             local t = 0
@@ -1832,6 +1847,7 @@ end)
                     if table.find(BabyAilmentsArray, "dirty") then
                         --print("doing dirty")
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
+						getNecessary()
                         if getgenv().ShowerID then
                             task.spawn(function()
                                 game:GetService("ReplicatedStorage").API["HousingAPI/ActivateFurniture"]:InvokeServer(game:GetService("Players").LocalPlayer,getgenv().ShowerID,"UseBlock",{['cframe'] = CFrame.new(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position)},fsys.get("char_wrapper")["char"])
@@ -1874,6 +1890,8 @@ end)
                         taskName = "😴"
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
                         task.wait(3)
+						-- get bedID again
+						getNecessary()
                         if getgenv().BedID then
                             game:GetService("ReplicatedStorage").API["HousingAPI/ActivateFurniture"]:InvokeServer(game:GetService("Players").LocalPlayer, getgenv().BedID, "UseBlock", {['cframe']=CFrame.new(game:GetService("Players").LocalPlayer.Character.Head.Position + Vector3.new(0,.5,0))}, fsys.get("pet_char_wrappers")[1]["char"])
                             local t = 0
@@ -1907,6 +1925,7 @@ end)
                     
                     if table.find(BabyAilmentsArray, "sleepy") then
                         --print("doing sleepy")
+						getNecessary()
                         if getgenv().BedID then
                             task.spawn(function()
                                 game:GetService("ReplicatedStorage").API["HousingAPI/ActivateFurniture"]:InvokeServer(game:GetService("Players").LocalPlayer,getgenv().BedID,"UseBlock",{['cframe'] = CFrame.new(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position)},fsys.get("char_wrapper")["char"])
@@ -1944,6 +1963,7 @@ end)
                     end     
                     
                     -- Check if 'Potty' is in the PetAilmentsArray
+					getNecessary()
                     if table.find(PetAilmentsArray, "toilet") then
                         --print("going toilet")
                         taskName = "🧻"
