@@ -581,7 +581,7 @@ if not _G.ScriptRunning then
     local function BabyJump()
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("AdoptAPI/ExitSeatStates"):FireServer()
     end
-
+-- work and ill give you money
 	local function getNecessary()
 	    getgenv().BedID = GetFurniture("EggCrib")
 	    getgenv().ShowerID = GetFurniture("StylishShower")
