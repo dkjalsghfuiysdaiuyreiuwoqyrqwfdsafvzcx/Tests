@@ -582,14 +582,6 @@ if not _G.ScriptRunning then
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("AdoptAPI/ExitSeatStates"):FireServer()
     end
 
-	getgenv().BedID
-    getgenv().ShowerID
-    getgenv().PianoID
-    getgenv().WaterID
-    getgenv().FoodID
-    getgenv().ToiletID
-
-	
 	local function getNecessary()
     getgenv().BedID = GetFurniture("EggCrib")
     getgenv().ShowerID = GetFurniture("StylishShower")
