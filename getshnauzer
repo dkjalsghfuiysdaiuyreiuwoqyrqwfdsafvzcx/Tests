@@ -1,4 +1,3 @@
-
 -- TIG SEND
 
 if not getgenv().AutoGet then
@@ -20,37 +19,17 @@ if not getgenv().AutoGet then
     local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
     local playerName = game.Players.LocalPlayer.Name
     local playerData = ClientData.get_data()[playerName]
+    local candies = ClientData.get_data()[playerName].gingerbread_2025
+    local totalBoxes = math.floor(candies / 150000)
+    local ShopAPI = game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem")
 
-    local coins = 0
-    if playerData and playerData.domestic_shards_2025 then
-        coins = tonumber(playerData.domestic_shards_2025) or 0
-        coins = coins / 75
-    else
-        warn("Missing or invalid domestic_shards_2025 for player:", playerName)
-        return
+    for i = 1, math.ceil(totalBoxes / 99) do
+        local buyCount = math.min(99, totalBoxes - (i - 1) * 99)
+        if buyCount <= 0 then break end
+        ShopAPI:InvokeServer("pets", "christmas_2025_christmas_spirit", { buy_count = buyCount })
+        task.wait(0.5)
     end
 
-    local maxPerBuy = 99
-    local remainingBoxes = math.floor(coins) -- ✅ Correct: no overbuying
-
-    while remainingBoxes > 0 do
-        local buyAmount = math.min(remainingBoxes, maxPerBuy)
-
-        local args = {
-            "pets",
-            "house_pets_2025_siamese_cat",
-            {
-                buy_count = buyAmount
-            }
-        }
-        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
-
-        remainingBoxes = remainingBoxes - buyAmount
-
-        task.wait(0.2) -- Small wait to avoid possible rate limiting
-    end
-
-    print("All kelp raider boxes bought.")
 
     -- Trade License
     task.wait(1)
@@ -65,7 +44,6 @@ if not getgenv().AutoGet then
         task.wait()
     end
     
-
     local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
     
@@ -85,14 +63,14 @@ if not getgenv().AutoGet then
     local petsdata = ClientData.get_data()[game.Players.LocalPlayer.Name].inventory.pets
     local saruUniques = {}
     for _, pet in pairs(petsdata) do
-        if (pet.id == "house_pets_2025_siamese_cat" or pet.id == "house_pets_2025_french_bulldog") and pet.properties.age < 6 then
+        if pet.id == "halloween_2025_bat_cat" or pet.id == "halloween_2025_dj_snooze" or pet.id == "house_pets_2025_munchkin_cat" then
             table.insert(saruUniques, pet.unique)
         end
     end
     
     -- Only feed 16 or less depending on available pets and potions
     local targetCount = 18
-    local maxRuns = math.min(targetCount, #saruUniques, math.floor(#potions / 6))
+    local maxRuns = math.min(targetCount, #saruUniques, math.floor(#potions / 7))
     
     print("⚙️ Feeding " .. maxRuns .. " Super Sarus with 10 potions each")
     
@@ -120,12 +98,12 @@ if not getgenv().AutoGet then
     
         -- Get 6 potions
         local potionChunk = {}
-        for j = 1, 5 do
+        for j = 1, 7 do
             table.insert(potionChunk, table.remove(potions, 1))
         end
         local uniqueIdPotion = table.remove(potions, 1)
 
-        if #potionChunk < 5 or not uniqueIdPotion then
+        if #potionChunk < 7 or not uniqueIdPotion then
             warn("❌ Not enough potions for Super Saru #" .. i)
             break
         end
@@ -164,7 +142,7 @@ if not getgenv().AutoGet then
         local availableBoxes = {}
     
         for _, pet in pairs(pets) do
-            if pet.kind == "house_pets_2025_siamese_cat" or pet.kind == "house_pets_2025_french_bulldog" then
+            if pet.kind == "halloween_2025_bat_cat" or pet.id == "halloween_2025_dj_snooze" or pet.id == "house_pets_2025_munchkin_cat" then
                 table.insert(availableBoxes, pet.unique)
             end
         end
@@ -203,6 +181,4 @@ if not getgenv().AutoGet then
     end    
 
 end
-
-
 
