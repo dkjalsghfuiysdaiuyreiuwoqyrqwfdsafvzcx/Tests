@@ -30,7 +30,9 @@ if not getgenv().AutoGet then
         task.wait(0.5)
     end
 
-
+    task.wait(1)
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/ClaimAllDeliveries"):FireServer()
+    task.wait(1)
     -- Trade License
     task.wait(1)
     fsys = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
