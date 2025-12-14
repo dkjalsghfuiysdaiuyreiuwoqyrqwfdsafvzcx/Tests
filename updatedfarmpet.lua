@@ -1,6 +1,5 @@
--- Farm 12/02/25 1:56 PM
 
--- task.wait(180)
+-- Farm 8/12/25 10:20 AM
 if not hookmetamethod then
     return notify('Incompatible Exploit', 'Your exploit does not support `hookmetamethod`')
 end
@@ -162,7 +161,7 @@ if not _G.ScriptRunning then
         end
     end
 
-    if not HasTradeLic then
+    if Cash <= 10000 and not HasTradeLic then
         print("New account")
         print("Inside new account")
         local success, err = pcall(function()
@@ -215,7 +214,7 @@ if not _G.ScriptRunning then
             task.wait(2)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("LegacyTutorialAPI/StashTutorialStatus"):FireServer("Started Egg Received")
             task.wait(2)
-            -- game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TutorialAPI/AddTutorialQuest"):FireServer()
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TutorialAPI/AddTutorialQuest"):FireServer()
             task.wait(2)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("LegacyTutorialAPI/StashTutorialStatus"):FireServer("Tutorial Ailment Spawned")
             task.wait(2)
@@ -230,67 +229,67 @@ if not _G.ScriptRunning then
             warn("Error in first task: " .. tostring(err))
         end
         
-        -- local success, err = pcall(function()
-        --     local ReplicatedStorage = game:GetService("ReplicatedStorage")
-        --     local API = ReplicatedStorage:WaitForChild("API")
+        local success, err = pcall(function()
+            local ReplicatedStorage = game:GetService("ReplicatedStorage")
+            local API = ReplicatedStorage:WaitForChild("API")
             
-        --     API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("npc_interaction")
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ChoosePet"):FireServer("dog")
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(2, { chosen_pet = "dog" })
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(3, { named_pet = false })
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("focused_pet")
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("focused_pet")
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(4)
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(5)
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/SpawnPetTreat"):FireServer()
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("focused_pet_2")
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(6)
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(7)
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/AddTutorialQuest"):FireServer()
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("opened_taskboard")
-        --     task.wait(2)
-        --     API:WaitForChild("QuestAPI/MarkQuestsViewed"):FireServer()
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("focused_pet_3")
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("started_playground_nav")
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("reached_playground")
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("opened_taskboard_2")
-        --     task.wait(2)
-        --     API:WaitForChild("QuestAPI/ClaimQuest"):InvokeServer("{6d6b008a-650e-4bea-b65c-20357e85f71c}")
-        --     task.wait(2)
-        --     API:WaitForChild("QuestAPI/MarkQuestsViewed"):FireServer()
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(10)
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("focused_pet_4")
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("started_home_nav")
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(11)
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(12)
-        --     task.wait(2)
-        --     API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("cured_dirty_ailment")
-        --     task.wait(2)
-        --     API:WaitForChild("DailyLoginAPI/ClaimDailyReward"):InvokeServer()
-        --     task.wait(2)
-        -- end)
+            API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("npc_interaction")
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ChoosePet"):FireServer("dog")
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(2, { chosen_pet = "dog" })
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(3, { named_pet = false })
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("focused_pet")
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("focused_pet")
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(4)
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(5)
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/SpawnPetTreat"):FireServer()
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("focused_pet_2")
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(6)
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(7)
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/AddTutorialQuest"):FireServer()
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("opened_taskboard")
+            task.wait(2)
+            API:WaitForChild("QuestAPI/MarkQuestsViewed"):FireServer()
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("focused_pet_3")
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("started_playground_nav")
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("reached_playground")
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("opened_taskboard_2")
+            task.wait(2)
+            API:WaitForChild("QuestAPI/ClaimQuest"):InvokeServer("{6d6b008a-650e-4bea-b65c-20357e85f71c}")
+            task.wait(2)
+            API:WaitForChild("QuestAPI/MarkQuestsViewed"):FireServer()
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(10)
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("focused_pet_4")
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("started_home_nav")
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(11)
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportStepCompleted"):FireServer(12)
+            task.wait(2)
+            API:WaitForChild("TutorialAPI/ReportDiscreteStep"):FireServer("cured_dirty_ailment")
+            task.wait(2)
+            API:WaitForChild("DailyLoginAPI/ClaimDailyReward"):InvokeServer()
+            task.wait(2)
+        end)
         if not success then
             warn("Error in second task: " .. tostring(err))
         end
@@ -318,9 +317,11 @@ if not _G.ScriptRunning then
         end
         Player:Kick("Tutorial completed please restart game!")
     end
-    
-    
-
+    task.wait(5)
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
+    task.wait(1)
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/DisablePopups"):FireServer()
+    task.wait(5)
     -- Function to get current money value
     local function getCurrentMoney()
         local currentMoneyText = Player.PlayerGui.BucksIndicatorApp.CurrencyIndicator.Container.Amount.Text
@@ -433,37 +434,9 @@ if not _G.ScriptRunning then
         end
     end
     
-    local function capitalizeFirst(str)
-        return (string.sub(str, 1, 1):upper() .. string.sub(str, 2):lower())
-    end
-
-    local function CheckRarity(petname)
-		getgenv().Rarity = ""
-		for y,z in pairs(game:GetService("ReplicatedStorage").SharedModules.ContentPacks:GetChildren()) do 
-			if z:IsA("Folder") and z:FindFirstChild("InventorySubDB") then 
-				if z.InventorySubDB:FindFirstChild("Pets") then 
-					for Data,Pet in pairs(require(z.InventorySubDB.Pets)) do 
-						for a,b in pairs(Pet) do
-							if tostring(b) == petname then
-								Rarity = Pet.rarity
-								break
-							end
-						end
-					end
-				end
-			end
-		end
-		Rarity = string.gsub(Rarity, "^.", string.upper)
-		return Rarity
-	end
-    
     local function equipPet()
         -- Attempt to require ClientData module
-        local args = {
-            "vanilla"
-        }
-        game:GetService("ReplicatedStorage"):WaitForChild("adoptme_new_net"):WaitForChild("adoptme_new.modules.Dailies.DailiesNetService:9"):FireServer(unpack(args))
-
+        
         local success, fsys = pcall(function()
             return require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
         end)
@@ -477,144 +450,32 @@ if not _G.ScriptRunning then
         local equipManagerPets = equipManager and equipManager.pets or {}
         local inventory = fsys.get("inventory")
         local inventoryPets = inventory and inventory.pets or {}
-
-		local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData) 
-		local playerName = game.Players.LocalPlayer.Name
-		local requiredRarity
-        local requiredNeon
-
-
-        local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData) 
-        local playerName = game.Players.LocalPlayer.Name
-        local AllData = ClientData.get_data()[playerName].dailies_manager.serialized_tabs.vanilla.active_dailies
-
-        for dailyName, dailyTable in pairs(AllData) do
-            local stateTable = dailyTable.state
-
-            if stateTable then
-                -- STATE table exists
-                if stateTable.pet_rarity ~= nil then
-                    print("Table", dailyName, "has a state table and a pet_rarity (" .. tostring(stateTable.pet_rarity) .. ")")
-                    requiredRarity = capitalizeFirst(tostring(stateTable.pet_rarity))
-                else
-                    print("Table", dailyName, "has a state table but NO pet_rarity")
-                    if dailyName == "higher_maintenance" then
-                        requiredNeon = true
-                    else
-                        requiredNeon = false
-                    end
-                end
-            else
-                print("Table", dailyName, "has NO state table")
-                requiredRarity = "Common"
-            end
-        end
-
-
-
-        print(requiredRarity)
-        print("REQUIRED NEON: ", requiredNeon)
+        
         
         local currentPet = equipManagerPets[1]
-        local shouldEquipNewPet = not currentPet or not petToEquip or (currentPet.unique ~= petToEquip) or (requiredRarity ~= CheckRarity(currentPet.kind)) or (requiredNeon and not currentPet.properties.neon)
+        local shouldEquipNewPet = not currentPet or not petToEquip or (currentPet.unique ~= petToEquip)
         
-		
-        if requiredRarity ~= "Egg" then
-            if shouldEquipNewPet then
-                for _, pet in pairs(inventoryPets) do
-                    if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
-                        if requiredNeon == true then
-                            if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity and pet.properties.neon == true then
-                                print(pet.properties.age, pet.unique)
-                                petToEquip = pet.unique
-                                break
-                            end
-                            if CheckRarity(pet.kind) == requiredRarity and pet.properties.neon == true then
-                                print("not age 6 ", pet.unique)
-                                petToEquip = pet.unique
-                                break
-                            end
-                            if pet.properties.neon == true then
-                                print("not age 6 ", pet.unique)
-                                petToEquip = pet.unique
-                                requiredRarity = CheckRarity(pet.kind)
-                                break
-                            end
-                            if CheckRarity(pet.kind) == requiredRarity then
-                                print("not age 6 ", pet.unique)
-                                petToEquip = pet.unique
-                            end
-                        else
-                            if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
-                                print(pet.properties.age, CheckRarity(pet.kind), pet.unique)
-                                petToEquip = pet.unique
-                                break
-                            end
-                            if CheckRarity(pet.kind) == requiredRarity then
-                                print("not age 6 ", CheckRarity(pet.kind), pet.unique)
-                                petToEquip = pet.unique
-                            end
-                        end
+        if shouldEquipNewPet then
+            for _, pet in pairs(inventoryPets) do
+                if pet.kind ~= "practice_dog" then
+                    if pet.properties.age == 6 then
+                        petToEquip = pet.unique
+                        break
                     end
-                end
-        
-                petToEquip = petToEquip or getHighestLevelPet()
-                
-                -- Equip the selected pet
-                if petToEquip then
-                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Unequip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
-                    task.wait(0.3)
-                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Equip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
+                    petToEquip = pet.unique
                 end
             end
-        else
-            Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
-            local petToEquip = nil
-            if Cash > 750 then
-                
-                task.wait(1)
-                inventory = fsys.get("inventory")
-                inventoryPets = inventory and inventory.pets or {}
-                for _, pet in pairs(inventoryPets) do
-                    if pet.kind ~= "practice_dog" then
-                        if pet.kind == "aztec_egg_2025_aztec_egg" then
-                            petToEquip = pet.unique
-                        end
-                    end
-                end
-
-                -- Equip the selected pet
-                if petToEquip then
-                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Unequip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
-                    task.wait(0.3)
-                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Equip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
-                else
-                    local args = {
-                        "pets",
-                        "aztec_egg_2025_aztec_egg",
-                        {
-                            buy_count = 1
-                        }
-                    }
-                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
-                    task.wait(1)
-                    inventory = fsys.get("inventory")
-                    inventoryPets = inventory and inventory.pets or {}
-                    for _, pet in pairs(inventoryPets) do
-                        if pet.kind ~= "practice_dog" then
-                            if pet.kind == "aztec_egg_2025_aztec_egg" then
-                                petToEquip = pet.unique
-                            end
-                        end
-                    end
-                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Unequip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
-                    task.wait(0.3)
-                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Equip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
-                end
-            else
-                print("Not enough money")
+    
+            petToEquip = petToEquip or getHighestLevelPet()
+            
+            -- Equip the selected pet
+            if petToEquip then
+                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Unequip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
+                task.wait(0.3)
+                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Equip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
             end
         end
+        
         -- Handle pet ailments
         task.wait(0.3)
         PetAilmentsArray = {}
@@ -625,60 +486,6 @@ if not _G.ScriptRunning then
         getBabyAilments(playerData.ailments_manager.baby_ailments)
         task.wait(0.3)
     end
-
-    -- OLD EQUIP PET
-    -- local function equipPet()
-    --     -- Attempt to require ClientData module
-        
-    --     local success, fsys = pcall(function()
-    --         return require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
-    --     end)
-        
-    --     if not success or not fsys then
-    --         warn("Failed to require fsys")
-    --         return
-    --     end
-        
-    --     local equipManager = fsys.get("equip_manager")
-    --     local equipManagerPets = equipManager and equipManager.pets or {}
-    --     local inventory = fsys.get("inventory")
-    --     local inventoryPets = inventory and inventory.pets or {}
-        
-        
-    --     local currentPet = equipManagerPets[1]
-    --     local shouldEquipNewPet = not currentPet or not petToEquip or (currentPet.unique ~= petToEquip)
-        
-    --     if shouldEquipNewPet then
-    --         for _, pet in pairs(inventoryPets) do
-    --             if pet.kind ~= "practice_dog" then
-    --                 if pet.properties.age == 6 then
-    --                     petToEquip = pet.unique
-    --                     break
-    --                 end
-    --                 petToEquip = pet.unique
-    --             end
-    --         end
-    
-    --         petToEquip = petToEquip or getHighestLevelPet()
-            
-    --         -- Equip the selected pet
-    --         if petToEquip then
-    --             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Unequip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
-    --             task.wait(0.3)
-    --             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Equip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
-    --         end
-    --     end
-        
-    --     -- Handle pet ailments
-    --     task.wait(0.3)
-    --     PetAilmentsArray = {}
-    --     task.wait(0.3)
-    --     local playerData = ClientData.get_data()[game.Players.LocalPlayer.Name]
-    --     getAilments(playerData.ailments_manager.ailments)
-    --     task.wait(0.3)
-    --     getBabyAilments(playerData.ailments_manager.baby_ailments)
-    --     task.wait(0.3)
-    -- end
     
 
 
@@ -912,7 +719,7 @@ if not _G.ScriptRunning then
         end
     end
 
-        -- delete after event
+    -- delete after event
 task.spawn(function()
     -- Simple repeating loop (every 10 minutes)
     -- Change DELAY_BETWEEN if you hit throttling
@@ -1122,6 +929,7 @@ task.spawn(function()
     end
 end)
 
+
     Player.PlayerGui.TransitionsApp.Whiteout:GetPropertyChangedSignal("BackgroundTransparency"):Connect(function()
         if Player.PlayerGui.TransitionsApp.Whiteout.BackgroundTransparency == 0 then
             Player.PlayerGui.TransitionsApp.Whiteout.BackgroundTransparency = 1
@@ -1175,51 +983,7 @@ end)
         return false
     end
 
-    local function checkHouse()
-        print("=============Checking House================")
 
-        local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
-        local Data = ClientData.get_data()[game.Players.LocalPlayer.Name].house_manager
-
-        local activeHouse = { name = nil, active = false }
-        local activeIsPudding = false
-
-        local farmingHouse = { name = nil, house_id = nil }
-
-        for _, house in pairs(Data) do
-            -- Track the active house (if any)
-            if house.active then
-                activeHouse.name = house.name
-                activeHouse.active = true
-                activeIsPudding = (house.name:lower() == "my christmas pudding house")
-            end
-
-            -- Cache the first non-pudding house to switch to
-            if not farmingHouse.house_id and house.name:lower() ~= "my christmas pudding house" then
-                farmingHouse.name = house.name
-                farmingHouse.house_id = house.house_id or house.id  -- use whatever key your data uses
-            end
-        end
-
-        -- Only switch if the active house is the pudding house AND we found an alternative
-        if activeHouse.active and activeIsPudding and farmingHouse.house_id then
-            print("Changing house to", farmingHouse.name)
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SpawnHouse"):FireServer(farmingHouse.house_id)
-            task.wait(10)
-            print("Respawning")
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
-        else
-            -- Optional logging to understand why no switch happened
-            if not activeHouse.active then
-                print("No active house; nothing to change.")
-            elseif not activeIsPudding then
-                print("Active house is not the pudding house; no change needed.")
-            elseif not farmingHouse.house_id then
-                print("No alternative non-pudding house found to switch to.")
-            end
-        end
-
-    end
 
     -- ########################################################################################################################################################################
     local taskName = "none"
@@ -1314,10 +1078,279 @@ end)
 
         --print("EatDrink executed successfully without errors.")
     end
+	task.spawn(function()
+	    while true do
+	        
+	        local day = tonumber(os.date("%d"))
+	        local admday = day - 1
+	        
+	        local args = {
+	            admday
+	        }
+	        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("WinterEventAPI/AdventCalendarTryTakeReward"):InvokeServer(unpack(args))
+	    
+	        task.wait(3600)
+	    end    
+	end)
+    task.spawn(function()
+            
+        -- === Main loop ==============================================================
+        local RS = game:GetService("ReplicatedStorage")
+        local API = RS:WaitForChild("API", 10)
+        
+        local ClientData = require(RS.ClientModules.Core.ClientData)
+        local playerName = game.Players.LocalPlayer.Name
+        
+        -- Optimized Neon + Mega auto-fuser
+        -- Neon: 4 x same-kind, age==6, neon ~= true
+        -- Mega: 4 x same-kind, age==6, neon == true
+        -- Remote lives at API["PetAPI/DoNeonFusion"] (name includes a slash)
+        
+        assert(API, "[Fusion] API folder not found")
+        
+        local DoNeonFusion = API:WaitForChild("PetAPI/DoNeonFusion", 10)
+        assert(DoNeonFusion, "[Fusion] PetAPI/DoNeonFusion remote not found")
+        
+        local ClientData = require(RS.ClientModules.Core.ClientData)
+        local playerName = game.Players.LocalPlayer.Name
+        
+        local function inv()
+            return ClientData.get_data()[playerName].inventory.pets
+        end
+        
+        -- Build a set of UIDs that are currently in-use/equipped
+        local function getActiveUids()
+            local set = {}
+            local act = ClientData.get_data()[playerName].idle_progression_manager
+            local ap = act and act.active_pets
+            if ap then
+                for _, slot in pairs(ap) do
+                    local ii = slot and slot.item_info
+                    if ii then
+                        local u = ii.unique or ii.id or ii.uid
+                        if u then set[u] = true end
+                        for _, v in pairs(ii) do
+                            if type(v) == "table" then
+                                local uu = v.unique or v.id or v.uid
+                                if uu then set[uu] = true end
+                            end
+                        end
+                    end
+                end
+            end
+            return set
+        end
+        
+        -- Robust extractor; tolerates flat or item_info schemas
+        local function extract(p, key)
+            local uid = p.unique or p.id or p.uid or key
+            local kind = p.kind or (p.item_info and (p.item_info.kind or p.item_info.Kind))
+            local props = p.properties or (p.item_info and p.item_info.properties) or {}
+            local age = tonumber(props.age or props.Age)
+            local neon = (props.neon == true) or (props.neon == "true")
+            local locked = props.locked or props.Locked or props.favorite or props.Favorite
+            return uid, kind, age, neon, locked
+        end
+        
+        -- Fast bucket builder (no intermediate tables beyond two maps)
+        local function buildBuckets(activeSet)
+            local neonBuckets, megaBuckets = {}, {}
+            for k, p in pairs(inv() or {}) do
+                local uid, kind, age, neon, locked = extract(p, k)
+                if uid and kind and age == 6 and not activeSet[uid] and not locked then
+                    local bucket = neon and megaBuckets or neonBuckets
+                    local arr = bucket[kind]
+                    if arr then
+                        arr[#arr + 1] = uid
+                    else
+                        bucket[kind] = { uid }
+                    end
+                end
+            end
+            return neonBuckets, megaBuckets
+        end
+        
+        -- Single call shape first (array), with lightweight fallback to 4 args
+        local function fuse4(a, b, c, d)
+            local ok = pcall(function() DoNeonFusion:InvokeServer({a, b, c, d}) end)
+            if ok then return true end
+            ok = pcall(function() DoNeonFusion:InvokeServer(a, b, c, d) end)
+            return ok
+        end
+        
+        -- Fuse all full groups of 4 from each kind bucket (index stepping; no removes)
+        local function fuseBuckets(buckets, label)
+            local groups = 0
+            for kind, arr in pairs(buckets) do
+                local n = #arr - (#arr % 4) -- max multiple of 4
+                for i = 1, n, 4 do
+                    local a, b, c, d = arr[i], arr[i+1], arr[i+2], arr[i+3]
+                    -- Minimal logging to reduce overhead; expand if debugging
+                    -- print(("[%s] %s -> %s,%s,%s,%s"):format(label, kind, a, b, c, d))
+                    local ok = fuse4(a, b, c, d)
+                    if ok then
+                        groups = groups + 1
+                    else
+                        warn(("[Fusion] %s failed for kind=%s on ids=%s,%s,%s,%s")
+                            :format(label, tostring(kind), tostring(a), tostring(b), tostring(c), tostring(d)))
+                        break -- avoid hammering if server rejects this kind right now
+                    end
+                    task.wait(1.0) -- gentle throttle
+                end
+            end
+            return groups
+        end
 
 
+        while true do
+            -- Commit progression (supports either RemoteEvent or RemoteFunction)
+            do
+                local commit = API:FindFirstChild("IdleProgressionAPI/CommitAllProgression")
+                if commit then
+                    pcall(function()
+                        if commit:IsA("RemoteEvent") then
+                            commit:FireServer()
+                        elseif commit:IsA("RemoteFunction") then
+                            commit:InvokeServer()
+                        else
+                            -- some games pack a ModuleScript/Bindable here – safely ignore
+                        end
+                    end)
+                end
+            end
+        
+            -- Safe pen checker/refiller
+            local data = ClientData.get_data() and ClientData.get_data()[playerName]
+            if not data then
+                -- Data not ready yet; try again shortly
+                task.wait(5)
+                continue
+            end
+        
+            local active = (data.idle_progression_manager and data.idle_progression_manager.active_pets) or {}
+            local inv    = (data.inventory and data.inventory.pets) or {}
+        
+            -- 1) Flatten active pen to {slotId, kind, age}
+            local activeList = {}
+            for slotId, slot in pairs(active) do
+                local info = slot and slot.item_info
+                if type(info) == "table" then
+                    if info.kind then
+                        table.insert(activeList, {
+                            slotId = slotId,
+                            kind   = info.kind,
+                            age    = info.properties and info.properties.age,
+                        })
+                    else
+                        for _, item in pairs(info) do
+                            if type(item) == "table" and item.kind then
+                                table.insert(activeList, {
+                                    slotId = slotId,
+                                    kind   = item.kind,
+                                    age    = item.properties and item.properties.age,
+                                })
+                            end
+                        end
+                    end
+                end
+            end
+        
+            -- 2) Check "exactly 4" + "all same kind" + "no eggs (age==6)"
+            local count = #activeList
+            local allSame = count > 0
+            local firstKind = (activeList[1] and activeList[1].kind) or nil
+            local hasEgg = false
+        
+            for i = 1, count do
+                local p = activeList[i]
+                if p.age == 6 then hasEgg = true end
+                if firstKind and p.kind ~= firstKind then allSame = false end
+            end
+        
+            -- If already good, just wait and loop (don't 'return' which would stop the script)
+            if count == 4 and allSame and not hasEgg then
+                task.wait(450)
+				local active = getActiveUids()
+	            local neonBuckets, megaBuckets = buildBuckets(active)
+	        
+	            -- Quick counts without extra loops
+	            local function count(arrs) local c=0 for _,v in pairs(arrs) do c=c+#v end return c end
+	            -- print(("[Neon ready] %d | [Mega ready] %d"):format(count(neonBuckets), count(megaBuckets)))
+	        
+	            local neonFused = fuseBuckets(neonBuckets, "Neon")
+	            local megaFused = fuseBuckets(megaBuckets, "Mega")
+	            print(("[Fusion] Neon groups: %d | Mega groups: %d"):format(neonFused, megaFused))
+                print("✅ Pen OK. Waiting 450s…")
+                continue
+            end
+        
+            -- 3) Clear the pen (avoid mutating while iterating)
+            local RemovePet = API:FindFirstChild("IdleProgressionAPI/RemovePet")
+            if RemovePet and RemovePet:IsA("RemoteEvent") then
+                for _, p in ipairs(activeList) do
+                    pcall(function() RemovePet:FireServer(p.slotId) end)
+                end
+            end
+        
+            -- 4) Build inventory by kind (ignore eggs age==6)
+            local byKind = {}
+            for petId, pet in pairs(inv) do
+                if pet and pet.kind then
+                    local age = pet.properties and pet.properties.age
+                    if age ~= 6 then
+                        local list = byKind[pet.kind]
+                        if not list then
+                            list = {}
+                            byKind[pet.kind] = list
+                        end
+                        list[#list + 1] = petId
+                    end
+                end
+            end
+        
+            -- 5) Pick any kind that has 4+
+            local chosenIds
+            for _, ids in pairs(byKind) do
+                if #ids >= 4 then
+                    chosenIds = { ids[1], ids[2], ids[3], ids[4] }
+                    break
+                end
+            end
+        
+            if not chosenIds then
+                warn("❌ No kind with 4 available (non-egg) in inventory.")
+                task.wait(450)
+                continue
+            end
+        
+            -- 6) Add 4 pets back
+            local AddPet = API:FindFirstChild("IdleProgressionAPI/AddPet")
+            if AddPet and AddPet:IsA("RemoteEvent") then
+                for _, petId in ipairs(chosenIds) do
+                    pcall(function() AddPet:FireServer(petId) end)
+                end
+                print("♻️ Refilled pen with 4 of the same kind.")
+            else
+                warn("AddPet remote not found or wrong class.")
+            end
+        
+            local active = getActiveUids()
+            local neonBuckets, megaBuckets = buildBuckets(active)
+        
+            -- Quick counts without extra loops
+            local function count(arrs) local c=0 for _,v in pairs(arrs) do c=c+#v end return c end
+            -- print(("[Neon ready] %d | [Mega ready] %d"):format(count(neonBuckets), count(megaBuckets)))
+        
+            local neonFused = fuseBuckets(neonBuckets, "Neon")
+            local megaFused = fuseBuckets(megaBuckets, "Mega")
+            print(("[Fusion] Neon groups: %d | Mega groups: %d"):format(neonFused, megaFused))
 
-
+            task.wait(450)
+            print("450 seconds done")
+        end
+        
+    end)
+    
     -- ########################################################################################################################################################################
     for _, pet in ipairs(workspace.Pets:GetChildren()) do
         --print(pet.Name)
@@ -1326,7 +1359,6 @@ end)
 
     _G.FarmTypeRunning = "none"
 
-    
     local function startPetFarm()
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/ChooseTeam"):InvokeServer("Babies",{["dont_send_back_home"] = true, ["source_for_logging"] = "avatar_editor"})
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
@@ -1355,20 +1387,11 @@ end)
         end)
 
         -- ######################################### EVENT
-        task.spawn(function()
-            while true do
-                
-                local day = tonumber(os.date("%d"))
-                local admday = day - 1
-                
-                local args = {
-                    admday
-                }
-                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("WinterEventAPI/AdventCalendarTryTakeReward"):InvokeServer(unpack(args))
-            
-                task.wait(600)
-            end    
-        end)
+
+
+        
+
+
         -- #########################################
         
 
@@ -1397,13 +1420,11 @@ end)
                     task.wait(1)
                     equipPet()
                     if table.find(PetAilmentsArray, "hungry") or table.find(PetAilmentsArray, "thirsty") then
-                        checkHouse()
                         EatDrinkSafeCall(true)
                     end
                     -- print("lapas sa hungry")
                     -- Baby hungry
                     if table.find(BabyAilmentsArray, "hungry") then
-                        checkHouse()
                         -- Baby hungry
                         startingMoney = getCurrentMoney()
                         if startingMoney > 5 then
@@ -1419,7 +1440,6 @@ end)
                     end
                     -- Baby thirsty
                     if table.find(BabyAilmentsArray, "thirsty") then
-                        checkHouse()
                         -- Baby thirsty
                         startingMoney = getCurrentMoney()
                         if startingMoney > 5 then
@@ -1436,7 +1456,6 @@ end)
                     
                     -- Baby sick
                     if table.find(BabyAilmentsArray, "sick") then
-                        checkHouse()
                         -- Baby sick
                         
                         game:GetService("ReplicatedStorage").API:FindFirstChild("LocationAPI/SetLocation"):FireServer("Hospital")
@@ -1475,7 +1494,6 @@ end)
 
                     -- Check if 'school' is in the PetAilmentsArray
                     if table.find(PetAilmentsArray, "school") or table.find(BabyAilmentsArray, "school") then
-                        checkHouse()
                         --print("going school")
                         taskName = "📚"
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
@@ -1506,7 +1524,6 @@ end)
     
                     -- Check if 'salon' is in the PetAilmentsArray
                     if table.find(PetAilmentsArray, "salon") or table.find(BabyAilmentsArray, "salon") then
-                        checkHouse()
                         --print("going salon")
                         taskName = "✂️"
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
@@ -1542,7 +1559,6 @@ end)
                     end
                     -- Check if 'salon' is in the PetAilmentsArray
                     if table.find(PetAilmentsArray, "moon") or table.find(BabyAilmentsArray, "moon") then
-                        checkHouse()
                         --print("going moon")
                         taskName = "🌙"
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
@@ -1571,7 +1587,6 @@ end)
                     end
                     -- Check if 'pizza_party' is in the PetAilmentsArray
                     if table.find(PetAilmentsArray, "pizza_party") or table.find(BabyAilmentsArray, "pizza_party") then
-                        checkHouse()
                         --print("going pizza")
                         taskName = "🍕"
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
@@ -1609,7 +1624,6 @@ end)
                     end
                     -- Check if 'bored' is in the PetAilmentsArray
                     if table.find(PetAilmentsArray, "bored") then
-                        checkHouse()
                         --print("doing bored")
                         taskName = "🥱"
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
@@ -1645,7 +1659,6 @@ end)
                         --print("done bored")
                     end
                     if table.find(BabyAilmentsArray, "bored") then
-                        checkHouse()
                         --print("doing bored")
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
                         if getgenv().PianoID then
@@ -1687,7 +1700,6 @@ end)
                     
                     -- Check if 'beach_party' is in the PetAilmentsArray
                     if table.find(PetAilmentsArray, "beach_party") or table.find(BabyAilmentsArray, "beach_party") then
-                        checkHouse()
                         --print("going beach party")
                         taskName = "⛱️"
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
@@ -1735,7 +1747,6 @@ end)
                     
                     -- Check if 'camping' is in the PetAilmentsArray
                     if table.find(PetAilmentsArray, "camping") or table.find(BabyAilmentsArray, "camping") then
-                        checkHouse()
                         --print("going camping")
                         taskName = "🏕️"
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
@@ -1783,7 +1794,6 @@ end)
                     
                     -- Check if 'dirty' is in the PetAilmentsArray
                     if table.find(PetAilmentsArray, "dirty") then
-                        checkHouse()
                         --print("doing dirty")
                         taskName = "🚿"
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
@@ -1820,7 +1830,6 @@ end)
                     end  
                     
                     if table.find(BabyAilmentsArray, "dirty") then
-                        checkHouse()
                         --print("doing dirty")
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
                         if getgenv().ShowerID then
@@ -1861,7 +1870,6 @@ end)
                     
                     -- Check if 'sleepy' is in the PetAilmentsArray
                     if table.find(PetAilmentsArray, "sleepy") then
-                        checkHouse()
                         --print("doing sleepy")
                         taskName = "😴"
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
@@ -1898,7 +1906,6 @@ end)
                     end  
                     
                     if table.find(BabyAilmentsArray, "sleepy") then
-                        checkHouse()
                         --print("doing sleepy")
                         if getgenv().BedID then
                             task.spawn(function()
@@ -1938,7 +1945,6 @@ end)
                     
                     -- Check if 'Potty' is in the PetAilmentsArray
                     if table.find(PetAilmentsArray, "toilet") then
-                        checkHouse()
                         --print("going toilet")
                         taskName = "🧻"
                         task.wait(3)
@@ -2074,7 +2080,6 @@ end)
                     
                     -- Check if 'catch' is in the PetAilmentsArray
                     if table.find(PetAilmentsArray, "play") then
-                        checkHouse()
                         --print("going catch")
                         taskName = "🦴"
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
@@ -2109,7 +2114,6 @@ end)
                    
                     -- Check if 'sick' is in the PetAilmentsArray
                     if table.find(PetAilmentsArray, "sick") then
-                        checkHouse()
                         --print("going sick")
                         taskName = "🤒"
                         getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
@@ -2150,7 +2154,6 @@ end)
                     
                     -- Check if 'walk' is in the PetAilmentsArray
                     if table.find(PetAilmentsArray, "walk") then
-                        checkHouse()
                         -- Check if petfarm is true
                         if not getgenv().PetFarmGuiStarter then
                             return -- Exit the function or stop the process if petfarm is false
@@ -2215,7 +2218,6 @@ end)
                     
                     -- Check if 'ride' is in the PetAilmentsArray
                     if table.find(PetAilmentsArray, "ride") then
-                        checkHouse()
                         -- Check if petfarm is true
                         if not getgenv().PetFarmGuiStarter then
                             return -- Exit the function or stop the process if petfarm is false
