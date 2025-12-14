@@ -504,7 +504,7 @@ if not _G.ScriptRunning then
 		local requiredRarity
         local blueCap
 
-        print("curpet", equipManagerPets[1])
+        print("curpet", equipManagerPets[1].unique)
 		for x, y in pairs(AllData) do
             -- new
             if y.kind == "personal_stylist" then
@@ -519,7 +519,7 @@ if not _G.ScriptRunning then
                     "pet",
                     "hats",
                     blueCap, -- petwear
-                    equipManagerPets[1]  -- pet
+                    equipManagerPets[1].unique  -- pet
                 }
                 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("AvatarAPI/PutOn"):InvokeServer(unpack(args))
             end
