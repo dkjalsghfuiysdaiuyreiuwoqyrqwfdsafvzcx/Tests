@@ -480,278 +480,144 @@ if not _G.ScriptRunning then
     end
 
     
-    -- Nil-safe, tracey version of your equipPet()
-local function equipPet()
-    print("[equipPet] ▶ start")
-
-    -- helpers
-    local function safeGet(root, ...)
-        local cur = root
-        for i = 1, select("#", ...) do
-            if type(cur) ~= "table" then return nil end
-            cur = cur[select(i, ...)]
-        end
-        return cur
-    end
-    local function safeCheckRarity(kind)
-        if not kind or type(CheckRarity) ~= "function" then return nil end
-        local ok, res = pcall(CheckRarity, kind)
-        if not ok then
-            print("[equipPet] ✖ CheckRarity failed for", tostring(kind), "err:", tostring(res))
-            return nil
-        end
-        return res
-    end
-    local function safeInvoke(apiPath, label, ...)
-        local ok, res = pcall(function()
-            return game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild(apiPath):InvokeServer(...)
+    local function equipPet()
+        checkHouse()    
+        -- Attempt to require ClientData module
+        
+        local success, fsys = pcall(function()
+            return require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
         end)
-        if ok then
-            print("[equipPet] ✓", label, "OK")
-        else
-            print("[equipPet] ✖", label, "failed:", tostring(res))
+        
+        if not success or not fsys then
+            warn("Failed to require fsys")
+            return
         end
-        return ok, res
-    end
+        
+        local equipManager = fsys.get("equip_manager")
+        local equipManagerPets = equipManager and equipManager.pets or {}
+        local inventory = fsys.get("inventory")
+        local inventoryPets = inventory and inventory.pets or {}
 
-    -- 0) House check
-    if typeof(checkHouse) == "function" then
-        local ok, err = pcall(checkHouse)
-        if not ok then print("[equipPet] checkHouse failed:", tostring(err)) end
-    else
-        print("[equipPet] (info) no checkHouse()")
-    end
+		local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData) 
+		local playerName = game.Players.LocalPlayer.Name
+		local AllData = ClientData.get_data()[playerName].dailies_manager.serialized_tabs.vanilla.active_dailies
+		local requiredRarity
+        local blueCap
 
-    -- 1) Require ClientData
-    local Rep = game:GetService("ReplicatedStorage")
-    local success, fsys = pcall(function()
-        return require(Rep.ClientModules.Core.ClientData)
-    end)
-    if not success or not fsys then
-        warn("[equipPet] abort: Failed to require fsys")
-        return
-    end
-    print("[equipPet] ✓ ClientData module loaded")
-
-    -- 2) Managers & lists
-    local equipManager = fsys.get and fsys.get("equip_manager") or nil
-    local equipManagerPets = (equipManager and equipManager.pets) or {}
-    print("[equipPet] equipped pets count:", (#equipManagerPets > 0) and #equipManagerPets or 0)
-
-    local inventory = fsys.get and fsys.get("inventory") or nil
-    local inventoryPets = (inventory and inventory.pets) or {}
-    print("[equipPet] inventory pets count:", (#inventoryPets > 0) and #inventoryPets or 0)
-
-    -- 3) Player data & dailies (guard every hop)
-    local ClientData = require(Rep.ClientModules.Core.ClientData)
-    local player = game.Players.LocalPlayer
-    if not player then print("[equipPet] abort: LocalPlayer missing"); return end
-    local playerName = player.Name
-    print("[equipPet] player:", playerName)
-
-    local rootData = ClientData.get_data and ClientData.get_data() or nil
-    if not rootData then print("[equipPet] abort: get_data() returned nil"); return end
-    local pdata = rootData[playerName]
-    if not pdata then print("[equipPet] abort: no data for player"); return end
-
-    local AllData = safeGet(pdata, "dailies_manager", "serialized_tabs", "vanilla", "active_dailies")
-    if not AllData then
-        print("[equipPet] (info) no active_dailies; continuing with no required rarity")
-        AllData = {}
-    end
-
-    local requiredRarity
-    local blueCap
-    local petToEquip -- define early; used later
-
-    -- 4) Parse dailies (PERSONAL_STYLIST / NEEDIER)
-    for _, y in pairs(AllData) do
-        if type(y) == "table" and y.kind == "personal_stylist" then
-            local inv = pdata.inventory
-            local pet_wears = inv and inv.pet_accessories or nil
-            if not pet_wears then
-                print("[equipPet] (stylist) no pet_accessories")
-            else
-                for _, wear in pairs(pet_wears) do
-                    if wear and wear.kind == "blue_cap" then
-                        blueCap = wear.unique
-                        print("[equipPet] (stylist) found blue_cap unique:", tostring(blueCap))
+        
+		for x, y in pairs(AllData) do
+            -- new
+            if y.kind == "personal_stylist" then
+                print("curpet", equipManagerPets[1].unique)
+                local pet_wears = ClientData.get_data()[playerName].inventory.pet_accessories
+                for x, y in pairs(pet_wears) do
+                    if y.kind == "blue_cap" then
+                        blueCap = y.unique
                         break
                     end
                 end
+                local args = {
+                    "pet",
+                    "hats",
+                    blueCap, -- petwear
+                    equipManagerPets[1].unique  -- pet
+                }
+                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("AvatarAPI/PutOn"):InvokeServer(unpack(args))
             end
 
-            local curPet = equipManagerPets[1]
-            local curUnique = curPet and curPet.unique or nil
-            if blueCap and curUnique then
-                safeInvoke("AvatarAPI/PutOn", "AvatarAPI/PutOn", "pet", "hats", blueCap, curUnique)
-            else
-                print("[equipPet] (stylist) skip PutOn; blueCap or current pet missing")
+            if y.kind == "needier" then
+                print(y.state.pet_rarity)
+                requiredRarity = y.state.pet_rarity
             end
-        end
 
-        if type(y) == "table" and y.kind == "needier" then
-            local pr = safeGet(y, "state", "pet_rarity")
-            print("[equipPet] needier.pet_rarity:", tostring(pr))
-            requiredRarity = pr or requiredRarity
-        end
-    end
-    print("[equipPet] requiredRarity:", tostring(requiredRarity))
-
-    -- 5) Decide if we should change pet
-    local currentPet = equipManagerPets[1]
-    if currentPet then
-        print("[equipPet] current pet:", tostring(currentPet.unique), "kind:", tostring(currentPet.kind))
-    else
-        print("[equipPet] no current pet equipped")
-    end
-
-    local shouldEquipNewPet
-    do
-        local sameAsTarget = (currentPet and petToEquip and currentPet.unique == petToEquip) or false
-        local currentRarity = currentPet and safeCheckRarity(currentPet.kind) or nil
-        shouldEquipNewPet = (not currentPet) or (not sameAsTarget) or (requiredRarity and currentRarity ~= requiredRarity)
-        print("[equipPet] shouldEquipNewPet:", shouldEquipNewPet, "currentRarity:", tostring(currentRarity))
-    end
-
-    -- 6) MAIN LOGIC (Egg vs non-Egg)
-    if requiredRarity ~= "Egg" then
-        if shouldEquipNewPet then
-            -- Prefer age 6 of required rarity
-            if requiredRarity then
+        print(requiredRarity)
+        
+        local currentPet = equipManagerPets[1]
+        local shouldEquipNewPet = not currentPet or not petToEquip or (currentPet.unique ~= petToEquip) or (requiredRarity ~= CheckRarity(currentPet.kind))
+		
+        if requiredRarity ~= "Egg" then
+            if shouldEquipNewPet then
                 for _, pet in pairs(inventoryPets) do
-                    if type(pet) == "table" and pet.kind and pet.unique then
-                        if pet.kind ~= "practice_dog" and not tostring(pet.kind):match("_egg$") then
-                            local age = safeGet(pet, "properties", "age")
-                            local r = safeCheckRarity(pet.kind)
-                            if age == 6 and r == requiredRarity then
-                                print("[equipPet] pick age6:", r, pet.unique)
-                                petToEquip = pet.unique
-                                break
-                            end
+                    if pet.kind ~= "practice_dog" and not pet.kind:match("_egg$") then
+                        if pet.properties.age == 6 and CheckRarity(pet.kind) == requiredRarity then
+                            print(pet.properties.age, CheckRarity(pet.kind), pet.unique)
+                            petToEquip = pet.unique
+                            break
+                        end
+                        if CheckRarity(pet.kind) == requiredRarity then
+                            print("not age 6 ", CheckRarity(pet.kind), pet.unique)
+                            petToEquip = pet.unique
                         end
                     end
                 end
-                -- Fallback: any of required rarity
-                if not petToEquip then
-                    for _, pet in pairs(inventoryPets) do
-                        if type(pet) == "table" and pet.kind and pet.unique then
-                            if pet.kind ~= "practice_dog" and not tostring(pet.kind):match("_egg$") then
-                                local r = safeCheckRarity(pet.kind)
-                                if r == requiredRarity then
-                                    print("[equipPet] pick any req rarity:", r, pet.unique)
-                                    petToEquip = pet.unique
-                                    break
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-
-            -- Last fallback: your highest-level finder, then first pet
-            if not petToEquip and typeof(getHighestLevelPet) == "function" then
-                local ok, best = pcall(getHighestLevelPet)
-                if ok and best then
-                    petToEquip = best
-                    print("[equipPet] fallback getHighestLevelPet() ->", tostring(best))
-                end
-            end
-            if not petToEquip then
-                for _, p in pairs(inventoryPets) do
-                    if type(p) == "table" and p.unique then
-                        petToEquip = p.unique
-                        print("[equipPet] ultimate fallback first pet:", petToEquip)
-                        break
-                    end
-                end
-            end
-
-            if petToEquip then
-                safeInvoke("ToolAPI/Unequip", "Unequip", petToEquip, {use_sound_delay = true, equip_as_last = false})
-                task.wait(0.3)
-                safeInvoke("ToolAPI/Equip", "Equip", petToEquip, {use_sound_delay = true, equip_as_last = false})
-            else
-                print("[equipPet] (info) no petToEquip resolved")
-            end
-        end
-    else
-        -- Egg flow
-        local cash = safeGet(pdata, "money")
-        cash = tonumber(cash) or 0
-        print("[equipPet] cash:", cash)
-        if cash > 750 then
-            petToEquip = nil
-            inventory = fsys.get and fsys.get("inventory") or nil
-            inventoryPets = (inventory and inventory.pets) or {}
-            task.wait(1)
-
-            for _, pet in pairs(inventoryPets) do
-                if type(pet) == "table" and pet.kind == "aztec_egg_2025_aztec_egg" then
-                    petToEquip = pet.unique
-                    print("[equipPet] found aztec egg unique:", tostring(petToEquip))
-                    break
-                end
-            end
-
-            if petToEquip then
-                safeInvoke("ToolAPI/Unequip", "Unequip", petToEquip, {use_sound_delay = true, equip_as_last = false})
-                task.wait(0.3)
-                safeInvoke("ToolAPI/Equip", "Equip", petToEquip, {use_sound_delay = true, equip_as_last = false})
-            else
-                print("[equipPet] buying aztec egg…")
-                safeInvoke("ShopAPI/BuyItem", "ShopAPI/BuyItem", "pets", "aztec_egg_2025_aztec_egg", {buy_count = 1})
-                task.wait(1)
-                inventory = fsys.get and fsys.get("inventory") or nil
-                inventoryPets = (inventory and inventory.pets) or {}
-                for _, pet in pairs(inventoryPets) do
-                    if type(pet) == "table" and pet.kind == "aztec_egg_2025_aztec_egg" then
-                        petToEquip = pet.unique
-                        print("[equipPet] acquired aztec egg unique:", tostring(petToEquip))
-                        break
-                    end
-                end
+        
+                petToEquip = petToEquip or getHighestLevelPet()
+                
+                -- Equip the selected pet
                 if petToEquip then
-                    safeInvoke("ToolAPI/Unequip", "Unequip", petToEquip, {use_sound_delay = true, equip_as_last = false})
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Unequip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
                     task.wait(0.3)
-                    safeInvoke("ToolAPI/Equip", "Equip", petToEquip, {use_sound_delay = true, equip_as_last = false})
-                else
-                    print("[equipPet] (warn) egg purchase did not surface in inventory")
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Equip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
                 end
             end
         else
-            print("[equipPet] Not enough money")
+            Cash = ClientData.get_data()[game.Players.LocalPlayer.Name].money
+            if Cash > 750 then
+                petToEquip = nil
+                inventory = fsys.get("inventory")
+                inventoryPets = inventory and inventory.pets or {}
+                task.wait(1)
+                for _, pet in pairs(inventoryPets) do
+                    if pet.kind ~= "practice_dog" then
+                        if pet.kind == "aztec_egg_2025_aztec_egg" then
+                            petToEquip = pet.unique
+                        end
+                    end
+                end
+
+                -- Equip the selected pet
+                if petToEquip then
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Unequip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
+                    task.wait(0.3)
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Equip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
+                else
+                    local args = {
+                        "pets",
+                        "aztec_egg_2025_aztec_egg",
+                        {
+                            buy_count = 1
+                        }
+                    }
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
+                    task.wait(1)
+                    inventory = fsys.get("inventory")
+                    inventoryPets = inventory and inventory.pets or {}
+                    for _, pet in pairs(inventoryPets) do
+                        if pet.kind ~= "practice_dog" then
+                            if pet.kind == "aztec_egg_2025_aztec_egg" then
+                                petToEquip = pet.unique
+                            end
+                        end
+                    end
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Unequip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
+                    task.wait(0.3)
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ToolAPI/Equip"):InvokeServer(petToEquip, {use_sound_delay = true, equip_as_last = false})
+                end
+            else
+                print("Not enough money")
+            end
         end
+        -- Handle pet ailments
+        task.wait(0.3)
+        PetAilmentsArray = {}
+        task.wait(0.3)
+        local playerData = ClientData.get_data()[game.Players.LocalPlayer.Name]
+        getAilments(playerData.ailments_manager.ailments)
+        task.wait(0.3)
+        getBabyAilments(playerData.ailments_manager.baby_ailments)
+        task.wait(0.3)
     end
 
-    -- 7) Ailments (fully guarded)
-    task.wait(0.3)
-    local am = safeGet(pdata, "ailments_manager")
-    local ailments = am and am.ailments or nil
-    local babyAilments = am and am.baby_ailments or nil
-
-    if typeof(getAilments) == "function" then
-        if ailments then
-            local ok, err = pcall(getAilments, ailments)
-            if not ok then print("[equipPet] getAilments failed:", tostring(err)) end
-        else
-            print("[equipPet] (info) no ailments")
-        end
-    end
-
-    task.wait(0.3)
-    if typeof(getBabyAilments) == "function" then
-        if babyAilments then
-            local ok, err = pcall(getBabyAilments, babyAilments)
-            if not ok then print("[equipPet] getBabyAilments failed:", tostring(err)) end
-        else
-            print("[equipPet] (info) no baby_ailments")
-        end
-    end
-
-    task.wait(0.3)
-    print("[equipPet] ■ done")
-end
 
 
 
