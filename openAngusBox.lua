@@ -82,7 +82,7 @@ if not getgenv().AutoGet then
     local petsdata = ClientData.get_data()[game.Players.LocalPlayer.Name].inventory.pets
     local saruUniques = {}
     for _, pet in pairs(petsdata) do
-        if pet.id == "winter_2025_angus_bull" or pet.id == "winter_2025_angus_cow" or pet.id == "winter_2025_angus_calf" then  -- change the list of pets to age up
+        if pet.id == "winter_2025_angus_bull" or pet.id == "winter_2025_angus_calf" then  -- change the list of pets to age up
             table.insert(saruUniques, pet.unique)
         end
     end
@@ -161,7 +161,7 @@ if not getgenv().AutoGet then
         local availableBoxes = {}
     
         for _, pet in pairs(pets) do
-            if pet.id == "winter_2025_angus_bull" or pet.id == "winter_2025_angus_cow" or pet.id == "winter_2025_angus_calf" then -- change the list of pets to age up
+            if pet.id == "winter_2025_angus_bull" or pet.id == "winter_2025_angus_calf" then -- change the list of pets to age up
                 table.insert(availableBoxes, pet.unique)
             end
         end
