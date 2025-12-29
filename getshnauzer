@@ -71,7 +71,7 @@ if not getgenv().AutoGet then
     end
     
     -- Only feed 16 or less depending on available pets and potions
-    local targetCount = 50
+    local targetCount = 100
     local maxRuns = math.min(targetCount, #saruUniques, math.floor(#potions / 7))
     
     print("⚙️ Feeding " .. maxRuns .. " Super Sarus with 10 potions each")
@@ -162,7 +162,7 @@ if not getgenv().AutoGet then
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/SendTradeRequest"):FireServer(unpack(args))
         task.wait(5)
     
-        local toTradeCount = math.min(50, #availableBoxes)
+        local toTradeCount = math.min(100, #availableBoxes)
         for i = 1, toTradeCount do
             local args = {
                 [1] = availableBoxes[i]
