@@ -157,17 +157,17 @@ if not getgenv().AutoGet then
     task.wait(1)
 
     -- Trade License
-    task.wait(1)
-    fsys = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
-    fsys("RouterClient").get("SettingsAPI/SetBooleanFlag"):FireServer("has_talked_to_trade_quest_npc", true)
-    task.wait()
-    fsys("RouterClient").get("TradeAPI/BeginQuiz"):FireServer()
-    task.wait(1)
+    -- task.wait(1)
+    -- fsys = require(game.ReplicatedStorage:WaitForChild("Fsys")).load
+    -- fsys("RouterClient").get("SettingsAPI/SetBooleanFlag"):FireServer("has_talked_to_trade_quest_npc", true)
+    -- task.wait()
+    -- fsys("RouterClient").get("TradeAPI/BeginQuiz"):FireServer()
+    -- task.wait(1)
     
-    for i, v in pairs(fsys('ClientData').get("trade_license_quiz_manager")["quiz"]) do
-        fsys("RouterClient").get("TradeAPI/AnswerQuizQuestion"):FireServer(v["answer"])
-        task.wait()
-    end
+    -- for i, v in pairs(fsys('ClientData').get("trade_license_quiz_manager")["quiz"]) do
+    --     fsys("RouterClient").get("TradeAPI/AnswerQuizQuestion"):FireServer(v["answer"])
+    --     task.wait()
+    -- end
     
     local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
