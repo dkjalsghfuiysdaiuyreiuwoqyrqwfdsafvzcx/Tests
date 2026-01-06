@@ -842,7 +842,7 @@ if not _G.ScriptRunning then
             if startingMoney > 100 then
                 print("Buying required crib")
                 print(startingMoney)
-                -- game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer({[1] = {["properties"] = {["cframe"] = CFrame.new(33.5, 0, -30) * CFrame.Angles(-0, -1.57, 0)},["kind"] = "egg_crib"}})
+                game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer({[1] = {["properties"] = {["cframe"] = CFrame.new(33.5, 0, -30) * CFrame.Angles(-0, -1.57, 0)},["kind"] = "egg_crib"}})
                 task.wait(1)
                 getgenv().BedID = GetFurniture("EggCrib")
                 startingMoney = getCurrentMoney()
@@ -854,7 +854,7 @@ if not _G.ScriptRunning then
             if startingMoney > 13 then
                 print("Buying Required Shower")
                 print(startingMoney)
-                -- game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer({[1] = {["properties"] = {["cframe"] = CFrame.new(34.5, 0, -8.5) * CFrame.Angles(0, 1.57, 0)},["kind"] = "stylishshower"}})
+                game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer({[1] = {["properties"] = {["cframe"] = CFrame.new(34.5, 0, -8.5) * CFrame.Angles(0, 1.57, 0)},["kind"] = "stylishshower"}})
                 task.wait(1)
                 getgenv().ShowerID = GetFurniture("StylishShower")
                 startingMoney = getCurrentMoney()
@@ -866,7 +866,7 @@ if not _G.ScriptRunning then
             if startingMoney > 100 then
                 print("Buying Required Piano")
                 print(startingMoney)
-                -- game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer({[1] = {["properties"] = {["cframe"] = CFrame.new(7.5, 7.5, -5.5) * CFrame.Angles(-1.57, 0, -0)},["kind"] = "piano"}})
+                game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer({[1] = {["properties"] = {["cframe"] = CFrame.new(7.5, 7.5, -5.5) * CFrame.Angles(-1.57, 0, -0)},["kind"] = "piano"}})
                 task.wait(1)
                 getgenv().PianoID = GetFurniture("Piano")
                 startingMoney = getCurrentMoney()
@@ -878,7 +878,7 @@ if not _G.ScriptRunning then
             if startingMoney > 80 then
                 print("Buying required water bowl")
                 print(startingMoney)
-                -- game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer({[1] = {["properties"] = {["cframe"] = CFrame.new(30.5, 0, -20) * CFrame.Angles(-0, -1.57, 0)},["kind"] = "pet_water_bowl"}})
+                game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer({[1] = {["properties"] = {["cframe"] = CFrame.new(30.5, 0, -20) * CFrame.Angles(-0, -1.57, 0)},["kind"] = "pet_water_bowl"}})
                 task.wait(1)
                 getgenv().WaterID = GetFurniture("PetWaterBowl")
                 startingMoney = getCurrentMoney()
@@ -890,7 +890,7 @@ if not _G.ScriptRunning then
             if startingMoney > 80 then
                 print("Buying required food bowl")
                 print(startingMoney)
-                -- game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer({[1] = {["properties"] = {["cframe"] = CFrame.new(30.5, 0, -20) * CFrame.Angles(-0, -1.57, 0)},["kind"] = "pet_food_bowl"}})
+                game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer({[1] = {["properties"] = {["cframe"] = CFrame.new(30.5, 0, -20) * CFrame.Angles(-0, -1.57, 0)},["kind"] = "pet_food_bowl"}})
                 task.wait(1)
                 getgenv().FoodID = GetFurniture("PetFoodBowl")
                 startingMoney = getCurrentMoney()
@@ -902,7 +902,7 @@ if not _G.ScriptRunning then
             if startingMoney > 9 then
                 print("Buying required toilet")
                 print(startingMoney)
-                -- game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer({[1] = {["properties"] = {["cframe"] = CFrame.new(30.5, 0, -20) * CFrame.Angles(-0, -1.57, 0)},["kind"] = "toilet"}})
+                game:GetService("ReplicatedStorage").API:FindFirstChild("HousingAPI/BuyFurnitures"):InvokeServer({[1] = {["properties"] = {["cframe"] = CFrame.new(30.5, 0, -20) * CFrame.Angles(-0, -1.57, 0)},["kind"] = "toilet"}})
                 task.wait(1)
                 getgenv().ToiletID = GetFurniture("Toilet")
                 startingMoney = getCurrentMoney()
