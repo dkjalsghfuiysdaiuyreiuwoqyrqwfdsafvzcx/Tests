@@ -44,7 +44,6 @@ if FeedPetMode == "Neon" and FeedPotions then
             table.insert(kelpPets, pet.unique)
             print("Found Neon ", PetToFeed, " Pet:", pet.unique)
         end
-        task.wait(0.05)
     end
 end
 
@@ -55,7 +54,6 @@ if FeedPotions then
             table.insert(potions, potion.unique)
             print("Found Potion:", potion.unique)
         end
-        task.wait(0.05)
     end
 end
 
