@@ -28,11 +28,10 @@ local potions = {}
 print("start")
 if FeedPetMode == "Normal" and FeedPotions then
     for _, pet in pairs(petsData) do
-        if pet.kind == PetToFeed and pet.properties.age < 6 and not pet.properties.neon then
+        if pet.kind == PetToFeed and pet.properties.age < 6 and not pet.properties.neon and not pet.properties.mega_neon then
             table.insert(kelpPets, pet.unique)
             print("Found Normal ", PetToFeed, " Pet:", pet.unique)
         end
-        task.wait(0.05)
     end
 end
 
@@ -40,7 +39,7 @@ end
 
 if FeedPetMode == "Neon" and FeedPotions then
     for _, pet in pairs(petsData) do
-        if pet.kind == PetToFeed and pet.properties.age < 6 and pet.properties.neon then
+        if pet.kind == PetToFeed and pet.properties.age < 6 and pet.properties.neon and not pet.properties.mega_neon then
             table.insert(kelpPets, pet.unique)
             print("Found Neon ", PetToFeed, " Pet:", pet.unique)
         end
@@ -121,7 +120,7 @@ local petsData = ClientData.get_data()[playerName].inventory.pets
 local kelpHunterAge6 = {}
 if FeedPetMode == "Normal" then 
     for _, pet in pairs(petsData) do
-        if pet.kind == PetToFeed and pet.properties.age == 6 and not pet.properties.neon then
+        if pet.kind == PetToFeed and pet.properties.age == 6 and not pet.properties.neon and not pet.properties.mega_neon then
             table.insert(kelpHunterAge6, pet.unique)
             print("Found age 6 Kelp Hunter:", pet.unique)
         end
@@ -131,7 +130,7 @@ end
 local petsData = ClientData.get_data()[playerName].inventory.pets
 if FeedPetMode == "Neon" then
     for _, pet in pairs(petsData) do
-        if pet.kind == PetToFeed and pet.properties.age == 6 and pet.properties.neon then
+        if pet.kind == PetToFeed and pet.properties.age == 6 and pet.properties.neon and not pet.properties.mega_neon then
             table.insert(kelpHunterAge6, pet.unique)
             print("Found age 6 Kelp Hunter:", pet.unique)
         end
