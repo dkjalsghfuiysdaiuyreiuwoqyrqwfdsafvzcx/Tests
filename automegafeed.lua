@@ -28,10 +28,11 @@ local potions = {}
 print("start")
 if FeedPetMode == "Normal" and FeedPotions then
     for _, pet in pairs(petsData) do
-        if pet.kind == PetToFeed and pet.properties.age < 6 then
+        if pet.kind == PetToFeed and pet.properties.age < 6 and not pet.properties.neon then
             table.insert(kelpPets, pet.unique)
             print("Found Normal ", PetToFeed, " Pet:", pet.unique)
         end
+        task.wait(0.05)
     end
 end
 
