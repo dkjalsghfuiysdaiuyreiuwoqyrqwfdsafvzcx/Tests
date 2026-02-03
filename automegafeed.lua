@@ -121,7 +121,7 @@ local petsData = ClientData.get_data()[playerName].inventory.pets
 local kelpHunterAge6 = {}
 if FeedPetMode == "Normal" then 
     for _, pet in pairs(petsData) do
-        if pet.kind == PetToFeed and pet.properties.age == 6 then
+        if pet.kind == PetToFeed and pet.properties.age == 6 and not pet.properties.neon then
             table.insert(kelpHunterAge6, pet.unique)
             print("Found age 6 Kelp Hunter:", pet.unique)
         end
