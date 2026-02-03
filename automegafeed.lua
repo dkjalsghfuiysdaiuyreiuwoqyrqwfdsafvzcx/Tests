@@ -32,7 +32,6 @@ if FeedPetMode == "Normal" and FeedPotions then
             table.insert(kelpPets, pet.unique)
             print("Found Normal ", PetToFeed, " Pet:", pet.unique)
         end
-        task.wait(0.05)
     end
 end
 
