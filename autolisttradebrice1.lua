@@ -207,7 +207,7 @@ if not getgenv().ScriptRunning then
             end
 
             -- Cache the first non-pudding house to switch to
-            if not farmingHouse.house_id and house.name:lower() ~= "my christmas pudding house" then
+            if not farmingHouse.house_id and house.name:lower() ~= "my christmas pudding house" and house.name:lower() ~= "mainhouse" then
                 farmingHouse.name = house.name
                 farmingHouse.house_id = house.house_id or house.id  -- use whatever key your data uses
             end
