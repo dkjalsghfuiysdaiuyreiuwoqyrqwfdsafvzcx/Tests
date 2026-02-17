@@ -193,49 +193,61 @@ if not getgenv().ScriptRunning then
         local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
         local Data = ClientData.get_data()[game.Players.LocalPlayer.Name].house_manager
 
-        local activeHouse = { name = nil, active = false }
-        local activeIsMainHouse = false
+        -- houses we never want to list / never want to be active when listing
+        local EXCLUDED = {
+            ["my christmas pudding house"] = true,
+            ["main house"] = true,
+        }
+
+        local function normName(n)
+            n = tostring(n or "")
+            return n:lower():gsub("^%s+", ""):gsub("%s+$", "")
+        end
+
+        local activeHouse = { name = nil, active = false, id = nil }
+        local activeIsExcluded = false
 
         local farmingHouse = { name = nil, house_id = nil }
 
         for _, house in pairs(Data) do
-            -- Track the active house (if any)
+            local hName = normName(house.name)
+            local hId = house.house_id or house.id
+
+            -- Track active house
             if house.active then
                 activeHouse.name = house.name
                 activeHouse.active = true
-                activeIsMainHouse = (house.name:lower() == "my christmas pudding house")
+                activeHouse.id = hId
+                activeIsExcluded = EXCLUDED[hName] == true
             end
 
-            -- Cache the first non-pudding house to switch to
-            if not farmingHouse.house_id and house.name:lower() ~= "my christmas pudding house" and house.name:lower() ~= "mainhouse" then
+            -- Pick first NON-excluded house to switch to
+            if (not farmingHouse.house_id) and (not EXCLUDED[hName]) then
                 farmingHouse.name = house.name
-                farmingHouse.house_id = house.house_id or house.id  -- use whatever key your data uses
+                farmingHouse.house_id = hId
             end
         end
 
-        -- Only switch if the active house is the pudding house AND we found an alternative
-        if activeHouse.active and activeIsMainHouse and farmingHouse.house_id then
-            print("Changing house to", farmingHouse.name)
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SpawnHouse"):FireServer(farmingHouse.house_id)
-            task.wait(5)
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/ListHouse"):InvokeServer()
-            task.wait(5)
-        else
-            -- Optional logging to understand why no switch happened
-            if not activeHouse.active then
-                print("No active house; nothing to change.")
-            elseif not activeIsMainHouse then
-                print("Active house is not the main house; no change needed.")
+        -- If active house is excluded, switch away before listing
+        if activeHouse.active and activeIsExcluded then
+            if farmingHouse.house_id then
+                print("Active house is excluded (" .. tostring(activeHouse.name) .. "). Switching to:", farmingHouse.name)
+                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SpawnHouse"):FireServer(farmingHouse.house_id)
+                task.wait(5)
                 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/ListHouse"):InvokeServer()
-            elseif not farmingHouse.house_id then
-                print("No alternative non-pudding house found to switch to.")
-                local Players = game:GetService("Players")
-                local Player = Players.LocalPlayer
-                Player:Kick("No house left to trade!")
+                task.wait(5)
+            else
+                print("No alternative NON-excluded house found (everything is pudding/main?).")
+                game:GetService("Players").LocalPlayer:Kick("No house left to trade!")
             end
+            return
         end
 
+        -- Otherwise it's safe to list as-is
+        print("Active house is allowed; listing houses now.")
+        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/ListHouse"):InvokeServer()
     end
+
 
     checkHouse()
 
