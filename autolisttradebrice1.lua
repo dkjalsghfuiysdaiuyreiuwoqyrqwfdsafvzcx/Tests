@@ -1,4 +1,4 @@
-getgenv().ScriptRunning = false
+
 
 if not getgenv().ScriptRunning then
     getgenv().ScriptRunning = true
