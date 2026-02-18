@@ -92,7 +92,7 @@ task.wait(10)
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
 
 local bucks = ClientData.get_data()[game.Players.LocalPlayer.Name].money
-local loopCount = math.floor(bucks / 37500)
+local loopCount = math.floor(bucks / bucksNeeded)
 
 for i = 1, loopCount do    
     -- your loop logic here
