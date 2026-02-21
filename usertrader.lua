@@ -202,6 +202,7 @@ while getgenv().in_trade and getgenv().trade_type == "DEPOSIT" do
     -- if under 18 pets total, negotiate after adding all of them
     if addedCount < 18 then
         print("Under 18 items (" .. addedCount .. "), negotiating...")
+        task.wait(10)
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
     end
 
