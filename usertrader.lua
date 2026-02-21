@@ -1,4 +1,4 @@
--- DEPOSIT
+-- user
 -- my adoptluck
 print("STARTING")
 
@@ -129,6 +129,7 @@ DataApiHook.OnClientEvent:Connect(function(...)
 
     if getgenv().trade_type == "WITHDRAW" then
         if recipient and recipient.negotiated and not recipient.confirmed then
+            task.wait(10)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
         end
     end
@@ -136,6 +137,7 @@ DataApiHook.OnClientEvent:Connect(function(...)
     if getgenv().trade_type == "DEPOSIT" then
         if recipient and recipient.negotiated and not recipient.confirmed then
             print("DEPOSIT")
+            task.wait(10)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
         end
     end
