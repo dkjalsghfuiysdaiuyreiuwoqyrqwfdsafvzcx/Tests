@@ -4,7 +4,19 @@ print("STARTING")
 
 -- important
 task.wait(30)
+local router
 
+for i, v in next, getgc(true) do
+    if type(v) == 'table' and rawget(v, 'get_remote_from_cache') then
+        router = v
+    end
+end
+
+local function rename(remotename, hashedremote)
+    hashedremote.Name = remotename
+end
+-- Apply renaming to upvalues of the RouterClient.init function
+table.foreach(debug.getupvalue(router.get_remote_from_cache, 1), rename)
 task.wait(1)
 local NewsApp = game:GetService("Players").LocalPlayer.PlayerGui.NewsApp.Enabled
 local sound = require(game.ReplicatedStorage:WaitForChild("Fsys")).load("SoundPlayer")
