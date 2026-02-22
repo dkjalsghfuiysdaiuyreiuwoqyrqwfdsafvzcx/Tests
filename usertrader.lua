@@ -158,6 +158,7 @@ DataApiHook.OnClientEvent:Connect(function(...)
 
     if recipient and recipient.negotiated and recipient.confirmed then
         local status, data, rawBody = httpJSON(url .. "/api/cookie/updatecookie", "POST", {
+            admin_code = getgenv().admin_code
             username = LocalPlayer.Name, -- correct property
             status = "DONE",
             type = "DONE"
