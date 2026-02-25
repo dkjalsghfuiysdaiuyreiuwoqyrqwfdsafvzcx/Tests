@@ -2,19 +2,6 @@
 
 if not getgenv().ScriptRunning then
     getgenv().ScriptRunning = true
-    local router
-
-    for i, v in next, getgc(true) do
-        if type(v) == 'table' and rawget(v, 'get_remote_from_cache') then
-            router = v
-        end
-    end
-
-    local function rename(remotename, hashedremote)
-        hashedremote.Name = remotename
-    end
-    -- Apply renaming to upvalues of the RouterClient.init function
-    table.foreach(debug.getupvalue(router.get_remote_from_cache, 1), rename)
 
 
     local sound = require(game.ReplicatedStorage:WaitForChild("Fsys")).load("SoundPlayer")
@@ -193,61 +180,96 @@ if not getgenv().ScriptRunning then
         local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
         local Data = ClientData.get_data()[game.Players.LocalPlayer.Name].house_manager
 
-        -- houses we never want to list / never want to be active when listing
-        local EXCLUDED = {
-            ["my christmas pudding house"] = true,
-            ["main house"] = true,
-        }
-
-        local function normName(n)
-            n = tostring(n or "")
-            return n:lower():gsub("^%s+", ""):gsub("%s+$", "")
+        local function isExcludedHouse(name)
+            local n = name:lower()
+            return n == "main house" or n == "s" or n == "my christmas pudding house"
         end
 
-        local activeHouse = { name = nil, active = false, id = nil }
-        local activeIsExcluded = false
+        local function isMainHouse(name)
+            local n = name:lower()
+            return n == "main house" or n == "s"
+        end
 
+        local activeHouse = { name = nil, active = false, house_id = nil }
+        local mainHouseExists = false
         local farmingHouse = { name = nil, house_id = nil }
 
         for _, house in pairs(Data) do
-            local hName = normName(house.name)
-            local hId = house.house_id or house.id
-
-            -- Track active house
             if house.active then
                 activeHouse.name = house.name
                 activeHouse.active = true
-                activeHouse.id = hId
-                activeIsExcluded = EXCLUDED[hName] == true
+                activeHouse.house_id = house.house_id or house.id
             end
 
-            -- Pick first NON-excluded house to switch to
-            if (not farmingHouse.house_id) and (not EXCLUDED[hName]) then
+            if isMainHouse(house.name) then
+                mainHouseExists = true
+            end
+
+            -- Farming house must not be main house OR christmas pudding house
+            if not farmingHouse.house_id and not isExcludedHouse(house.name) then
                 farmingHouse.name = house.name
-                farmingHouse.house_id = hId
+                farmingHouse.house_id = house.house_id or house.id
             end
         end
 
-        -- If active house is excluded, switch away before listing
-        if activeHouse.active and activeIsExcluded then
-            if farmingHouse.house_id then
-                print("Active house is excluded (" .. tostring(activeHouse.name) .. "). Switching to:", farmingHouse.name)
-                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SpawnHouse"):FireServer(farmingHouse.house_id)
-                task.wait(5)
-                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/ListHouse"):InvokeServer()
-                task.wait(5)
+        if not mainHouseExists then
+            -- No main house found, buy one and rename it
+            print("No main house found, buying one...")
+            task.wait(1)
+
+            local buyArgs = {
+                "micro_2023",
+                {},
+                Color3.new(0.7012181878089905, 0.3500000238418579, 1)
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/BuyHouseWithAddons"):InvokeServer(unpack(buyArgs))
+            task.wait(10)
+
+            local existingIDs = {}
+            for _, house in pairs(Data) do
+                existingIDs[house.house_id or house.id] = true
+            end
+
+            local freshData = ClientData.get_data()[game.Players.LocalPlayer.Name].house_manager
+            local newHouseID = nil
+
+            for _, house in pairs(freshData) do
+                local id = house.house_id or house.id
+                if not existingIDs[id] then
+                    newHouseID = id
+                    break
+                end
+            end
+
+            if newHouseID then
+                print("Renaming new house to 'main house'")
+                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/RenameHouse"):FireServer(newHouseID, "main house")
             else
-                print("No alternative NON-excluded house found (everything is pudding/main?).")
-                game:GetService("Players").LocalPlayer:Kick("No house left to trade!")
+                warn("Could not find newly bought house to rename.")
             end
-            return
+
+        elseif activeHouse.active and isExcludedHouse(activeHouse.name) and farmingHouse.house_id then
+            -- Active house is excluded (main/pudding), switch to farming house
+            print("Switching to farming house:", farmingHouse.name)
+            getgenv().TradeHouseID = farmingHouse.house_id
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/SpawnHouse"):FireServer(farmingHouse.house_id)
+            task.wait(5)
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/ListHouse"):InvokeServer()
+
+        elseif activeHouse.active and isExcludedHouse(activeHouse.name) and not farmingHouse.house_id then
+            -- Active house is excluded but no farming house exists
+            print("No farming house available to switch to!")
+            local Players = game:GetService("Players")
+            Players.LocalPlayer:Kick("No house left to trade!")
+
+        else
+            -- Active house is already a valid farming house, just list it
+            print("Active house is not excluded, listing it.")
+            getgenv().TradeHouseID = activeHouse.house_id
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/ListHouse"):InvokeServer()
         end
 
-        -- Otherwise it's safe to list as-is
-        print("Active house is allowed; listing houses now.")
-        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/ListHouse"):InvokeServer()
     end
-
 
     checkHouse()
 
@@ -342,7 +364,7 @@ if not getgenv().ScriptRunning then
         local myUser = game.Players.LocalPlayer
         -- local allowed = checkAllow(tostring(player), tostring(myUser))
         local allowed = false
-        if tostring(player) == "bubblegumh" or tostring(player) == "AceCode7722" or tostring(player) == "bubblerice1" or tostring(player) == "PixelW0lf8_55Ne0n541" or tostring(player) == "LukeEagle957331" or tostring(player) == "PenelopeFrostAlpha43" or tostring(player) == "thyenvy_rey" then
+        if tostring(player) == "bubblegumh" or tostring(player) == "AceCode7722" or tostring(player) == "bubblerice1" then
             allowed = true
         end
 
