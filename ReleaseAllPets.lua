@@ -134,16 +134,24 @@ print("Invoke ok?", ok, "response:", res)
 task.wait(1)
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PetRecyclerAPI/TicketsCollected"):InvokeServer()
 task.wait(1)
-local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ClientData = require(ReplicatedStorage.ClientModules.Core.ClientData)
+
 local playerName = game.Players.LocalPlayer.Name
 local tickets = ClientData.get_data()[playerName].pet_recycler_tickets_2026
-local quantity = tickets / 3000
+local quantity = math.floor(tickets / 3000)
 
-local args = {
-	"pets",
-	"egg_teaser_2026_dire_wolf",
-	{
-		buy_count = quantity
-	}
-}
-game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
+local buyEvent = ReplicatedStorage:WaitForChild("API"):WaitForChild("ShopAPI/BuyItem")
+
+while quantity > 0 do
+	local buyAmount = math.min(99, quantity)
+
+	buyEvent:InvokeServer(
+		"pets",
+		"egg_teaser_2026_dire_wolf",
+		{ buy_count = buyAmount }
+	)
+
+	quantity -= buyAmount
+	task.wait(0.2) -- small delay to avoid spam
+end
