@@ -106,3 +106,22 @@ local ok, res = pcall(function()
 end)
 
 print("Invoke ok?", ok, "response:", res)
+
+
+
+task.wait(1)
+game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PetRecyclerAPI/TicketsCollected"):InvokeServer()
+task.wait(1)
+local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
+local playerName = game.Players.LocalPlayer.Name
+local tickets = ClientData.get_data()[playerName].pet_recycler_tickets_2026
+local quantity = tickets / 3000
+
+local args = {
+	"pets",
+	"egg_teaser_2026_dire_wolf",
+	{
+		buy_count = quantity
+	}
+}
+game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("ShopAPI/BuyItem"):InvokeServer(unpack(args))
