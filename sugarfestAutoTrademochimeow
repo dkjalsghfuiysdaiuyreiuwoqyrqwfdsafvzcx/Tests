@@ -523,7 +523,7 @@ if getgenv().SCRIPT_STATE == "FEED NORMAL" then
     UI_Log("Starting FEED NORMAL", "state")
     local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
     local petsData = ClientData.get_data()[playerName].inventory.pets
-    for _, pet in ipairs(petsData) do
+    for _, pet in pairs(petsData) do
         print(pet.kind, pet.properties.age, pet.properties.neon, pet.properties.mega_neon)
         if pet.kind == getgenv().EVENT_PRODUCT_PET and pet.properties.age < 6 and not pet.properties.neon and not pet.properties.mega_neon then
             feedPet(pet.unique)
@@ -543,7 +543,7 @@ if getgenv().SCRIPT_STATE == "FUSE NORMAL" then
         local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
         local petsData = ClientData.get_data()[playerName].inventory.pets
         local counter = 0
-        for _, pet in ipairs(petsData) do
+        for _, pet in pairs(petsData) do
             if pet.kind == getgenv().EVENT_PRODUCT_PET and pet.properties.age < 6 and not pet.properties.neon and not pet.properties.mega_neon then
                 table.insert(fusionBatch, pet.unique)
                 task.wait(1)
@@ -578,7 +578,7 @@ if getgenv().SCRIPT_STATE == "FEED NEON" then
     UI_Log("Starting FEED NEON", "state")
     local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
     local petsData = ClientData.get_data()[playerName].inventory.pets
-    for _, pet in ipairs(petsData) do
+    for _, pet in pairs(petsData) do
         if pet.kind == getgenv().EVENT_PRODUCT_PET and pet.properties.age < 6 and pet.properties.neon and not pet.properties.mega_neon then
             feedPet(pet.unique)
             task.wait(2)
@@ -597,7 +597,7 @@ if getgenv().SCRIPT_STATE == "FUSE NEON" then
         local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
         local petsData = ClientData.get_data()[playerName].inventory.pets
         local counter = 0
-        for _, pet in ipairs(petsData) do
+        for _, pet in pairs(petsData) do
             if pet.kind == getgenv().EVENT_PRODUCT_PET and pet.properties.age < 6 and pet.properties.neon and not pet.properties.mega_neon then
                 table.insert(fusionBatch, pet.unique)
                 task.wait(1)
@@ -652,7 +652,7 @@ if getgenv().SCRIPT_STATE == "TRADE PETS" then
             UI_Log("Adding pets to trade offer...", "action")
             local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
             local petsData = ClientData.get_data()[playerName].inventory.pets
-            for _, pet in ipairs(petsData) do
+            for _, pet in pairs(petsData) do
                 if pet.kind == getgenv().EVENT_PRODUCT_PET then
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AddItemToOffer"):FireServer(pet.unique)
                     UI_Log("Added to offer: " .. tostring(pet.unique), "success")
