@@ -490,6 +490,7 @@ local function feedPet(petUnique)
         return game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PetObjectAPI/CreatePetObject"):InvokeServer(unpack(args))
     end)
 
+    task.wait(10)
     if success then
         print("✅ Fed pet:", petUnique)
         UI_Increment("fed")
