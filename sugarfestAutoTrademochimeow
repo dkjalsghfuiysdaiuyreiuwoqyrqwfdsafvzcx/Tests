@@ -439,7 +439,7 @@ local Players = game:GetService("Players")
 local playerName = Players.LocalPlayer.Name
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 getgenv().SCRIPT_STATE = "BUY STATE"
-local EquipPet = ReplicatedStorage:WaitForChild("API"):WaitForChild("PetAPI/EquipPet")
+local EquipPet = ReplicatedStorage:WaitForChild("API"):WaitForChild("ToolAPI/Equip")
 -- Helper Functions
 local function feedPet(petUnique)
     UI_Log("Equipping pet: " .. tostring(petUnique), "action")
