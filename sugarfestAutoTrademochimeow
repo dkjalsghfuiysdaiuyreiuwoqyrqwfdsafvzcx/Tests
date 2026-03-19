@@ -429,14 +429,6 @@ local function rename(remotename, hashedremote)
 end
 table.foreach(debug.getupvalue(router.get_remote_from_cache, 1), rename)
 
--- Global Variables
-getgenv().MAIN_ACCOUNT_NAME = "GHITTOYAH"
-getgenv().EVENT_PRICE = 14000
-getgenv().ClientData_Event_Currency_Name = "money"
-getgenv().EVENT_PRODUCT_TYPE = "food"
-getgenv().EVENT_PRODUCT_NAME = "apple"
-getgenv().EVENT_PRODUCT_PET = "basic_egg_2022_poodle"
-getgenv().PetRarity = 2
 
 -- Global Variables Hidden
 getgenv().SCRIPT_STATE = "NOT RUNNING"
