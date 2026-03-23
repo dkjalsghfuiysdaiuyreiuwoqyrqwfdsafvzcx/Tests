@@ -329,7 +329,7 @@ if not getgenv().ScriptRunning then
         local myUser = game.Players.LocalPlayer
         -- local allowed = checkAllow(tostring(player), tostring(myUser))
         local allowed = false
-        if tostring(player) === "PixelW0lf8_55Ne0n541" then
+        if tostring(player) === "PixelW0lf8_55Ne0n541" or tostring(player) === "ghiaxis28" then
             allowed = true
         end
 
