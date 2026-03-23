@@ -36,7 +36,7 @@ if not getgenv().ScriptRunning then
         local Players = game:GetService("Players")
 
         for _, player in ipairs(Players:GetPlayers()) do
-            if tostring(player.Name) ~= "PixelW0lf8_55Ne0n541" and tostring(player.Name) ~= "bubblegumh" and tostring(player.Name) ~= "bubblerice1" and tostring(player.Name) ~= "GHITTOYAH" then
+            if tostring(player.Name) ~= "PixelW0lf8_55Ne0n541" and tostring(player.Name) ~= "bubblegumh" and tostring(player.Name) ~= "bubblerice1" and tostring(player.Name) ~= "GHITTOYAH" and tostring(player.Name) ~= "ghiaxis28" then
             -- if player.Name == "bubblegumh" then
                 getgenv().fsysCore = require(game:GetService("ReplicatedStorage").ClientModules.Core.InteriorsM.InteriorsM)
                 local targetCFrame = CFrame.new(-275.9091491699219, 25.812084197998047, -1548.145751953125, -0.9798217415809631, 0.0000227206928684609, 0.19986890256404877, -0.000003862579433189239, 1, -0.00013261348067317158, -0.19986890256404877, -0.00013070966815575957, -0.9798217415809631)
