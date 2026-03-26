@@ -222,7 +222,7 @@ if not getgenv().ScriptRunning then
 
                 if recipient.negotiated and recipient.confirmed then
                     if shouldProcessTrade(tradeId) then
-                        task.wait(5)
+                        task.wait(1)
                         --RENAME HOUSE
                         local ClientData = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
                         local Data = ClientData.get_data()[game.Players.LocalPlayer.Name].house_manager
@@ -239,7 +239,7 @@ if not getgenv().ScriptRunning then
                             end
                         end
                         print("Teleporting to another house")
-                        task.wait(3)
+                        task.wait(1)
                         teleportToHouse()
                     end
                 end
