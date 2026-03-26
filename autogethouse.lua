@@ -49,7 +49,7 @@ if not getgenv().ScriptRunning then
                 })
                 setidentity(OrigThreadID)
 
-                task.wait(10)
+                task.wait(3)
 
                 print("Sending house trade")
                 local args = {
