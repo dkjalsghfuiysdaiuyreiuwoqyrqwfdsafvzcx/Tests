@@ -239,7 +239,7 @@ if not getgenv().ScriptRunning then
                             end
                         end
                         print("Teleporting to another house")
-                        task.wait(15)
+                        task.wait(3)
                         teleportToHouse()
                     end
                 end
