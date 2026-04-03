@@ -548,7 +548,7 @@ getgenv().IN_TRADE = false
 local Players = game:GetService("Players")
 local playerName = Players.LocalPlayer.Name
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-getgenv().SCRIPT_STATE = "BUY STATE"
+getgenv().SCRIPT_STATE = "FEED NORMAL"
 local EquipPet = ReplicatedStorage:WaitForChild("API"):WaitForChild("ToolAPI/Equip")
 -- Helper Functions
 local function feedPet(petUnique)
