@@ -22,12 +22,11 @@ table.foreach(debug.getupvalue(router.get_remote_from_cache, 1), rename)
 -- ============================================================
 -- HIDE UI + PLAY SOUND ON STARTUP
 -- ============================================================
-task.wait(10)
 local sound = require(game:GetService("ReplicatedStorage"):WaitForChild("Fsys")).load("SoundPlayer")
 local UI    = require(game:GetService("ReplicatedStorage"):WaitForChild("Fsys")).load("UIManager")
 sound.FX:play("BambooButton")
 UI.set_app_visibility("NewsApp", false)
-UI.set_app_visibility("DialogApp", false)
+-- UI.set_app_visibility("DialogApp", false)
 
 task.wait(10)
 
@@ -349,7 +348,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         getgenv().IN_TRADE_BOT1 = true
 
         if sender.negotiated and not sender.confirmed then
-            task.wait(5)
+            task.wait(1)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
         end
         if sender.negotiated and sender.confirmed then
@@ -411,7 +410,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         getgenv().IN_TRADE_BOT3 = true
 
         if sender.negotiated and not sender.confirmed then
-            task.wait(5)
+            task.wait(1)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
         end
 
