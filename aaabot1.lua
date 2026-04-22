@@ -22,7 +22,6 @@ table.foreach(debug.getupvalue(router.get_remote_from_cache, 1), rename)
 -- ============================================================
 -- HIDE UI + PLAY SOUND ON STARTUP
 -- ============================================================
-task.wait(10)
 local sound = require(game:GetService("ReplicatedStorage"):WaitForChild("Fsys")).load("SoundPlayer")
 local UI    = require(game:GetService("ReplicatedStorage"):WaitForChild("Fsys")).load("UIManager")
 sound.FX:play("BambooButton")
@@ -382,7 +381,7 @@ local function handleWithdraw(username)
 
     print("Handling Withdraw for the User")
     print("Giving pets to the user")
-    -- task.wait(7)
+    task.wait(7)
     if #successfullyAdded > 0 then
         pendingWithdrawByUser[username] = successfullyAdded
         -- task.wait(1)
@@ -697,6 +696,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
 
         -- SENDER IS THE USER
         if sender.negotiated and not sender.confirmed then
+            task.wait(1)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
         end
         if sender.negotiated and sender.confirmed then
@@ -793,7 +793,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         getgenv().IN_TRADE_BOT2 = true
 
         if sender.negotiated and not sender.confirmed then
-            task.wait(2)
+            task.wait(1)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
         end
         if sender.negotiated and recipient.negotiated then
@@ -920,7 +920,7 @@ task.spawn(function()
                         warn("Could not fetch pet data for:", petId, rFindPets)
                     end
                 end
-                -- task.wait(7)
+                task.wait(7)
                 print("ACCEPT NEGOTIATION TO BOT 2")
                 -- ✅ Only accept negotiation after ALL pets are added
                 if #successfullyAdded > 0 then
