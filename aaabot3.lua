@@ -22,11 +22,12 @@ table.foreach(debug.getupvalue(router.get_remote_from_cache, 1), rename)
 -- ============================================================
 -- HIDE UI + PLAY SOUND ON STARTUP
 -- ============================================================
+task.wait(10)
 local sound = require(game:GetService("ReplicatedStorage"):WaitForChild("Fsys")).load("SoundPlayer")
 local UI    = require(game:GetService("ReplicatedStorage"):WaitForChild("Fsys")).load("UIManager")
 sound.FX:play("BambooButton")
 UI.set_app_visibility("NewsApp", false)
--- UI.set_app_visibility("DialogApp", false)
+UI.set_app_visibility("DialogApp", false)
 
 task.wait(10)
 
