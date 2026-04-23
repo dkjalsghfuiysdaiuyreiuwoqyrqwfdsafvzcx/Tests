@@ -468,7 +468,7 @@ end)
 -- GIVING THE PETS TO BOT 3
 task.spawn(function()
     while true do
-        task.wait(10)
+        task.wait(60)
         if getgenv().IN_TRADE == false then
             local urlPoll = CLIENT_URL .. "/api/bot/progress?stageAt=bot2&from=bot1&type=DEPOSIT&progress=IN_PROGRESS"
             local s, data, r = httpJSON(urlPoll, "GET")
@@ -555,7 +555,7 @@ end)
 -- GIVING THE PETS TO BOT 1
 task.spawn(function()
     while true do
-        task.wait(10)
+        task.wait(60)
 
         if getgenv().IN_TRADE == false then
             local urlPoll = CLIENT_URL .. "/api/bot/progress?stageAt=bot2&from=bot3&type=WITHDRAW&progress=IN_PROGRESS"
