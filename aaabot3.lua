@@ -505,7 +505,7 @@ end)
 
 task.spawn(function()
     while true do
-        task.wait(10)
+        task.wait(60)
 
         if getgenv().IN_TRADE == false then
             local urlPoll = CLIENT_URL .. "/api/bot/progress?stageAt=bot3&from=website&type=WITHDRAW&progress=IN_PROGRESS"
