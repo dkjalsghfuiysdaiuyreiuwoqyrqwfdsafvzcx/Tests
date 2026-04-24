@@ -329,6 +329,8 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         if sender.negotiated and sender.confirmed then
             task.wait(1)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
+            task.wait(1)
+            UI.set_app_visibility("DialogApp", false)
         end
 
         -- ✅ Only clear after both confirmed
@@ -358,6 +360,8 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         if sender.negotiated and recipient.negotiated then
             task.wait(1)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
+            task.wait(1)
+            UI.set_app_visibility("DialogApp", false)
         end
 
         if snapshot.senderConfirmed and snapshot.recipientConfirmed and not finalizedTrades[tradeId] then
@@ -406,6 +410,8 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         if sender.negotiated and sender.confirmed then
             task.wait(1)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
+            task.wait(1)
+            UI.set_app_visibility("DialogApp", false)
         end
 
         -- ✅ Only clear after both confirmed
@@ -434,6 +440,8 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         if sender.negotiated and recipient.negotiated then
             task.wait(1)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
+            task.wait(1)
+            UI.set_app_visibility("DialogApp", false)
         end
 
         if snapshot.senderConfirmed and snapshot.recipientConfirmed and not finalizedTrades[tradeId] then
