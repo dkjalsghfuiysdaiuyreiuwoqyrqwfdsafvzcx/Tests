@@ -53,7 +53,8 @@ getgenv().TRADE_BOT2     = false
 getgenv().IN_TRADE_BOT2  = false
 getgenv().CURRENT_PDATA  = nil
 
-local processingIds = {}  -- tracks which bot_progress record IDs are currently being processed
+local processingIds = {}   -- tracks which bot_progress record IDs are currently being processed
+local acceptedIds   = {}   -- tracks which record IDs bot2 has accepted a trade for
 
 -- ============================================================
 -- HELPERS
@@ -691,8 +692,14 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
     -- DEPOSIT FROM BOT 1 -> BOT 2
     -- -------------------------------------------------------
     if recipientName == getgenv().BOT2_NAME then
-        getgenv().IN_TRADE      = true
-        getgenv().IN_TRADE_BOT2 = true
+        getgenv().IN_TRADE = true
+
+        -- ✅ Mark bot2 accepted per-record, not globally
+        -- This lets the polling loop know bot2 accepted without overwriting CURRENT_PDATA
+        local pDataNow = getgenv().CURRENT_PDATA
+        if pDataNow and pDataNow.id then
+            acceptedIds[pDataNow.id] = true
+        end
 
         if sender.negotiated and recipient.negotiated then
             task.wait(7)
@@ -722,6 +729,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                     username = string.lower(pData.username)
                 })
                 processingIds[pData.id] = nil  -- ✅ clear after confirmed
+                acceptedIds[pData.id]   = nil  -- ✅ clear accepted flag too
                 print("✅ Progress updated to bot2 for record:", pData.id)
             else
                 warn("❌ pData was nil at confirmation — progress NOT updated!")
@@ -824,12 +832,13 @@ task.spawn(function()
                 end
 
                 processingIds[pData.id] = true  -- mark as in-flight
+                acceptedIds[pData.id]   = false -- reset accepted flag for this record
                 getgenv().CURRENT_PDATA = pData
                 getgenv().IN_TRADE      = true
                 getgenv().IN_TRADE_BOT2 = false
 
                 local tries = 0
-                while not getgenv().IN_TRADE_BOT2 and tries < 5 do
+                while not acceptedIds[pData.id] and tries < 5 do
                     tries = tries + 1
                     print("SENDING trade request to bot 2")
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/SendTradeRequest"):FireServer(
@@ -838,11 +847,12 @@ task.spawn(function()
                     task.wait(10)
                 end
 
-                if not getgenv().IN_TRADE_BOT2 then
+                if not acceptedIds[pData.id] then
                     warn("Bot2 did not accept after 5 tries, skipping record:", pData.id)
                     getgenv().IN_TRADE      = false
                     getgenv().CURRENT_PDATA = nil
-                    processingIds[pData.id] = nil  -- ✅ clear on failure
+                    processingIds[pData.id] = nil
+                    acceptedIds[pData.id]   = nil
                     continue
                 end
 
