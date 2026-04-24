@@ -53,6 +53,8 @@ getgenv().TRADE_BOT2     = false
 getgenv().IN_TRADE_BOT2  = false
 getgenv().CURRENT_PDATA  = nil
 
+local processingIds = {}  -- tracks which bot_progress record IDs are currently being processed
+
 -- ============================================================
 -- HELPERS
 -- ============================================================
@@ -200,8 +202,6 @@ local function handleDeposit(userId, username, petTypeIds)
     return true
 end
 
--- FIX: removed internal progress update from this function to avoid double-update.
--- Progress is now only updated once in the DataChanged handler after deposit is confirmed.
 local function handleFindUsernamePetTypeId(username, pets)
     username = tostring(username or ""):gsub("^%s+", ""):gsub("%s+$", "")
     if username == "" then warn("Username empty") return false end
@@ -526,7 +526,6 @@ game:GetService("ReplicatedStorage")
             getgenv().TRADE_TYPE = "DEPOSIT"
             getgenv().IN_TRADE   = true
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptOrDeclineTradeRequest"):InvokeServer(Players:WaitForChild(username), true)
-            -- FIX: timeout spawn is scoped here, starts only after this trade is accepted
             task.spawn(function()
                 local startTime = tick()
                 while tick() - startTime < 60 do
@@ -551,7 +550,6 @@ game:GetService("ReplicatedStorage")
             getgenv().IN_TRADE_BOT2 = true
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptOrDeclineTradeRequest"):InvokeServer(Players:WaitForChild(username), true)
             game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.Visible = false
-            -- FIX: timeout spawn is scoped here, starts only after this trade is accepted
             task.spawn(function()
                 local startTime = tick()
                 while tick() - startTime < 60 do
@@ -576,7 +574,6 @@ game:GetService("ReplicatedStorage")
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptOrDeclineTradeRequest"):InvokeServer(Players:WaitForChild(username), true)
             game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.Visible = false
             handleWithdraw(username)
-            -- FIX: timeout spawn is scoped here, starts only after this trade is accepted
             task.spawn(function()
                 local startTime = tick()
                 while tick() - startTime < 60 do
@@ -678,12 +675,9 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                     end
                 end
 
-                -- FIX: handleFindUsernamePetTypeId no longer does a progress update internally,
-                -- so there is only one progress update below (createBotProgress). No double-update.
                 handleFindUsernamePetTypeId(username, depositItems)
             end
 
-            -- Single progress update after deposit is confirmed
             createBotProgress(username, resolvedPetTypeIds)
 
             markTradeDone(tradeId, true)
@@ -710,7 +704,6 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
 
             local pData = getgenv().CURRENT_PDATA
 
-            -- ✅ Only clear if we actually got it
             if pData then
                 getgenv().CURRENT_PDATA = nil
             end
@@ -728,6 +721,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                     stageAt  = "bot2",
                     username = string.lower(pData.username)
                 })
+                processingIds[pData.id] = nil  -- ✅ clear after confirmed
                 print("✅ Progress updated to bot2 for record:", pData.id)
             else
                 warn("❌ pData was nil at confirmation — progress NOT updated!")
@@ -748,9 +742,17 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
             task.wait(1)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
         end
+
+        -- FIX: removed premature IN_TRADE/IN_TRADE_BOT2 clear from here
+        -- Only send ConfirmTrade here; clearing happens after both sides confirmed below
         if sender.negotiated and recipient.negotiated then
             task.wait(2)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
+        end
+
+        -- ✅ Only clear after BOTH sides confirmed
+        if snapshot.senderConfirmed and snapshot.recipientConfirmed and not finalizedTrades[tradeId] then
+            finalizedTrades[tradeId] = true
             getgenv().IN_TRADE      = false
             getgenv().IN_TRADE_BOT2 = false
         end
@@ -807,10 +809,22 @@ task.spawn(function()
             local s, data, r = httpJSON(urlPoll, "GET")
 
             if data and #data > 0 then
-                local pData = data[1]
+                -- ✅ Find first record NOT already being processed
+                local pData = nil
+                for _, record in ipairs(data) do
+                    if not processingIds[record.id] then
+                        pData = record
+                        break
+                    end
+                end
 
+                if not pData then
+                    print("All pending records already in-flight, skipping")
+                    continue
+                end
+
+                processingIds[pData.id] = true  -- mark as in-flight
                 getgenv().CURRENT_PDATA = pData
-                task.wait(0.5)
                 getgenv().IN_TRADE      = true
                 getgenv().IN_TRADE_BOT2 = false
 
@@ -828,6 +842,7 @@ task.spawn(function()
                     warn("Bot2 did not accept after 5 tries, skipping record:", pData.id)
                     getgenv().IN_TRADE      = false
                     getgenv().CURRENT_PDATA = nil
+                    processingIds[pData.id] = nil  -- ✅ clear on failure
                     continue
                 end
 
@@ -866,6 +881,7 @@ task.spawn(function()
                 if #successfullyAdded > 0 then
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
                     print("✅ Accepted negotiation with", #successfullyAdded, "pets added")
+                    -- ✅ processingIds[pData.id] is cleared in the DataChanged confirmation block above
                 else
                     warn("No pets added, declining")
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
@@ -873,6 +889,7 @@ task.spawn(function()
                     getgenv().IN_TRADE      = false
                     getgenv().IN_TRADE_BOT2 = false
                     getgenv().CURRENT_PDATA = nil
+                    processingIds[pData.id] = nil  -- ✅ clear on failure
                 end
             end
         end
