@@ -28,6 +28,9 @@ local UI    = require(game:GetService("ReplicatedStorage"):WaitForChild("Fsys"))
 sound.FX:play("BambooButton")
 UI.set_app_visibility("NewsApp", false)
 UI.set_app_visibility("DialogApp", false)
+UI.set_app_visibility("DailyLoginApp", false)
+game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/Collect"):FireServer()
+game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/DisablePopups"):FireServer()
 
 task.wait(10)
 
@@ -705,11 +708,15 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         if snapshot.senderConfirmed and snapshot.recipientConfirmed and not finalizedTrades[tradeId] then
             finalizedTrades[tradeId] = true
 
-            -- FIX: capture pData locally first, then clear globals, then use local copy
             local pData = getgenv().CURRENT_PDATA
+
+            -- ✅ Only clear if we actually got it
+            if pData then
+                getgenv().CURRENT_PDATA = nil
+            end
+
             getgenv().IN_TRADE      = false
             getgenv().IN_TRADE_BOT2 = false
-            getgenv().CURRENT_PDATA = nil
 
             if pData and pData.id then
                 httpJSON(CLIENT_URL .. "/api/bot/progress", "POST", {
@@ -803,6 +810,7 @@ task.spawn(function()
                 local pData = data[1]
 
                 getgenv().CURRENT_PDATA = pData
+                task.wait(0.5)
                 getgenv().IN_TRADE      = true
                 getgenv().IN_TRADE_BOT2 = false
 
