@@ -53,8 +53,11 @@ getgenv().TRADE_BOT2     = false
 getgenv().IN_TRADE_BOT2  = false
 getgenv().CURRENT_PDATA  = nil
 
-local processingIds = {}   -- tracks which bot_progress record IDs are currently being processed
-local acceptedIds   = {}   -- tracks which record IDs bot2 has accepted a trade for
+local processingIds  = {}  -- record id -> true, prevents double-pickup
+local acceptedIds    = {}  -- record id -> true, set when bot2 accepts
+-- KEY FIX: store pData by tradeId so the DataChanged hook can always find it
+-- regardless of timing or when CURRENT_PDATA global gets cleared
+local pDataByTradeId = {}
 
 -- ============================================================
 -- HELPERS
@@ -694,11 +697,12 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
     if recipientName == getgenv().BOT2_NAME then
         getgenv().IN_TRADE = true
 
-        -- ✅ Mark bot2 accepted per-record, not globally
-        -- This lets the polling loop know bot2 accepted without overwriting CURRENT_PDATA
-        local pDataNow = getgenv().CURRENT_PDATA
+        -- ✅ Mark bot2 accepted using the record id stored by tradeId
+        local pDataNow = pDataByTradeId[tradeId] or getgenv().CURRENT_PDATA
         if pDataNow and pDataNow.id then
             acceptedIds[pDataNow.id] = true
+            -- Also store by tradeId in case it wasn't already
+            pDataByTradeId[tradeId] = pDataNow
         end
 
         if sender.negotiated and recipient.negotiated then
@@ -709,12 +713,10 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         if snapshot.senderConfirmed and snapshot.recipientConfirmed and not finalizedTrades[tradeId] then
             finalizedTrades[tradeId] = true
 
-            local pData = getgenv().CURRENT_PDATA
+            -- ✅ Look up pData by tradeId — immune to CURRENT_PDATA being cleared
+            local pData = pDataByTradeId[tradeId]
 
-            if pData then
-                getgenv().CURRENT_PDATA = nil
-            end
-
+            getgenv().CURRENT_PDATA = nil
             getgenv().IN_TRADE      = false
             getgenv().IN_TRADE_BOT2 = false
 
@@ -728,8 +730,9 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                     stageAt  = "bot2",
                     username = string.lower(pData.username)
                 })
-                processingIds[pData.id] = nil  -- ✅ clear after confirmed
-                acceptedIds[pData.id]   = nil  -- ✅ clear accepted flag too
+                processingIds[pData.id]  = nil
+                acceptedIds[pData.id]    = nil
+                pDataByTradeId[tradeId]  = nil
                 print("✅ Progress updated to bot2 for record:", pData.id)
             else
                 warn("❌ pData was nil at confirmation — progress NOT updated!")
@@ -841,6 +844,9 @@ task.spawn(function()
                 while not acceptedIds[pData.id] and tries < 5 do
                     tries = tries + 1
                     print("SENDING trade request to bot 2")
+                    -- ✅ Store pData by tradeId BEFORE firing so the hook can find it instantly
+                    -- We don't know the tradeId yet, so we use CURRENT_PDATA as fallback in the hook
+                    -- The hook will write pDataByTradeId[tradeId] = pData when it fires
                     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/SendTradeRequest"):FireServer(
                         game:GetService("Players"):WaitForChild(getgenv().BOT2_NAME)
                     )
