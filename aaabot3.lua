@@ -28,6 +28,9 @@ local UI    = require(game:GetService("ReplicatedStorage"):WaitForChild("Fsys"))
 sound.FX:play("BambooButton")
 UI.set_app_visibility("NewsApp", false)
 UI.set_app_visibility("DialogApp", false)
+UI.set_app_visibility("DailyLoginApp", false)
+game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/Collect"):FireServer()
+game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/DisablePopups"):FireServer()
 
 task.wait(10)
 
@@ -416,6 +419,8 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         if sender.negotiated and sender.confirmed then
             task.wait(1)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
+            task.wait(1)
+            UI.set_app_visibility("DialogApp", false)
         end
 
         -- ✅ Only clear after both confirmed
@@ -452,6 +457,8 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         if sender.negotiated and recipient.negotiated then
             task.wait(1)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
+            task.wait(1)
+            UI.set_app_visibility("DialogApp", false)
         end
 
         if snapshot.senderConfirmed and snapshot.recipientConfirmed and not finalizedTrades[tradeId] then
