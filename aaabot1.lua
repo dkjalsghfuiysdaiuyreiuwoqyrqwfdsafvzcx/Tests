@@ -663,16 +663,13 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
             task.wait(1)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
         end
-        if sender.negotiated and sender.confirmed then
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
-            task.wait(1)
-            UI.set_app_visibility("DialogApp", false)
-        end
 
         -- ✅ GATE: check finalizedTrades FIRST before any HTTP calls
         if snapshot.senderConfirmed and snapshot.recipientConfirmed and not finalizedTrades[tradeId] then
             finalizedTrades[tradeId] = true  -- ✅ Set IMMEDIATELY, before any async work
-
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
+            task.wait(1)
+            UI.set_app_visibility("DialogApp", false)
             local depositItems = snapshot.senderItems
             local resolvedPetTypeIds = {}
 
@@ -793,12 +790,21 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
     if getgenv().TRADE_TYPE == "WITHDRAW" and senderName ~= getgenv().BOT2_NAME then
         getgenv().IN_TRADE = true
 
+        -- ✅ Re-accept negotiation any time user has locked in but bot hasn't yet.
+        -- Handles the case where user adds pets AFTER bot's first AcceptNegotiation,
+        -- which resets the bot's negotiation flag back to false.
+        if recipient.negotiated and not sender.negotiated then
+            print("🔄 User negotiated — bot re-accepting negotiation...")
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
+        end
+
         if sender.confirmed and recipient.confirmed and not finalizedTrades[tradeId] then
             finalizedTrades[tradeId] = true
 
-            local withdrawItems = snapshot.recipientItems
+            local withdrawItems = snapshot.recipientItems -- bot's offer → what user receives
+            local depositItems  = snapshot.senderItems    -- user's offer → what bot receives (optional)
 
-            print("⏳ Both confirmed — declaring withdraw to backend before confirming trade...")
+            print("⏳ Both confirmed — declaring withdraw to backend...")
             local withdrawOk = confirmWithdrawByTrade(tradeId, username, withdrawItems)
 
             if withdrawOk then
@@ -808,21 +814,26 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                 task.wait(1)
                 UI.set_app_visibility("DialogApp", false)
 
-                local depositItems = snapshot.senderItems
-                local depositOk    = true
+                -- ✅ Only process deposit if user actually sent pets
                 if depositItems and #depositItems > 0 then
-                    depositOk = handleFindUsernamePetTypeId(username, depositItems)
+                    print("✅ User also sent pets — processing deposit...")
+                    handleFindUsernamePetTypeId(username, depositItems)
+                else
+                    print("ℹ️ User sent no pets — skipping deposit")
                 end
 
-                markTradeDone(tradeId, depositOk)
+                markTradeDone(tradeId, true)
                 notifyBackendDone(username, "DONE")
-                print(("✅ Trade %s processed | withdraw=true deposit=%s"):format(tradeId, tostring(depositOk)))
-                getgenv().IN_TRADE = false
+                print(("✅ Trade %s processed | withdraw=true deposit=%s"):format(tradeId, tostring(depositItems and #depositItems > 0)))
+                getgenv().IN_TRADE   = false
+                getgenv().TRADE_TYPE = nil
             else
                 warn("❌ Backend withdraw failed — cancelling trade!")
                 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
                 markTradeDone(tradeId, false)
                 notifyBackendDone(username, "Withdraw API failed - trade cancelled")
+                getgenv().IN_TRADE   = false
+                getgenv().TRADE_TYPE = nil
             end
         end
     end
