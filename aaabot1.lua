@@ -31,6 +31,16 @@ UI.set_app_visibility("DialogApp", false)
 UI.set_app_visibility("DailyLoginApp", false)
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/Collect"):FireServer()
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/DisablePopups"):FireServer()
+getgenv().fsysCore = require(game:GetService("ReplicatedStorage").ClientModules.Core.InteriorsM.InteriorsM)
+local targetCFrame = CFrame.new(-250.99, 29.58, -1525.42, -0.9798217415809631, 0.0000227206928684609, 0.19986890256404877, -0.000003862579433189239, 1, -0.00013261348067317158, -0.19986890256404877, -0.00013070966815575957, -0.9798217415809631)
+local OrigThreadID = getthreadidentity()
+task.wait(1)
+setidentity(2)
+task.wait(1)
+fsysCore.enter_smooth("MainMap", "MainDoor", {
+    ["spawn_cframe"] = targetCFrame * CFrame.Angles(0, 0, 0)
+})
+setidentity(OrigThreadID)
 
 task.wait(10)
 
@@ -377,6 +387,8 @@ local function handleWithdraw(username)
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
         task.wait(3)
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
+        task.wait(1)
+        UI.set_app_visibility("DialogApp", false)
     else
         warn("No pets could be added for withdrawal, declining trade")
         getgenv().TypeTrade = nil
@@ -644,19 +656,21 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
     -- -------------------------------------------------------
     -- DEPOSIT FROM USER -> BOT 1
     -- -------------------------------------------------------
-    if getgenv().TRADE_TYPE == "DEPOSIT" and senderName ~= getgenv().BOT2_NAME and not finalizedTrades[tradeId] then
+    if getgenv().TRADE_TYPE == "DEPOSIT" and senderName ~= getgenv().BOT2_NAME then
         getgenv().IN_TRADE = true
 
-        if sender.negotiated and not sender.confirmed and not snapshot.senderConfirmed then
+        if sender.negotiated and not sender.confirmed then
             task.wait(1)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
         end
-        if sender.negotiated and sender.confirmed and not snapshot.recipientConfirmed then
+        if sender.negotiated and sender.confirmed then
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
+            task.wait(1)
+            UI.set_app_visibility("DialogApp", false)
         end
 
-        if snapshot.senderConfirmed and snapshot.recipientConfirmed and not finalizedTrades[tradeId] then
-            finalizedTrades[tradeId] = true  -- ✅ guard set FIRST before any async work
+        if snapshot.senderConfirmed and snapshot.recipientConfirmed then
+            finalizedTrades[tradeId] = true
             local depositItems = snapshot.senderItems
 
             local resolvedPetTypeIds = {}
@@ -708,6 +722,8 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         if sender.negotiated and recipient.negotiated then
             task.wait(7)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
+            task.wait(1)
+            UI.set_app_visibility("DialogApp", false)
         end
 
         if snapshot.senderConfirmed and snapshot.recipientConfirmed and not finalizedTrades[tradeId] then
@@ -759,6 +775,8 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         if sender.negotiated and recipient.negotiated then
             task.wait(2)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
+            task.wait(1)
+            UI.set_app_visibility("DialogApp", false)
         end
 
         -- ✅ Only clear after BOTH sides confirmed
@@ -787,6 +805,8 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                 print("✅ Backend confirmed — confirming trade in-game...")
                 task.wait(1)
                 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
+                task.wait(1)
+                UI.set_app_visibility("DialogApp", false)
 
                 local depositItems = snapshot.senderItems
                 local depositOk    = true
