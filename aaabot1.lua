@@ -669,10 +669,11 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
             UI.set_app_visibility("DialogApp", false)
         end
 
-        if snapshot.senderConfirmed and snapshot.recipientConfirmed then
-            finalizedTrades[tradeId] = true
-            local depositItems = snapshot.senderItems
+        -- ✅ GATE: check finalizedTrades FIRST before any HTTP calls
+        if snapshot.senderConfirmed and snapshot.recipientConfirmed and not finalizedTrades[tradeId] then
+            finalizedTrades[tradeId] = true  -- ✅ Set IMMEDIATELY, before any async work
 
+            local depositItems = snapshot.senderItems
             local resolvedPetTypeIds = {}
 
             if depositItems and #depositItems > 0 then
@@ -697,7 +698,6 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
             end
 
             createBotProgress(username, resolvedPetTypeIds)
-
             markTradeDone(tradeId, true)
             notifyBackendDone(username, "DONE")
             getgenv().IN_TRADE   = false
