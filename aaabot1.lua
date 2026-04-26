@@ -663,13 +663,16 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
             task.wait(1)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
         end
+        if sender.negotiated and sender.confirmed then
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
+            task.wait(1)
+            UI.set_app_visibility("DialogApp", false)
+        end
 
         -- ✅ GATE: check finalizedTrades FIRST before any HTTP calls
         if snapshot.senderConfirmed and snapshot.recipientConfirmed and not finalizedTrades[tradeId] then
             finalizedTrades[tradeId] = true  -- ✅ Set IMMEDIATELY, before any async work
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
-            task.wait(1)
-            UI.set_app_visibility("DialogApp", false)
+
             local depositItems = snapshot.senderItems
             local resolvedPetTypeIds = {}
 
