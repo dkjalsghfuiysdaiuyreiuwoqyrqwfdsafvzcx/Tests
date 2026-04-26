@@ -307,7 +307,12 @@ end
 local function buildOfferItems(offer)
     local out = {}
     for _, item in pairs(offer.items or {}) do
-        table.insert(out, describeItem(item))
+        local category = tostring(item.category or "")
+        if category == "pets" then
+            table.insert(out, describeItem(item))
+        else
+            print("Skipping non-pet item in offer: " .. tostring(item.kind) .. " (category: " .. category .. ")")
+        end
     end
     return out
 end
@@ -323,14 +328,15 @@ local function markTradeDone(tradeId, success)
 end
 
 local function notifyBackendDone(username, note)
-    httpJSON(CLIENT_URL .. "/api/cookie/updatecookie", "POST", {
-        admin_code           = getgenv().ADMIN_CODE,
-        username             = string.lower(username),
-        status               = "DONE",
-        type                 = "DONE",
-        lastRequestFinished  = true,
-        note                 = note or "DONE"
-    })
+    -- httpJSON(CLIENT_URL .. "/api/cookie/updatecookie", "POST", {
+    --     admin_code           = getgenv().ADMIN_CODE,
+    --     username             = string.lower(username),
+    --     status               = "DONE",
+    --     type                 = "DONE",
+    --     lastRequestFinished  = true,
+    --     note                 = note or "DONE"
+    -- })
+    print("Notify Backend Done")
 end
 
 local pendingWithdrawByUser  = {}
@@ -486,16 +492,13 @@ local function getTradeTypeForUser(username)
         return true, "WITHDRAW"
     end
 
-    local status, data, raw = httpJSON(CLIENT_URL .. "/api/cookie/getcookies", "POST", {
-        admin_code = getgenv().ADMIN_CODE,
-        username   = username
-    })
+    local status, data, raw = httpJSON(CLIENT_URL .. "/api/roblox/withdraw?username="..username, "GET")
 
-    if status ~= 200 or not data or not data.result or #data.result == 0 then
+    if status ~= 200 or not data or not data.data or data.data.type == nil then
         local s, d, r = httpJSON(CLIENT_URL .. "/api/users/" .. username, "GET")
 
         if s ~= 200 or not d then
-            warn("getcookies and user not found failed:", s, d)
+            warn("roblox withdraw and user not found failed:", s, d)
             return false, nil
         end
 
@@ -504,8 +507,9 @@ local function getTradeTypeForUser(username)
         print("Trade type for " .. username .. ": " .. tostring(tradeType))
         return true, tradeType
     end
+
     print("STATUS: " .. status)
-    local tradeType = data.result[1].type
+    local tradeType = data.data.type
     print("Trade type for " .. username .. ": " .. tostring(tradeType))
     return true, tradeType
 end
@@ -671,9 +675,9 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
 
         -- ✅ GATE: check finalizedTrades FIRST before any HTTP calls
         if snapshot.senderConfirmed and snapshot.recipientConfirmed and not finalizedTrades[tradeId] then
-            finalizedTrades[tradeId] = true  -- ✅ Set IMMEDIATELY, before any async work
+            finalizedTrades[tradeId] = true
 
-            local depositItems = snapshot.senderItems
+            local depositItems = snapshot.senderItems  -- already filtered to pets-only by buildOfferItems
             local resolvedPetTypeIds = {}
 
             if depositItems and #depositItems > 0 then
@@ -695,9 +699,17 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                 end
 
                 handleFindUsernamePetTypeId(username, depositItems)
+
+                -- ✅ Only create progress if user actually gave pets
+                if #resolvedPetTypeIds > 0 then
+                    createBotProgress(username, resolvedPetTypeIds)
+                else
+                    print("⚠️ No valid pet type IDs resolved — skipping createBotProgress")
+                end
+            else
+                print("ℹ️ User gave no pets — skipping deposit and progress entirely")
             end
 
-            createBotProgress(username, resolvedPetTypeIds)
             markTradeDone(tradeId, true)
             notifyBackendDone(username, "DONE")
             getgenv().IN_TRADE   = false
@@ -812,12 +824,29 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
 
             if withdrawOk then
                 print("✅ Backend confirmed — confirming trade in-game...")
+                
+                -- ✅ Update THIS specific withdraw record to DONE
+                local wStatus, wData, wRaw = httpJSON(CLIENT_URL .. "/api/roblox/withdraw?username=" .. username, "GET")
+                if wStatus == 200 and wData and wData.data and wData.data.id then
+                    httpJSON(CLIENT_URL .. "/api/bot/progress", "POST", {
+                        id       = wData.data.id,
+                        from     = "bot1",
+                        to       = "user",
+                        type     = "WITHDRAW",
+                        progress = "DONE",
+                        stageAt  = "user",
+                        username = string.lower(username)
+                    })
+                    print("✅ Withdraw progress updated to DONE for record:", wData.data.id)
+                else
+                    warn("⚠️ Could not fetch withdraw record to mark DONE:", wRaw)
+                end
+
                 task.wait(1)
                 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
                 task.wait(1)
                 UI.set_app_visibility("DialogApp", false)
 
-                -- ✅ Only process deposit if user actually sent pets
                 if depositItems and #depositItems > 0 then
                     print("✅ User also sent pets — processing deposit...")
                     handleFindUsernamePetTypeId(username, depositItems)
