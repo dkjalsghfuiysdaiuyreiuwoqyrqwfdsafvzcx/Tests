@@ -28,7 +28,10 @@ local UI    = require(game:GetService("ReplicatedStorage"):WaitForChild("Fsys"))
 sound.FX:play("BambooButton")
 UI.set_app_visibility("NewsApp", false)
 UI.set_app_visibility("DialogApp", false)
-
+UI.set_app_visibility("DailyLoginApp", false)
+game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/Collect"):FireServer()
+game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/DisablePopups"):FireServer()
+game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
 task.wait(10)
 
 -- ============================================================
@@ -460,7 +463,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                     from     = "bot2",
                     to       = "bot1",
                     type     = "WITHDRAW",
-                    progress = "DONE",
+                    progress = "IN_PROGRESS",
                     stageAt  = "bot1",
                     username = string.lower(pData.username)
                 })
