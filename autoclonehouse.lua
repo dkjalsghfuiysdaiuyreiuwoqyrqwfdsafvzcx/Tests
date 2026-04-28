@@ -96,7 +96,7 @@ local loopCount = math.floor(bucks / bucksNeeded)
 
 for i = 1, loopCount do    
     -- your loop logic here
-    task.wait(60)
+    task.wait(20)
     
     -- buy home
 
@@ -107,13 +107,13 @@ for i = 1, loopCount do
     }
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("HousingAPI/BuyHouseWithAddons"):InvokeServer(unpack(args))
 
-    task.wait(60)
+    task.wait(20)
     
     -- respawn again
     
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
 
-    task.wait(60)
+    task.wait(20)
     
     
     --PASTE THE TEXTURE AND FURNITURE
