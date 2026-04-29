@@ -506,7 +506,7 @@ end)
 -- ============================================================
 task.spawn(function()
     while true do
-        waitOrSignal(depositReadySignal, 60)
+        waitOrSignal(depositReadySignal, 10)
 
         if getgenv().IN_TRADE == false then
             local urlPoll = CLIENT_URL .. "/api/bot/progress?stageAt=bot2&from=bot1&type=DEPOSIT&progress=IN_PROGRESS"
@@ -607,7 +607,7 @@ end)
 -- ============================================================
 task.spawn(function()
     while true do
-        waitOrSignal(withdrawReadySignal, 60)
+        waitOrSignal(withdrawReadySignal, 10)
 
         if getgenv().IN_TRADE == false then
             local urlPoll = CLIENT_URL .. "/api/bot/progress?stageAt=bot2&from=bot3&type=WITHDRAW&progress=IN_PROGRESS"
