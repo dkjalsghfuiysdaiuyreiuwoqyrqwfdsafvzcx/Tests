@@ -138,37 +138,37 @@ local function findPets(petkind, variant, ride, fly, usedUniques)
     for _, pet in pairs(inventoryPets) do
         if petkind == pet.kind and not usedUniques[pet.unique] then
             if variant == "MEGA" and pet.properties.mega_neon then
-                if ride == true and pet.properties.rideable then
-                    if fly == true and pet.properties.flyable then return pet.unique end
-                    return pet.unique
+                if ride == true and fly == true then
+                    if pet.properties.rideable and pet.properties.flyable then return pet.unique end
+                elseif ride == true and fly == false then
+                    if pet.properties.rideable and not pet.properties.flyable then return pet.unique end
+                elseif ride == false and fly == true then
+                    if not pet.properties.rideable and pet.properties.flyable then return pet.unique end
+                elseif ride == false and fly == false then
+                    if not pet.properties.rideable and not pet.properties.flyable then return pet.unique end
                 end
-                if fly == true and pet.properties.flyable then
-                    if ride == true and pet.properties.rideable then return pet.unique end
-                    return pet.unique
-                end
-                if ride == false and fly == false then return pet.unique end
             end
-            if variant == "NEON" and pet.properties.neon then
-                if ride == true and pet.properties.rideable then
-                    if fly == true and pet.properties.flyable then return pet.unique end
-                    return pet.unique
+            if variant == "NEON" and pet.properties.neon and not pet.properties.mega_neon then
+                if ride == true and fly == true then
+                    if pet.properties.rideable and pet.properties.flyable then return pet.unique end
+                elseif ride == true and fly == false then
+                    if pet.properties.rideable and not pet.properties.flyable then return pet.unique end
+                elseif ride == false and fly == true then
+                    if not pet.properties.rideable and pet.properties.flyable then return pet.unique end
+                elseif ride == false and fly == false then
+                    if not pet.properties.rideable and not pet.properties.flyable then return pet.unique end
                 end
-                if fly == true and pet.properties.flyable then
-                    if ride == true and pet.properties.rideable then return pet.unique end
-                    return pet.unique
-                end
-                if ride == false and fly == false then return pet.unique end
             end
             if variant == "NORMAL" and not pet.properties.neon and not pet.properties.mega_neon then
-                if ride == true and pet.properties.rideable then
-                    if fly == true and pet.properties.flyable then return pet.unique end
-                    return pet.unique
+                if ride == true and fly == true then
+                    if pet.properties.rideable and pet.properties.flyable then return pet.unique end
+                elseif ride == true and fly == false then
+                    if pet.properties.rideable and not pet.properties.flyable then return pet.unique end
+                elseif ride == false and fly == true then
+                    if not pet.properties.rideable and pet.properties.flyable then return pet.unique end
+                elseif ride == false and fly == false then
+                    if not pet.properties.rideable and not pet.properties.flyable then return pet.unique end
                 end
-                if fly == true and pet.properties.flyable then
-                    if ride == true and pet.properties.rideable then return pet.unique end
-                    return pet.unique
-                end
-                if ride == false and fly == false then return pet.unique end
             end
         end
     end
