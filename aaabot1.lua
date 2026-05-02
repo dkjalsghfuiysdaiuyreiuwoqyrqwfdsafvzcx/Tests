@@ -312,16 +312,22 @@ local function handleFindUsernamePetTypeId(username, pets)
     return ok == true
 end
 
+local FOOD_KIND_NAMES = {
+    ["pet_riding_potion"] = "Ride Potion",
+    ["pet_flying_potion"]  = "Fly Potion",
+}
 local function describeItem(item)
     local props = item.properties or {}
     local variant = "NORMAL"
     if props.mega_neon then variant = "MEGA"
     elseif props.neon then variant = "NEON" end
+    local kind = tostring(item.kind)
+    local name = FOOD_KIND_NAMES[kind] or ConvertPetName(kind)
     return {
-        petname = ConvertPetName(tostring(item.kind)),
+        petname = name,
         variant = variant,
-        petkind = tostring(item.kind),
-        fly = props.flyable == true,
+        petkind = kind,
+        fly  = props.flyable  == true,
         ride = props.rideable == true
     }
 end
