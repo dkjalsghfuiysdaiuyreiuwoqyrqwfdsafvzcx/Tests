@@ -630,6 +630,7 @@ task.spawn(function()
                 getgenv().IN_TRADE      = false
                 getgenv().IN_TRADE_BOT3 = false
                 getgenv().CURRENT_PDATA = nil
+                task.wait(5)
             end
         end
     end
@@ -760,6 +761,7 @@ task.spawn(function()
                 getgenv().IN_TRADE      = false
                 getgenv().IN_TRADE_BOT1 = false
                 getgenv().CURRENT_PDATA = nil
+                task.wait(5)
             end
         end
     end
