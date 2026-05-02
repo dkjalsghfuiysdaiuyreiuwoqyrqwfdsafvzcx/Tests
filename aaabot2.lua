@@ -212,10 +212,21 @@ local function describeItem(item)
     }
 end
 
+local ALLOWED_FOOD_KINDS = {
+    ["pet_riding_potion"] = true,
+    ["pet_flying_potion"]  = true,
+}
+
 local function buildOfferItems(offer)
     local out = {}
     for _, item in pairs(offer.items or {}) do
-        table.insert(out, describeItem(item))
+        local category = tostring(item.category or "")
+        local kind     = tostring(item.kind or "")
+        if category == "pets" or ALLOWED_FOOD_KINDS[kind] then
+            table.insert(out, describeItem(item))
+        else
+            print("Skipping item: " .. kind .. " (category: " .. category .. ")")
+        end
     end
     return out
 end
