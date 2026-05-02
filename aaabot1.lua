@@ -896,92 +896,100 @@ task.spawn(function()
         waitOrSignal(depositReadySignal, 10)
 
         if getgenv().IN_TRADE == false then
-            local urlPoll = CLIENT_URL .. "/api/bot/progress?stageAt=bot1&from=bot1&type=DEPOSIT&progress=IN_PROGRESS"
-            local s, data, r = httpJSON(urlPoll, "GET")
+            local ok, err = pcall(function()
+                local urlPoll = CLIENT_URL .. "/api/bot/progress?stageAt=bot1&from=bot1&type=DEPOSIT&progress=IN_PROGRESS"
+                local s, data, r = httpJSON(urlPoll, "GET")
 
-            if data and #data > 0 then
-                local pData = nil
-                for _, record in ipairs(data) do
-                    if not processingIds[record.id] then
-                        pData = record
-                        break
+                if data and #data > 0 then
+                    local pData = nil
+                    for _, record in ipairs(data) do
+                        if not processingIds[record.id] then
+                            pData = record
+                            break
+                        end
                     end
-                end
 
-                if not pData then
-                    print("All pending records already in-flight, skipping")
-                    continue
-                end
+                    if not pData then
+                        print("All pending records already in-flight, skipping")
+                        return
+                    end
 
-                processingIds[pData.id] = true
-                acceptedIds[pData.id]   = false
-                getgenv().CURRENT_PDATA = pData
-                getgenv().IN_TRADE      = true
-                getgenv().IN_TRADE_BOT2 = false
+                    processingIds[pData.id] = true
+                    acceptedIds[pData.id]   = false
+                    getgenv().CURRENT_PDATA = pData
+                    getgenv().IN_TRADE      = true
+                    getgenv().IN_TRADE_BOT2 = false
 
-                local tries = 0
-                while not acceptedIds[pData.id] and tries < 5 do
-                    tries = tries + 1
-                    print("SENDING trade request to bot 2")
-                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/SendTradeRequest"):FireServer(
-                        game:GetService("Players"):WaitForChild(getgenv().BOT2_NAME)
-                    )
-                    task.wait(10)
-                end
+                    local tries = 0
+                    while not acceptedIds[pData.id] and tries < 5 do
+                        tries = tries + 1
+                        print("SENDING trade request to bot 2")
+                        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/SendTradeRequest"):FireServer(
+                            game:GetService("Players"):WaitForChild(getgenv().BOT2_NAME)
+                        )
+                        task.wait(10)
+                    end
 
-                if not acceptedIds[pData.id] then
-                    warn("Bot2 did not accept after 5 tries, skipping record:", pData.id)
-                    getgenv().IN_TRADE      = false
-                    getgenv().CURRENT_PDATA = nil
-                    processingIds[pData.id] = nil
-                    acceptedIds[pData.id]   = nil
-                    continue
-                end
+                    if not acceptedIds[pData.id] then
+                        warn("Bot2 did not accept after 5 tries, skipping record:", pData.id)
+                        getgenv().IN_TRADE      = false
+                        getgenv().CURRENT_PDATA = nil
+                        processingIds[pData.id] = nil
+                        acceptedIds[pData.id]   = nil
+                        return
+                    end
 
-                local successfullyAdded = {}
-                local usedUniques       = {}
+                    local successfullyAdded = {}
+                    local usedUniques       = {}
 
-                for _, petId in pairs(pData.petIds) do
-                    local sFindPets, dFindPets, rFindPets = httpJSON(
-                        CLIENT_URL .. "/api/pets/find?id=" .. HttpService:UrlEncode(petId), "GET"
-                    )
-
-                    if dFindPets then
-                        local petUnique = findPets(
-                            dFindPets.petkind,
-                            dFindPets.variant,
-                            dFindPets.ride,
-                            dFindPets.fly,
-                            usedUniques
+                    for _, petId in pairs(pData.petIds) do
+                        local sFindPets, dFindPets, rFindPets = httpJSON(
+                            CLIENT_URL .. "/api/pets/find?id=" .. HttpService:UrlEncode(petId), "GET"
                         )
 
-                        if petUnique then
-                            usedUniques[petUnique] = true
-                            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AddItemToOffer"):FireServer(petUnique)
-                            table.insert(successfullyAdded, petId)
+                        if dFindPets then
+                            local petUnique = findPets(
+                                dFindPets.petkind,
+                                dFindPets.variant,
+                                dFindPets.ride,
+                                dFindPets.fly,
+                                usedUniques
+                            )
+
+                            if petUnique then
+                                usedUniques[petUnique] = true
+                                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AddItemToOffer"):FireServer(petUnique)
+                                table.insert(successfullyAdded, petId)
+                            else
+                                warn("Pet not found in inventory:", petId)
+                            end
                         else
-                            warn("Pet not found in inventory:", petId)
+                            warn("Could not fetch pet data for:", petId, rFindPets)
                         end
+                    end
+
+                    task.wait(7)
+                    print("ACCEPT NEGOTIATION TO BOT 2")
+
+                    if #successfullyAdded > 0 then
+                        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
+                        print("✅ Accepted negotiation with", #successfullyAdded, "pets added")
                     else
-                        warn("Could not fetch pet data for:", petId, rFindPets)
+                        warn("No pets added, declining")
+                        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
+                        chatBubble("No pets added")
+                        getgenv().IN_TRADE      = false
+                        getgenv().IN_TRADE_BOT2 = false
+                        getgenv().CURRENT_PDATA = nil
+                        processingIds[pData.id] = nil
                     end
                 end
-
-                task.wait(7)
-                print("ACCEPT NEGOTIATION TO BOT 2")
-
-                if #successfullyAdded > 0 then
-                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
-                    print("✅ Accepted negotiation with", #successfullyAdded, "pets added")
-                else
-                    warn("No pets added, declining")
-                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
-                    chatBubble("No pets added")
-                    getgenv().IN_TRADE      = false
-                    getgenv().IN_TRADE_BOT2 = false
-                    getgenv().CURRENT_PDATA = nil
-                    processingIds[pData.id] = nil
-                end
+            end)
+            if not ok then
+                warn("❌ Deposit loop error:", err)
+                getgenv().IN_TRADE = false
+                getgenv().CURRENT_PDATA = nil
+                task.wait(5)
             end
         end
     end
@@ -996,12 +1004,18 @@ task.spawn(function()
         waitOrSignal(withdrawReadySignal, 10)
 
         if getgenv().IN_TRADE == false then
-            local urlPoll = CLIENT_URL .. "/api/bot/progress?stageAt=bot1&from=bot2&type=WITHDRAW&progress=IN_PROGRESS"
-            local s, data, r = httpJSON(urlPoll, "GET")
+            local ok, err = pcall(function()
+                local urlPoll = CLIENT_URL .. "/api/bot/progress?stageAt=bot1&from=bot2&type=WITHDRAW&progress=IN_PROGRESS"
+                local s, data, r = httpJSON(urlPoll, "GET")
 
-            if data and #data > 0 then
-                print("✅ Withdraw record(s) staged at bot1 — waiting for user to initiate trade")
-                -- TradeRequestReceived + handleWithdraw handles the rest when user trades bot1
+                if data and #data > 0 then
+                    print("✅ Withdraw record(s) staged at bot1 — waiting for user to initiate trade")
+                    -- TradeRequestReceived + handleWithdraw handles the rest when user trades bot1
+                end
+            end)
+            if not ok then
+                warn("❌ Withdraw loop error:", err)
+                task.wait(5)
             end
         end
     end
