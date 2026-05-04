@@ -34,6 +34,42 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/Di
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
 task.wait(10)
 
+local function createPlatform()
+        local Player = game.Players.LocalPlayer
+        local character = Player.Character or Player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+        -- Count existing platforms in the workspace
+        local existingPlatforms = 0
+        for _, object in pairs(workspace:GetChildren()) do
+            if object.Name == "CustomPlatform" then
+                existingPlatforms += 1
+            end
+        end
+
+        -- Check if the number of platforms exceeds 5
+        if existingPlatforms >= 5 then
+            --print("Maximum number of platforms reached, skipping creation.")
+            return
+        end
+
+        -- Debug message
+        --print("Teleport successful, creating platform...")
+
+        -- Create the platform part
+        local platform = Instance.new("Part")
+        platform.Name = "CustomPlatform" -- Unique name to identify the platform
+        platform.Size = Vector3.new(1100, 1, 1100) -- Size of the platform
+        platform.Anchored = true -- Make sure the platform doesn't fall
+        platform.CFrame = humanoidRootPart.CFrame * CFrame.new(0, -5, 0) -- Place 5 studs below the player
+
+        -- Set part properties
+        platform.BrickColor = BrickColor.new("Bright yellow") -- You can change the color
+        platform.Parent = workspace -- Parent to the workspace so it's visible
+end
+
+createPlatform()
+task.wait(5)
 -- ============================================================
 -- SERVICES & CONSTANTS
 -- ============================================================
