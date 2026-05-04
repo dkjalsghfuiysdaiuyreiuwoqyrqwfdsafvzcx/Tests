@@ -66,6 +66,7 @@ getgenv().CURRENT_PDATA  = nil
 local processingIds  = {}  -- record id -> true, prevents double-pickup
 local acceptedIds    = {}  -- record id -> true, set when bot2 accepts
 local pDataByTradeId = {}
+local botNegotiatedByTrade = {}
 
 -- ============================================================
 -- 🔥 FORCE-POLL SIGNALS
@@ -666,6 +667,8 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         getgenv().IN_TRADE_BOT1 = false
         getgenv().IN_TRADE_BOT3 = false
         getgenv().CURRENT_PDATA = nil
+        -- cleanup any lingering negotiation state for all trades
+        botNegotiatedByTrade = {}
         return
     end
 
@@ -838,10 +841,20 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
     if getgenv().TRADE_TYPE == "WITHDRAW" and senderName ~= getgenv().BOT2_NAME then
         getgenv().IN_TRADE = true
 
-        -- if recipient.negotiated and not sender.negotiated then
-        --     print("🔄 User negotiated — bot re-accepting negotiation...")
-        --     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
-        -- end
+        -- Re-accept negotiation anytime bot's negotiated is false but we have items in offer
+        -- This handles the case where user modifies the trade, resetting negotiation
+        if not sender.negotiated then
+            if botNegotiatedByTrade[tradeId] then
+                -- Bot was previously negotiated but got reset — re-send
+                print("🔄 Bot negotiation was reset (user modified trade) — re-accepting...")
+                botNegotiatedByTrade[tradeId] = false
+                task.wait(1)
+                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
+            end
+        else
+            -- Track that bot has negotiated for this trade
+            botNegotiatedByTrade[tradeId] = true
+        end
 
         if sender.negotiated and recipient.negotiated then
             task.wait(7)
@@ -850,6 +863,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
 
         if sender.confirmed and recipient.confirmed and not finalizedTrades[tradeId] then
             finalizedTrades[tradeId] = true
+            botNegotiatedByTrade[tradeId] = nil  -- cleanup
 
             local withdrawItems = snapshot.recipientItems
             local depositItems  = snapshot.senderItems
