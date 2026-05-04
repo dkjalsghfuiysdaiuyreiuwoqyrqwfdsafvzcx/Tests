@@ -34,6 +34,18 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/Di
 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
 task.wait(10)
 
+local function teleportPlayerNeeds(x, y, z)
+
+    if x == 0 and y == 350 and z == 0 then
+        x = math.random(10, 20)
+    end
+    local Player = game.Players.LocalPlayer
+    if Player and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+        Player.Character.HumanoidRootPart.CFrame = CFrame.new(x, y, z) 
+    else
+        --print("Player or character not found!")
+    end
+end
 local function createPlatform()
         local Player = game.Players.LocalPlayer
         local character = Player.Character or Player.CharacterAdded:Wait()
@@ -67,7 +79,8 @@ local function createPlatform()
         platform.BrickColor = BrickColor.new("Bright yellow") -- You can change the color
         platform.Parent = workspace -- Parent to the workspace so it's visible
 end
-
+print("Created Platform")
+teleportPlayerNeeds(0,350,0)
 createPlatform()
 task.wait(5)
 -- ============================================================
