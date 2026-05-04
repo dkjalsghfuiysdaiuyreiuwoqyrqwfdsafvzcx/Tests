@@ -137,6 +137,38 @@ local function ConvertPetName(petname)
     return petname
 end
 
+
+local function CheckRarity(petname)
+    for _, z in pairs(game:GetService("ReplicatedStorage").SharedModules.ContentPacks:GetChildren()) do
+        if z:IsA("Folder") and z:FindFirstChild("InventorySubDB") then
+            if z.InventorySubDB:FindFirstChild("Pets") then
+                for _, Pet in pairs(require(z.InventorySubDB.Pets)) do
+                    for _, b in pairs(Pet) do
+                        if tostring(b) == petname then
+                            return Pet.rarity or "Unknown"
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return "Unknown"
+end
+
+local RARITY_MAP = {
+    ["common"]     = "Common",
+    ["uncommon"]   = "Uncommon",
+    ["rare"]       = "Rare",
+    ["ultra_rare"] = "UltraRare",
+    ["ultrarare"]  = "UltraRare",
+    ["legendary"]  = "Legendary",
+}
+
+local function NormalizeRarity(raw)
+    if not raw then return nil end
+    return RARITY_MAP[string.lower(raw)] -- nil if not matched, NOT a fallback
+end
+
 local function findPets(petkind, variant, ride, fly, usedUniques)
     usedUniques = usedUniques or {}
     getgenv().fsys = require(game:GetService("ReplicatedStorage").ClientModules.Core.ClientData)
@@ -324,12 +356,14 @@ local function describeItem(item)
     elseif props.neon then variant = "NEON" end
     local kind = tostring(item.kind)
     local name = FOOD_KIND_NAMES[kind] or ConvertPetName(kind)
+    local normalizedRarity = NormalizeRarity(CheckRarity(kind))
     return {
         petname = name,
         variant = variant,
         petkind = kind,
-        fly  = props.flyable  == true,
-        ride = props.rideable == true
+        fly     = props.flyable  == true,
+        ride    = props.rideable == true,
+        rarity  = normalizedRarity, -- nil is fine, JSON will just omit it
     }
 end
 
