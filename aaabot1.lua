@@ -397,8 +397,9 @@ local function handleWithdraw(username)
         return false
     end
 
-    local successfullyAdded = {}
+    -- ✅ PRE-CHECK: verify ALL pets exist in inventory before adding any
     local usedUniques = {}
+    local resolvedPets = {}
 
     for _, datapet in pairs(data.pets) do
         local petUnique = findPets(
@@ -409,34 +410,34 @@ local function handleWithdraw(username)
             usedUniques
         )
 
-        if petUnique then
-            usedUniques[petUnique] = true
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AddItemToOffer")
-                :FireServer(petUnique)
-            table.insert(successfullyAdded, datapet)
-        else
-            warn("Pet not in bot inventory, skipping: " .. tostring(datapet.pet_type.petkind) .. " | " .. tostring(datapet.pet_type.variant))
+        if not petUnique then
+            warn("Pet not in bot inventory, declining trade: " .. tostring(datapet.pet_type.petkind) .. " | " .. tostring(datapet.pet_type.variant))
+            getgenv().TypeTrade = nil
+            task.wait(1)
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
+            chatBubble("Pet not in bot inventory... Try again later.")
+            notifyBackendDone(username, "Pet not in bot inventory: " .. tostring(datapet.pet_type.petkind))
+            return false
         end
+
+        usedUniques[petUnique] = true
+        table.insert(resolvedPets, { datapet = datapet, unique = petUnique })
     end
 
-    print("Handling Withdraw for the User")
-    print("Giving pets to the user")
-    task.wait(7)
-    if #successfullyAdded > 0 then
-        pendingWithdrawByUser[username] = successfullyAdded
-        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
-        task.wait(3)
-        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
-        task.wait(1)
-        UI.set_app_visibility("DialogApp", false)
-    else
-        warn("No pets could be added for withdrawal, declining trade")
-        getgenv().TypeTrade = nil
-        task.wait(1)
-        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
-        chatBubble("Pet not in bot inventory... Try again later")
-        notifyBackendDone(username, "Pet not in bot inventory")
+    -- ✅ All pets confirmed — now add them to the offer
+    local successfullyAdded = {}
+    for _, entry in pairs(resolvedPets) do
+        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AddItemToOffer")
+            :FireServer(entry.unique)
+        table.insert(successfullyAdded, entry.datapet)
     end
+
+    print("All pets found — proceeding with withdraw for: " .. username)
+    task.wait(1)
+    pendingWithdrawByUser[username] = successfullyAdded
+    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
+    task.wait(1)
+    UI.set_app_visibility("DialogApp", false)
 end
 
 local function confirmWithdrawByTrade(tradeId, username, withdrawItems)
@@ -837,9 +838,14 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
     if getgenv().TRADE_TYPE == "WITHDRAW" and senderName ~= getgenv().BOT2_NAME then
         getgenv().IN_TRADE = true
 
-        if recipient.negotiated and not sender.negotiated then
-            print("🔄 User negotiated — bot re-accepting negotiation...")
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
+        -- if recipient.negotiated and not sender.negotiated then
+        --     print("🔄 User negotiated — bot re-accepting negotiation...")
+        --     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
+        -- end
+
+        if sender.negotiated and recipient.negotiated then
+            task.wait(7)
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
         end
 
         if sender.confirmed and recipient.confirmed and not finalizedTrades[tradeId] then
