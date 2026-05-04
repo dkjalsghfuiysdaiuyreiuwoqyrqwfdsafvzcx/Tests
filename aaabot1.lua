@@ -433,7 +433,7 @@ local function handleWithdraw(username)
     end
 
     print("All pets found — proceeding with withdraw for: " .. username)
-    task.wait(1)
+    task.wait(5)
     pendingWithdrawByUser[username] = successfullyAdded
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
     task.wait(1)
