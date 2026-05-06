@@ -621,6 +621,12 @@ game:GetService("ReplicatedStorage")
                 while tick() - startTime < 60 do
                     task.wait(1)
                     if not getgenv().IN_TRADE then return end
+                    -- Reset timer if both negotiated
+                    if getgenv().BOTH_NEGOTIATED then
+                        getgenv().BOTH_NEGOTIATED = false
+                        startTime = tick()
+                        print("⏱️ Timer reset — both negotiated")
+                    end
                 end
                 if getgenv().IN_TRADE then
                     warn("⏱️ Trade timeout — declining after 1 minute")
@@ -645,6 +651,12 @@ game:GetService("ReplicatedStorage")
                 while tick() - startTime < 60 do
                     task.wait(1)
                     if not getgenv().IN_TRADE then return end
+                    -- Reset timer if both negotiated
+                    if getgenv().BOTH_NEGOTIATED then
+                        getgenv().BOTH_NEGOTIATED = false
+                        startTime = tick()
+                        print("⏱️ Timer reset — both negotiated")
+                    end
                 end
                 if getgenv().IN_TRADE then
                     warn("⏱️ Trade timeout — declining after 1 minute")
@@ -669,6 +681,12 @@ game:GetService("ReplicatedStorage")
                 while tick() - startTime < 60 do
                     task.wait(1)
                     if not getgenv().IN_TRADE then return end
+                    -- Reset timer if both negotiated
+                    if getgenv().BOTH_NEGOTIATED then
+                        getgenv().BOTH_NEGOTIATED = false
+                        startTime = tick()
+                        print("⏱️ Timer reset — both negotiated")
+                    end
                 end
                 if getgenv().IN_TRADE then
                     warn("⏱️ Trade timeout — declining after 1 minute")
@@ -740,6 +758,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
         end
         if sender.negotiated and sender.confirmed then
+            getgenv().BOTH_NEGOTIATED = true  -- 🔥 reset the timer
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
             task.wait(1)
             UI.set_app_visibility("DialogApp", false)
@@ -803,6 +822,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         end
 
         if sender.negotiated and recipient.negotiated then
+            getgenv().BOTH_NEGOTIATED = true  -- 🔥 reset the timer
             task.wait(7)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
             task.wait(1)
@@ -853,6 +873,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         end
 
         if sender.negotiated and recipient.negotiated then
+            getgenv().BOTH_NEGOTIATED = true  -- 🔥 reset the timer
             task.wait(2)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
             task.wait(1)
@@ -891,6 +912,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         end
 
         if sender.negotiated and recipient.negotiated then
+            getgenv().BOTH_NEGOTIATED = true  -- 🔥 reset the timer
             task.wait(7)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
         end
