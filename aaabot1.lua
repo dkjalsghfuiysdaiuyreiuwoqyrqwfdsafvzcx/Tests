@@ -848,7 +848,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                     stageAt  = "bot2",
                     username = string.lower(pData.username)
                 })
-                processingIds[pData.id]  = nil
+                -- processingIds[pData.id] stays TRUE forever — prevents re-pickup
                 acceptedIds[pData.id]    = nil
                 pDataByTradeId[tradeId]  = nil
                 print("✅ Progress updated to bot2 for record:", pData.id)
@@ -1022,7 +1022,7 @@ task.spawn(function()
                         warn("Bot2 did not accept after 5 tries, skipping record:", pData.id)
                         getgenv().IN_TRADE      = false
                         getgenv().CURRENT_PDATA = nil
-                        processingIds[pData.id] = nil
+                        -- processingIds[pData.id] = nil
                         acceptedIds[pData.id]   = nil
                         return
                     end
