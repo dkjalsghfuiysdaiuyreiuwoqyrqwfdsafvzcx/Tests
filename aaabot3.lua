@@ -650,7 +650,6 @@ task.spawn(function()
                                 usedUniques[petUnique] = true
                                 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AddItemToOffer"):FireServer(petUnique)
                                 table.insert(successfullyAdded, petId)
-                                task.wait(1)
                             else
                                 warn("Pet not found in inventory:", petId)
                             end
