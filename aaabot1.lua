@@ -618,13 +618,15 @@ game:GetService("ReplicatedStorage")
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptOrDeclineTradeRequest"):InvokeServer(Players:WaitForChild(username), true)
             task.spawn(function()
                 local startTime = tick()
+                local hasReset = false  -- ← add this flag
                 while tick() - startTime < 60 do
                     task.wait(1)
                     if not getgenv().IN_TRADE then return end
                     -- Reset timer if both negotiated
-                    if getgenv().BOTH_NEGOTIATED then
+                    if getgenv().BOTH_NEGOTIATED and not hasReset then
                         getgenv().BOTH_NEGOTIATED = false
                         startTime = tick()
+                        hasReset = true  -- ← only reset once
                         print("⏱️ Timer reset — both negotiated")
                     end
                 end
@@ -648,13 +650,15 @@ game:GetService("ReplicatedStorage")
             game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.Visible = false
             task.spawn(function()
                 local startTime = tick()
+                local hasReset = false  -- ← add this flag
                 while tick() - startTime < 60 do
                     task.wait(1)
                     if not getgenv().IN_TRADE then return end
                     -- Reset timer if both negotiated
-                    if getgenv().BOTH_NEGOTIATED then
+                    if getgenv().BOTH_NEGOTIATED and not hasReset then
                         getgenv().BOTH_NEGOTIATED = false
                         startTime = tick()
+                        hasReset = true
                         print("⏱️ Timer reset — both negotiated")
                     end
                 end
@@ -678,13 +682,15 @@ game:GetService("ReplicatedStorage")
             handleWithdraw(username)
             task.spawn(function()
                 local startTime = tick()
+                local hasReset = false  -- ← add this flag
                 while tick() - startTime < 60 do
                     task.wait(1)
                     if not getgenv().IN_TRADE then return end
                     -- Reset timer if both negotiated
-                    if getgenv().BOTH_NEGOTIATED then
+                    if getgenv().BOTH_NEGOTIATED and not hasReset then
                         getgenv().BOTH_NEGOTIATED = false
                         startTime = tick()
+                        hasReset = true  -- ← only reset once
                         print("⏱️ Timer reset — both negotiated")
                     end
                 end
