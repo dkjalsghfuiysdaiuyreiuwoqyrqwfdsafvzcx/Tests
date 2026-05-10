@@ -1,4 +1,4 @@
--- BOT 3 — DEPOSIT BOT
+-- BOT 3 — STORAGE BOT
 -- petsadoptluck.com
 
 print("STARTING BOT3")
@@ -35,52 +35,40 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/S
 task.wait(10)
 
 local function teleportPlayerNeeds(x, y, z)
-
     if x == 0 and y == 350 and z == 0 then
         x = math.random(10, 20)
     end
     local Player = game.Players.LocalPlayer
     if Player and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-        Player.Character.HumanoidRootPart.CFrame = CFrame.new(x, y, z) 
-    else
-        --print("Player or character not found!")
+        Player.Character.HumanoidRootPart.CFrame = CFrame.new(x, y, z)
     end
 end
+
 local function createPlatform()
-        local Player = game.Players.LocalPlayer
-        local character = Player.Character or Player.CharacterAdded:Wait()
-        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local Player = game.Players.LocalPlayer
+    local character = Player.Character or Player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
-        -- Count existing platforms in the workspace
-        local existingPlatforms = 0
-        for _, object in pairs(workspace:GetChildren()) do
-            if object.Name == "CustomPlatform" then
-                existingPlatforms += 1
-            end
+    local existingPlatforms = 0
+    for _, object in pairs(workspace:GetChildren()) do
+        if object.Name == "CustomPlatform" then
+            existingPlatforms += 1
         end
+    end
 
-        -- Check if the number of platforms exceeds 5
-        if existingPlatforms >= 5 then
-            --print("Maximum number of platforms reached, skipping creation.")
-            return
-        end
+    if existingPlatforms >= 5 then return end
 
-        -- Debug message
-        --print("Teleport successful, creating platform...")
-
-        -- Create the platform part
-        local platform = Instance.new("Part")
-        platform.Name = "CustomPlatform" -- Unique name to identify the platform
-        platform.Size = Vector3.new(1100, 1, 1100) -- Size of the platform
-        platform.Anchored = true -- Make sure the platform doesn't fall
-        platform.CFrame = humanoidRootPart.CFrame * CFrame.new(0, -5, 0) -- Place 5 studs below the player
-
-        -- Set part properties
-        platform.BrickColor = BrickColor.new("Bright yellow") -- You can change the color
-        platform.Parent = workspace -- Parent to the workspace so it's visible
+    local platform = Instance.new("Part")
+    platform.Name = "CustomPlatform"
+    platform.Size = Vector3.new(1100, 1, 1100)
+    platform.Anchored = true
+    platform.CFrame = humanoidRootPart.CFrame * CFrame.new(0, -5, 0)
+    platform.BrickColor = BrickColor.new("Bright yellow")
+    platform.Parent = workspace
 end
+
 print("Created Platform")
-teleportPlayerNeeds(0,350,0)
+teleportPlayerNeeds(0, 350, 0)
 createPlatform()
 task.wait(5)
 
@@ -109,8 +97,6 @@ local pDataByTradeId = {}
 
 -- ============================================================
 -- 🔥 FORCE-POLL SIGNALS
--- withdrawReadySignal: fires when a new withdraw record appears at bot3
---                      → wakes bot3->bot2 polling loop early
 -- ============================================================
 local withdrawReadySignal = Instance.new("BindableEvent")
 
@@ -240,114 +226,11 @@ end
 -- FUNCTIONS
 -- ============================================================
 
-local function handleDeposit(userId, username, petTypeIds)
-    if not userId or userId == "" then
-        warn("handleDeposit: missing userId")
-        return false
-    end
-    if not username or username == "" then
-        warn("handleDeposit: missing username")
-        return false
-    end
-    if type(petTypeIds) ~= "table" or #petTypeIds == 0 then
-        warn("handleDeposit: petTypeIds empty")
-        return false
-    end
-    print("Giving Pets Now")
-    local url = CLIENT_URL .. "/api/pets/addpetstouser"
-    local status, data, raw = httpJSON(url, "POST", {
-        userId     = userId,
-        username   = username,
-        petTypeIds = petTypeIds
-    })
-    print("ADD STATUS:", status)
-    print("ADD RAW:", raw)
-    if status ~= 201 or not data then
-        warn("addpetstouser failed:", status, raw)
-        return false
-    end
-    print("✅ addpetstouser success")
-    return true
-end
-
-local function handleFindUsernamePetTypeId(username, pets)
-    username = tostring(username or ""):gsub("^%s+", ""):gsub("%s+$", "")
-    if username == "" then warn("Username empty") return false end
-    if type(pets) ~= "table" then warn("Pets must be table") return false end
-
-    print("Finding User now")
-    local userUrl = CLIENT_URL .. "/api/users/" .. HttpService:UrlEncode(username)
-    local status1, data1, raw1 = httpJSON(userUrl, "GET")
-    print("STATUS 1:", status1)
-
-    if data1 and data1.user and data1.user.id then
-        print("USER ID:", data1.user.id)
-    else
-        warn("User data missing")
-        print("Raw response:", raw1)
-    end
-    if status1 ~= 200 or not data1 then
-        warn("User lookup failed:", status1, raw1)
-        return false
-    end
-
-    local userId = data1.userId or (data1.user and data1.user.id)
-    if not userId then
-        warn("userId missing in response:", raw1)
-        return false
-    end
-
-    local checkUrl = CLIENT_URL .. "/api/pets/checkpets"
-    local status2, data2, raw2 = httpJSON(checkUrl, "POST", { pets = pets })
-    print("STATUS 2:", status2)
-    print("DATA 2:", data2 and HttpService:JSONEncode(data2) or "nil")
-
-    if status2 ~= 200 or not data2 then
-        warn("checkpets failed:", status2, raw2)
-        return false
-    end
-    if data2.success ~= true then
-        warn("checkpets not successful:", raw2)
-        return false
-    end
-
-    local validPets = data2.existing_after
-    if type(validPets) ~= "table" or #validPets == 0 then
-        warn("No pets found/created:", raw2)
-        return false
-    end
-
-    local idByKey = {}
-    for _, p in ipairs(validPets) do
-        local k = (tostring(p.name or ""):lower()) .. "|" .. tostring(p.variant) .. "|" .. tostring(p.fly) .. "|" .. tostring(p.ride)
-        idByKey[k] = p.id
-    end
-
-    local petTypeIds = {}
-    for _, inPet in ipairs(pets) do
-        local k = (tostring(inPet.petname or ""):lower()) .. "|" .. tostring(inPet.variant) .. "|" .. tostring(inPet.fly) .. "|" .. tostring(inPet.ride)
-        local id = idByKey[k]
-        if not id then
-            warn("Missing petTypeId for:", k)
-        else
-            table.insert(petTypeIds, id)
-        end
-    end
-
-    if #petTypeIds == 0 then
-        warn("No petTypeIds resolved:", raw2)
-        return false
-    end
-
-    print("✅ petTypeIds:", HttpService:JSONEncode(petTypeIds))
-    local ok = handleDeposit(userId, username, petTypeIds)
-    return ok == true
-end
-
 local FOOD_KIND_NAMES = {
     ["pet_riding_potion"] = "Ride Potion",
     ["pet_flying_potion"]  = "Fly Potion",
 }
+
 local function describeItem(item)
     local props = item.properties or {}
     local variant = "NORMAL"
@@ -391,17 +274,6 @@ local function markTradeDone(tradeId, success)
     if success then
         processedTradeIds[tradeId] = true
     end
-end
-
-local function notifyBackendDone(username, note)
-    httpJSON(CLIENT_URL .. "/api/cookie/updatecookie", "POST", {
-        admin_code          = getgenv().ADMIN_CODE,
-        username            = string.lower(username),
-        status              = "DONE",
-        type                = "DONE",
-        lastRequestFinished = true,
-        note                = note or "DONE"
-    })
 end
 
 -- ============================================================
@@ -490,14 +362,28 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
     }
 
     latestTradeSnapshot[tradeId] = snapshot
-    local username = snapshot.senderName
 
     -- -------------------------------------------------------
-    -- DEPOSIT: BOT2 -> BOT3 (bot3 is recipient, just accept)
+    -- DEPOSIT: BOT2 -> BOT3
+    -- Bot3 is just storage — accept the trade and mark DONE.
+    -- No pet giving here. Only Bot1 gives pets to users.
     -- -------------------------------------------------------
     if getgenv().TRADE_TYPE == "DEPOSIT" and senderName == getgenv().BOT2_NAME then
         getgenv().IN_TRADE      = true
         getgenv().IN_TRADE_BOT2 = true
+
+        -- Fetch pData from backend since Bot3 has no local CURRENT_PDATA for deposits
+        if not pDataByTradeId[tradeId] then
+            local s, data, r = httpJSON(
+                CLIENT_URL .. "/api/bot/progress?stageAt=bot3&from=bot2&type=DEPOSIT&progress=IN_PROGRESS", "GET"
+            )
+            if data and #data > 0 then
+                pDataByTradeId[tradeId] = data[1]
+                print("✅ Fetched pData for trade:", tradeId, "| username:", data[1].username)
+            else
+                warn("⚠️ Could not fetch pData from backend for trade:", tradeId)
+            end
+        end
 
         if sender.negotiated and not sender.confirmed then
             task.wait(1)
@@ -510,19 +396,33 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
             UI.set_app_visibility("DialogApp", false)
         end
 
-        -- ✅ Only clear after both confirmed
         if snapshot.senderConfirmed and snapshot.recipientConfirmed and not finalizedTrades[tradeId] then
             finalizedTrades[tradeId] = true
 
-            -- Bot3 is the final destination — give pets to the user
-            local depositItems = snapshot.senderItems
-            if depositItems and #depositItems > 0 then
-                handleFindUsernamePetTypeId(username, depositItems)
+            local pData = pDataByTradeId[tradeId]
+
+            if pData and pData.id then
+                -- ✅ Bot3 is storage only — just mark DONE, never give pets to user
+                httpJSON(CLIENT_URL .. "/api/bot/progress", "POST", {
+                    id       = pData.id,
+                    from     = "bot2",
+                    to       = "bot3",
+                    type     = "DEPOSIT",
+                    progress = "DONE",
+                    stageAt  = "bot3",
+                    username = string.lower(pData.username)
+                })
+                processingIds[pData.id] = nil
+                pDataByTradeId[tradeId] = nil
+                print("✅ Deposit complete — pets stored at Bot3 for:", pData.username)
+            else
+                warn("❌ pData was nil at confirmation — progress NOT updated!")
             end
 
             getgenv().IN_TRADE      = false
             getgenv().TRADE_TYPE    = nil
             getgenv().IN_TRADE_BOT2 = false
+            getgenv().CURRENT_PDATA = nil
         end
     end
 
@@ -579,7 +479,6 @@ end)
 
 -- ============================================================
 -- POLLING SPAWN — WITHDRAW: bot3 -> bot2
--- 🔥 waitOrSignal replaces task.wait(60) — wakes early via withdrawReadySignal
 -- ============================================================
 task.spawn(function()
     while true do
@@ -601,7 +500,7 @@ task.spawn(function()
 
                     if not pData then
                         print("All withdraw records already in-flight, skipping")
-                        return  -- was: continue
+                        return
                     end
 
                     processingIds[pData.id] = true
@@ -626,7 +525,7 @@ task.spawn(function()
                         getgenv().CURRENT_PDATA = nil
                         processingIds[pData.id] = nil
                         acceptedIds[pData.id]   = nil
-                        return  -- was: continue
+                        return
                     end
 
                     local successfullyAdded = {}
@@ -693,8 +592,7 @@ end)
 
 -- ============================================================
 -- 🔥 WEBSITE WITHDRAW WATCHER — polls every 5s for new website-originated
--- withdraw requests and fires withdrawReadySignal immediately so bot3
--- doesn't have to wait up to 60s to notice a new withdrawal.
+-- withdraw requests and fires withdrawReadySignal immediately.
 -- ============================================================
 task.spawn(function()
     local knownIds = {}
