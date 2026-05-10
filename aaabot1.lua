@@ -759,12 +759,23 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
     if getgenv().TRADE_TYPE == "DEPOSIT" and senderName ~= getgenv().BOT2_NAME then
         getgenv().IN_TRADE = true
 
-        if sender.negotiated and not sender.confirmed then
-            task.wait(1)
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
+        if sender.negotiated then
+            -- If bot hasn't negotiated yet, OR user reset it (added pets), re-negotiate
+            if not botNegotiatedByTrade[tradeId] then
+                botNegotiatedByTrade[tradeId] = true
+                task.wait(1)
+                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
+            end
+        else
+            -- User un-negotiated (added more pets) — reset so bot re-negotiates next time
+            if botNegotiatedByTrade[tradeId] then
+                print("🔄 User modified trade — resetting bot negotiation flag")
+                botNegotiatedByTrade[tradeId] = false
+            end
         end
+
         if sender.negotiated and sender.confirmed then
-            getgenv().BOTH_NEGOTIATED = true  -- 🔥 reset the timer
+            getgenv().BOTH_NEGOTIATED = true
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
             task.wait(1)
             UI.set_app_visibility("DialogApp", false)
