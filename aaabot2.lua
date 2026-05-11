@@ -683,6 +683,8 @@ task.spawn(function()
                         end
                         if currentSnap and not currentSnap.recipientConfirmed then
                             print("⚠️ Bot3 hasn't negotiated yet — re-firing AcceptNegotiation")
+                            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/UnacceptNegotiation"):FireServer()
+                            task.wait(1)
                             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
                         end
                     else
@@ -827,6 +829,8 @@ task.spawn(function()
                         end
                         if currentSnap and not currentSnap.recipientConfirmed then
                             print("⚠️ Bot1 hasn't negotiated yet — re-firing AcceptNegotiation")
+                            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/UnacceptNegotiation"):FireServer()
+                            task.wait(1)
                             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
                         end
                     else
