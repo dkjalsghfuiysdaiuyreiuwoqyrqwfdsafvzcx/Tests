@@ -952,12 +952,13 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         getgenv().IN_TRADE = true
 
         if not sender.negotiated then
+            -- User modified trade (added pets) — always re-accept negotiation
             if botNegotiatedByTrade[tradeId] then
-                print("🔄 Bot negotiation was reset (user modified trade) — re-accepting...")
+                print("🔄 User modified trade — re-accepting negotiation...")
                 botNegotiatedByTrade[tradeId] = false
-                task.wait(1)
-                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
             end
+            task.wait(1)
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
         else
             botNegotiatedByTrade[tradeId] = true
         end
