@@ -2,7 +2,8 @@
 -- petsadoptluck.com
 
 print("STARTING BOT3")
-task.wait(1)
+task.wait(60)
+
 
 -- ============================================================
 -- SETUP: Rename hashed remotes
@@ -45,28 +46,37 @@ local function teleportPlayerNeeds(x, y, z)
 end
 
 local function createPlatform()
-    local Player = game.Players.LocalPlayer
-    local character = Player.Character or Player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        local Player = game.Players.LocalPlayer
+        local character = Player.Character or Player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
-    local existingPlatforms = 0
-    for _, object in pairs(workspace:GetChildren()) do
-        if object.Name == "CustomPlatform" then
-            existingPlatforms += 1
+        -- Count existing platforms in the workspace
+        local existingPlatforms = 0
+        for _, object in pairs(workspace:GetChildren()) do
+            if object.Name == "CustomPlatform" then
+                existingPlatforms += 1
+            end
         end
-    end
 
-    if existingPlatforms >= 5 then
-        return
-    end
+        -- Check if the number of platforms exceeds 5
+        if existingPlatforms >= 5 then
+            --print("Maximum number of platforms reached, skipping creation.")
+            return
+        end
 
-    local platform = Instance.new("Part")
-    platform.Name = "CustomPlatform"
-    platform.Size = Vector3.new(1100, 1, 1100)
-    platform.Anchored = true
-    platform.CFrame = humanoidRootPart.CFrame * CFrame.new(0, -5, 0)
-    platform.BrickColor = BrickColor.new("Bright yellow")
-    platform.Parent = workspace
+        -- Debug message
+        --print("Teleport successful, creating platform...")
+
+        -- Create the platform part
+        local platform = Instance.new("Part")
+        platform.Name = "CustomPlatform" -- Unique name to identify the platform
+        platform.Size = Vector3.new(1100, 1, 1100) -- Size of the platform
+        platform.Anchored = true -- Make sure the platform doesn't fall
+        platform.CFrame = humanoidRootPart.CFrame * CFrame.new(0, -5, 0) -- Place 5 studs below the player
+
+        -- Set part properties
+        platform.BrickColor = BrickColor.new("Bright yellow") -- You can change the color
+        platform.Parent = workspace -- Parent to the workspace so it's visible
 end
 
 print("Created Platform")
@@ -93,13 +103,9 @@ getgenv().TRADE_BOT2     = false
 getgenv().IN_TRADE_BOT2  = false
 getgenv().CURRENT_PDATA  = nil
 
-local processingIds      = {}
-local acceptedIds        = {}
-local pDataByTradeId     = {}
-
--- ✅ Timeout tracker to auto-clear stuck withdraw records
-local processingStartTime = {}
-local PROCESSING_TIMEOUT  = 300  -- 5 minutes
+local processingIds  = {}
+local acceptedIds    = {}
+local pDataByTradeId = {}
 
 -- ============================================================
 -- 🔥 FORCE-POLL SIGNALS
@@ -470,10 +476,9 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                     stageAt  = "bot2",
                     username = string.lower(pData.username)
                 })
-                processingIds[pData.id]       = nil
-                processingStartTime[pData.id] = nil  -- ✅ clear timeout tracker
-                acceptedIds[pData.id]         = nil
-                pDataByTradeId[tradeId]       = nil
+                processingIds[pData.id] = nil
+                acceptedIds[pData.id]   = nil
+                pDataByTradeId[tradeId] = nil
                 print("✅ Progress updated to bot2 for record:", pData.id)
             else
                 warn("❌ pData was nil at confirmation — progress NOT updated!")
@@ -492,17 +497,6 @@ task.wait(90)
 task.spawn(function()
     while true do
         waitOrSignal(withdrawReadySignal, 10)
-
-        -- ✅ Timeout cleanup: clear any withdraw processingIds stuck > 5 minutes
-        local now = tick()
-        for id, startTime in pairs(processingStartTime) do
-            if now - startTime > PROCESSING_TIMEOUT then
-                warn("⏱️ [BOT3 WITHDRAW] timeout — clearing stuck record:", id)
-                processingIds[id]       = nil
-                acceptedIds[id]         = nil
-                processingStartTime[id] = nil
-            end
-        end
 
         if getgenv().IN_TRADE == false then
             local ok, err = pcall(function()
@@ -523,13 +517,11 @@ task.spawn(function()
                         return
                     end
 
-                    processingIds[pData.id]       = true
-                    processingStartTime[pData.id] = tick()  -- ✅ track when processing started
-                    acceptedIds[pData.id]         = false
-                    getgenv().CURRENT_PDATA       = pData
-                    getgenv().IN_TRADE            = true
-                    getgenv().IN_TRADE_BOT2       = false
-
+                    processingIds[pData.id] = true
+                    acceptedIds[pData.id]   = false
+                    getgenv().CURRENT_PDATA = pData
+                    getgenv().IN_TRADE      = true
+                    getgenv().IN_TRADE_BOT2 = false
                     -- 🔥 SAFETY: verify all pets are actually in Bot3's inventory before sending trade
                     local allPetsFound = true
                     local verifyUniques = {}
@@ -561,11 +553,10 @@ task.spawn(function()
 
                     if not allPetsFound then
                         warn("⏳ Not all pets arrived at Bot3 yet — requeueing in 15s")
-                        getgenv().IN_TRADE            = false
-                        getgenv().CURRENT_PDATA       = nil
-                        processingIds[pData.id]       = nil
-                        processingStartTime[pData.id] = nil  -- ✅ clear timeout tracker
-                        acceptedIds[pData.id]         = nil
+                        getgenv().IN_TRADE      = false
+                        getgenv().CURRENT_PDATA = nil
+                        processingIds[pData.id] = nil
+                        acceptedIds[pData.id]   = nil
                         task.wait(15)
                         withdrawReadySignal:Fire() -- retry soon
                         return
@@ -585,11 +576,10 @@ task.spawn(function()
                     if not acceptedIds[pData.id] then
                         warn("Bot2 did not accept after 5 tries, skipping record:", pData.id)
                         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
-                        getgenv().IN_TRADE            = false
-                        getgenv().CURRENT_PDATA       = nil
-                        processingIds[pData.id]       = nil
-                        processingStartTime[pData.id] = nil  -- ✅ clear timeout tracker
-                        acceptedIds[pData.id]         = nil
+                        getgenv().IN_TRADE      = false
+                        getgenv().CURRENT_PDATA = nil
+                        processingIds[pData.id] = nil
+                        acceptedIds[pData.id]   = nil
                         return
                     end
 
@@ -631,12 +621,11 @@ task.spawn(function()
                     else
                         warn("No pets added, declining")
                         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
-                        getgenv().IN_TRADE            = false
-                        getgenv().IN_TRADE_BOT2       = false
-                        getgenv().CURRENT_PDATA       = nil
-                        processingIds[pData.id]       = nil
-                        processingStartTime[pData.id] = nil  -- ✅ clear timeout tracker
-                        acceptedIds[pData.id]         = nil
+                        getgenv().IN_TRADE      = false
+                        getgenv().IN_TRADE_BOT2 = false
+                        getgenv().CURRENT_PDATA = nil
+                        processingIds[pData.id] = nil
+                        acceptedIds[pData.id]   = nil
                     end
                 end
             end)
@@ -644,9 +633,8 @@ task.spawn(function()
                 warn("❌ Withdraw loop error:", err)
                 if getgenv().CURRENT_PDATA then
                     local id = getgenv().CURRENT_PDATA.id
-                    processingIds[id]       = nil
-                    processingStartTime[id] = nil  -- ✅ clear timeout tracker
-                    acceptedIds[id]         = nil
+                    processingIds[id] = nil
+                    acceptedIds[id]   = nil
                 end
                 getgenv().IN_TRADE      = false
                 getgenv().IN_TRADE_BOT2 = false
