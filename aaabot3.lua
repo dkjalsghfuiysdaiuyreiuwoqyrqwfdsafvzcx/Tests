@@ -488,6 +488,8 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
     end
 end)
 
+task.wait(90)
+
 -- ============================================================
 -- POLLING SPAWN — WITHDRAW: bot3 -> bot2
 -- ============================================================
