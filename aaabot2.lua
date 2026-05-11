@@ -632,6 +632,7 @@ task.spawn(function()
 
                     if not acceptedIds[pData.id] then
                         warn("Bot3 did not accept after 5 tries, skipping record:", pData.id)
+                        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
                         getgenv().IN_TRADE                   = false
                         getgenv().CURRENT_PDATA              = nil
                         processingIds[pData.id]              = nil
@@ -778,6 +779,7 @@ task.spawn(function()
 
                     if not acceptedIds[pData.id] then
                         warn("Bot1 did not accept after 5 tries, skipping record:", pData.id)
+                        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
                         getgenv().IN_TRADE            = false
                         getgenv().CURRENT_PDATA       = nil
                         processingIds[pData.id]       = nil
