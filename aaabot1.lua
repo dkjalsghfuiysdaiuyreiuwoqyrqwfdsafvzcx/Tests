@@ -71,7 +71,7 @@ local botNegotiatedByTrade = {}
 
 -- ✅ Timeout tracker to auto-clear stuck deposit records
 local processingStartTime = {}
-local PROCESSING_TIMEOUT  = 300  -- 5 minutes
+local PROCESSING_TIMEOUT  = 60  -- 5 minutes
 
 -- ============================================================
 -- 🔥 FORCE-POLL SIGNALS
