@@ -671,6 +671,20 @@ task.spawn(function()
                     if #successfullyAdded > 0 then
                         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
                         print("✅ Accepted negotiation with", #successfullyAdded, "pets added")
+
+                        -- 🔥 SAFETY: wait 10s, if bot3 still hasn't negotiated, re-fire
+                        task.wait(10)
+                        local currentSnap = nil
+                        for tid, snap in pairs(latestTradeSnapshot) do
+                            if snap.recipientName == getgenv().BOT3_NAME and not finalizedTrades[tid] then
+                                currentSnap = snap
+                                break
+                            end
+                        end
+                        if currentSnap and not currentSnap.recipientConfirmed then
+                            print("⚠️ Bot3 hasn't negotiated yet — re-firing AcceptNegotiation")
+                            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
+                        end
                     else
                         warn("No pets added, declining")
                         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
@@ -801,6 +815,20 @@ task.spawn(function()
                     if #successfullyAdded > 0 then
                         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
                         print("✅ Accepted negotiation with", #successfullyAdded, "pets added")
+
+                        -- 🔥 SAFETY: wait 10s, if bot1 still hasn't negotiated, re-fire
+                        task.wait(10)
+                        local currentSnap = nil
+                        for tid, snap in pairs(latestTradeSnapshot) do
+                            if snap.recipientName == getgenv().BOT1_NAME and not finalizedTrades[tid] then
+                                currentSnap = snap
+                                break
+                            end
+                        end
+                        if currentSnap and not currentSnap.recipientConfirmed then
+                            print("⚠️ Bot1 hasn't negotiated yet — re-firing AcceptNegotiation")
+                            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
+                        end
                     else
                         warn("No pets added, declining")
                         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
