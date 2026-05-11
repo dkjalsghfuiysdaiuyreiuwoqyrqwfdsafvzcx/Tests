@@ -4,6 +4,7 @@
 print("STARTING BOT1")
 task.wait(1)
 loadstring(game:HttpGet('https://raw.githubusercontent.com/dkjalsghfuiysdaiuyreiuwoqyrqwfdsafvzcx/Tests/refs/heads/main/showconsole.lua'))()
+
 -- ============================================================
 -- SETUP: Rename hashed remotes
 -- ============================================================
@@ -63,17 +64,17 @@ getgenv().TRADE_BOT2     = false
 getgenv().IN_TRADE_BOT2  = false
 getgenv().CURRENT_PDATA  = nil
 
-local processingIds  = {}  -- record id -> true, prevents double-pickup
-local acceptedIds    = {}  -- record id -> true, set when bot2 accepts
-local pDataByTradeId = {}
+local processingIds        = {}
+local acceptedIds          = {}
+local pDataByTradeId       = {}
 local botNegotiatedByTrade = {}
+
+-- ✅ Timeout tracker to auto-clear stuck deposit records
+local processingStartTime = {}
+local PROCESSING_TIMEOUT  = 300  -- 5 minutes
 
 -- ============================================================
 -- 🔥 FORCE-POLL SIGNALS
--- depositReadySignal : fires when user->bot1 deposit finalizes
---                      → wakes bot1->bot2 polling loop early
--- withdrawReadySignal: fires when bot2->bot1 withdraw finalizes
---                      → wakes bot1->user withdraw polling loop early
 -- ============================================================
 local depositReadySignal  = Instance.new("BindableEvent")
 local withdrawReadySignal = Instance.new("BindableEvent")
@@ -137,7 +138,6 @@ local function ConvertPetName(petname)
     return petname
 end
 
-
 local function CheckRarity(petname)
     for _, z in pairs(game:GetService("ReplicatedStorage").SharedModules.ContentPacks:GetChildren()) do
         if z:IsA("Folder") and z:FindFirstChild("InventorySubDB") then
@@ -166,7 +166,7 @@ local RARITY_MAP = {
 
 local function NormalizeRarity(raw)
     if not raw then return nil end
-    return RARITY_MAP[string.lower(raw)] -- nil if not matched, NOT a fallback
+    return RARITY_MAP[string.lower(raw)]
 end
 
 local function findPets(petkind, variant, ride, fly, usedUniques)
@@ -257,8 +257,8 @@ local function handleDeposit(userId, username, petTypeIds)
     print("Giving Pets Now")
     local url = CLIENT_URL .. "/api/pets/addpetstouser"
     local status, data, raw = httpJSON(url, "POST", {
-        userId = userId,
-        username = username,
+        userId     = userId,
+        username   = username,
         petTypeIds = petTypeIds
     })
     print("ADD STATUS:", status)
@@ -349,6 +349,7 @@ local FOOD_KIND_NAMES = {
     ["pet_riding_potion"] = "Ride Potion",
     ["pet_flying_potion"]  = "Fly Potion",
 }
+
 local function describeItem(item)
     local props = item.properties or {}
     local variant = "NORMAL"
@@ -363,7 +364,7 @@ local function describeItem(item)
         petkind = kind,
         fly     = props.flyable  == true,
         ride    = props.rideable == true,
-        rarity  = normalizedRarity, -- nil is fine, JSON will just omit it
+        rarity  = normalizedRarity,
     }
 end
 
@@ -397,14 +398,6 @@ local function markTradeDone(tradeId, success)
 end
 
 local function notifyBackendDone(username, note)
-    -- httpJSON(CLIENT_URL .. "/api/cookie/updatecookie", "POST", {
-    --     admin_code           = getgenv().ADMIN_CODE,
-    --     username             = string.lower(username),
-    --     status               = "DONE",
-    --     type                 = "DONE",
-    --     lastRequestFinished  = true,
-    --     note                 = note or "DONE"
-    -- })
     print("Notify Backend Done")
 end
 
@@ -417,7 +410,58 @@ local function buildKey(petkind, variant, fly, ride)
                tostring(fly == true) .. "|" .. tostring(ride == true)
 end
 
+-- ============================================================
+-- ✅ CHECK: Is user's deposit still moving through the pipeline?
+-- Blocks withdraw if deposit hasn't fully reached bot3 DONE yet.
+-- ============================================================
+local function isDepositStillInPipeline(username)
+    local encodedUser = HttpService:UrlEncode(string.lower(username))
+
+    -- Still at bot1 (not even sent to bot2)
+    local s1, d1 = httpJSON(
+        CLIENT_URL .. "/api/bot/progress?stageAt=bot1&from=bot1&type=DEPOSIT&progress=IN_PROGRESS&username=" .. encodedUser,
+        "GET"
+    )
+    if s1 == 200 and d1 and #d1 > 0 then
+        print("⚠️ Deposit still at bot1 for:", username)
+        return true
+    end
+
+    -- At bot2 (sent to bot2, not yet at bot3)
+    local s2, d2 = httpJSON(
+        CLIENT_URL .. "/api/bot/progress?stageAt=bot2&from=bot1&type=DEPOSIT&progress=IN_PROGRESS&username=" .. encodedUser,
+        "GET"
+    )
+    if s2 == 200 and d2 and #d2 > 0 then
+        print("⚠️ Deposit still at bot2 for:", username)
+        return true
+    end
+
+    -- At bot3 but not yet finalized (IN_PROGRESS means bot2->bot3 trade not confirmed)
+    local s3, d3 = httpJSON(
+        CLIENT_URL .. "/api/bot/progress?stageAt=bot3&from=bot2&type=DEPOSIT&progress=IN_PROGRESS&username=" .. encodedUser,
+        "GET"
+    )
+    if s3 == 200 and d3 and #d3 > 0 then
+        print("⚠️ Deposit still at bot3 (not finalized) for:", username)
+        return true
+    end
+
+    return false
+end
+
 local function handleWithdraw(username)
+    -- ✅ Block withdraw if deposit hasn't fully completed yet
+    if isDepositStillInPipeline(username) then
+        warn("🚫 Blocking withdraw for " .. username .. " — deposit still in pipeline")
+        task.wait(1)
+        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
+        chatBubble("Your deposit is still processing... Please wait a moment and try again.")
+        getgenv().IN_TRADE   = false
+        getgenv().TRADE_TYPE = nil
+        return false
+    end
+
     local status, data, raw = httpJSON(CLIENT_URL .. "/api/pets/checkwithdrawpets", "POST", {
         username = string.lower(username)
     })
@@ -432,8 +476,8 @@ local function handleWithdraw(username)
         return false
     end
 
-    -- ✅ PRE-CHECK: verify ALL pets exist in inventory before adding any
-    local usedUniques = {}
+    -- PRE-CHECK: verify ALL pets exist in inventory before adding any
+    local usedUniques  = {}
     local resolvedPets = {}
 
     for _, datapet in pairs(data.pets) do
@@ -459,7 +503,7 @@ local function handleWithdraw(username)
         table.insert(resolvedPets, { datapet = datapet, unique = petUnique })
     end
 
-    -- ✅ All pets confirmed — now add them to the offer
+    -- ✅ Add pets instantly — no task.wait before adding
     local successfullyAdded = {}
     for _, entry in pairs(resolvedPets) do
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AddItemToOffer")
@@ -468,7 +512,7 @@ local function handleWithdraw(username)
     end
 
     print("All pets found — proceeding with withdraw for: " .. username)
-    task.wait(5)
+    task.wait(7)  -- ✅ Only wait 7s before negotiating
     pendingWithdrawByUser[username] = successfullyAdded
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
     task.wait(1)
@@ -562,7 +606,7 @@ local function getTradeTypeForUser(username)
         return true, "WITHDRAW"
     end
 
-    local status, data, raw = httpJSON(CLIENT_URL .. "/api/roblox/withdraw?username="..username, "GET")
+    local status, data, raw = httpJSON(CLIENT_URL .. "/api/roblox/withdraw?username=" .. username, "GET")
 
     if status ~= 200 or not data or not data.data or data.data.type == nil then
         local s, d, r = httpJSON(CLIENT_URL .. "/api/users/" .. username, "GET")
@@ -618,13 +662,14 @@ game:GetService("ReplicatedStorage")
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptOrDeclineTradeRequest"):InvokeServer(Players:WaitForChild(username), true)
             task.spawn(function()
                 local startTime = tick()
+                local hasReset  = false
                 while tick() - startTime < 60 do
                     task.wait(1)
                     if not getgenv().IN_TRADE then return end
-                    -- Reset timer if both negotiated
-                    if getgenv().BOTH_NEGOTIATED then
+                    if getgenv().BOTH_NEGOTIATED and not hasReset then
                         getgenv().BOTH_NEGOTIATED = false
                         startTime = tick()
+                        hasReset  = true
                         print("⏱️ Timer reset — both negotiated")
                     end
                 end
@@ -648,13 +693,14 @@ game:GetService("ReplicatedStorage")
             game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.Visible = false
             task.spawn(function()
                 local startTime = tick()
+                local hasReset  = false
                 while tick() - startTime < 60 do
                     task.wait(1)
                     if not getgenv().IN_TRADE then return end
-                    -- Reset timer if both negotiated
-                    if getgenv().BOTH_NEGOTIATED then
+                    if getgenv().BOTH_NEGOTIATED and not hasReset then
                         getgenv().BOTH_NEGOTIATED = false
                         startTime = tick()
+                        hasReset  = true
                         print("⏱️ Timer reset — both negotiated")
                     end
                 end
@@ -678,13 +724,14 @@ game:GetService("ReplicatedStorage")
             handleWithdraw(username)
             task.spawn(function()
                 local startTime = tick()
+                local hasReset  = false
                 while tick() - startTime < 60 do
                     task.wait(1)
                     if not getgenv().IN_TRADE then return end
-                    -- Reset timer if both negotiated
-                    if getgenv().BOTH_NEGOTIATED then
+                    if getgenv().BOTH_NEGOTIATED and not hasReset then
                         getgenv().BOTH_NEGOTIATED = false
                         startTime = tick()
+                        hasReset  = true
                         print("⏱️ Timer reset — both negotiated")
                     end
                 end
@@ -719,8 +766,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         getgenv().IN_TRADE_BOT1 = false
         getgenv().IN_TRADE_BOT3 = false
         getgenv().CURRENT_PDATA = nil
-        -- cleanup any lingering negotiation state for all trades
-        botNegotiatedByTrade = {}
+        botNegotiatedByTrade    = {}
         return
     end
 
@@ -753,12 +799,21 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
     if getgenv().TRADE_TYPE == "DEPOSIT" and senderName ~= getgenv().BOT2_NAME then
         getgenv().IN_TRADE = true
 
-        if sender.negotiated and not sender.confirmed then
-            task.wait(1)
-            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
+        if sender.negotiated then
+            if not botNegotiatedByTrade[tradeId] then
+                botNegotiatedByTrade[tradeId] = true
+                task.wait(1)
+                game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
+            end
+        else
+            if botNegotiatedByTrade[tradeId] then
+                print("🔄 User modified trade — resetting bot negotiation flag")
+                botNegotiatedByTrade[tradeId] = false
+            end
         end
+
         if sender.negotiated and sender.confirmed then
-            getgenv().BOTH_NEGOTIATED = true  -- 🔥 reset the timer
+            getgenv().BOTH_NEGOTIATED = true
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
             task.wait(1)
             UI.set_app_visibility("DialogApp", false)
@@ -766,8 +821,9 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
 
         if snapshot.senderConfirmed and snapshot.recipientConfirmed and not finalizedTrades[tradeId] then
             finalizedTrades[tradeId] = true
+            botNegotiatedByTrade[tradeId] = nil
 
-            local depositItems = snapshot.senderItems
+            local depositItems       = snapshot.senderItems
             local resolvedPetTypeIds = {}
 
             if depositItems and #depositItems > 0 then
@@ -792,7 +848,6 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
 
                 if #resolvedPetTypeIds > 0 then
                     createBotProgress(username, resolvedPetTypeIds)
-                    -- 🔥 Wake bot1->bot2 polling loop immediately
                     task.wait(2)
                     depositReadySignal:Fire()
                 else
@@ -818,11 +873,12 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         local pDataNow = pDataByTradeId[tradeId] or getgenv().CURRENT_PDATA
         if pDataNow and pDataNow.id then
             acceptedIds[pDataNow.id] = true
-            pDataByTradeId[tradeId] = pDataNow
+            pDataByTradeId[tradeId]  = pDataNow
         end
 
+        -- ✅ Both negotiated — wait 7s then confirm
         if sender.negotiated and recipient.negotiated then
-            getgenv().BOTH_NEGOTIATED = true  -- 🔥 reset the timer
+            getgenv().BOTH_NEGOTIATED = true
             task.wait(7)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
             task.wait(1)
@@ -848,9 +904,9 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                     stageAt  = "bot2",
                     username = string.lower(pData.username)
                 })
-                -- processingIds[pData.id] stays TRUE forever — prevents re-pickup
-                acceptedIds[pData.id]    = nil
-                pDataByTradeId[tradeId]  = nil
+                processingStartTime[pData.id] = nil
+                acceptedIds[pData.id]          = nil
+                pDataByTradeId[tradeId]        = nil
                 print("✅ Progress updated to bot2 for record:", pData.id)
             else
                 warn("❌ pData was nil at confirmation — progress NOT updated!")
@@ -873,8 +929,8 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
         end
 
         if sender.negotiated and recipient.negotiated then
-            getgenv().BOTH_NEGOTIATED = true  -- 🔥 reset the timer
-            task.wait(2)
+            getgenv().BOTH_NEGOTIATED = true
+            task.wait(7)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
             task.wait(1)
             UI.set_app_visibility("DialogApp", false)
@@ -884,7 +940,6 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
             finalizedTrades[tradeId] = true
             getgenv().IN_TRADE      = false
             getgenv().IN_TRADE_BOT2 = false
-            -- 🔥 Wake bot1->user withdraw polling loop immediately
             task.wait(2)
             withdrawReadySignal:Fire()
         end
@@ -896,30 +951,26 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
     if getgenv().TRADE_TYPE == "WITHDRAW" and senderName ~= getgenv().BOT2_NAME then
         getgenv().IN_TRADE = true
 
-        -- Re-accept negotiation anytime bot's negotiated is false but we have items in offer
-        -- This handles the case where user modifies the trade, resetting negotiation
         if not sender.negotiated then
             if botNegotiatedByTrade[tradeId] then
-                -- Bot was previously negotiated but got reset — re-send
                 print("🔄 Bot negotiation was reset (user modified trade) — re-accepting...")
                 botNegotiatedByTrade[tradeId] = false
                 task.wait(1)
                 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
             end
         else
-            -- Track that bot has negotiated for this trade
             botNegotiatedByTrade[tradeId] = true
         end
 
         if sender.negotiated and recipient.negotiated then
-            getgenv().BOTH_NEGOTIATED = true  -- 🔥 reset the timer
+            getgenv().BOTH_NEGOTIATED = true
             task.wait(7)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/ConfirmTrade"):FireServer()
         end
 
         if sender.confirmed and recipient.confirmed and not finalizedTrades[tradeId] then
             finalizedTrades[tradeId] = true
-            botNegotiatedByTrade[tradeId] = nil  -- cleanup
+            botNegotiatedByTrade[tradeId] = nil
 
             local withdrawItems = snapshot.recipientItems
             local depositItems  = snapshot.senderItems
@@ -977,11 +1028,21 @@ end)
 
 -- ============================================================
 -- POLLING SPAWN — deposit bot1 -> bot2
--- 🔥 waitOrSignal replaces task.wait(60) — wakes early when deposit arrives
 -- ============================================================
 task.spawn(function()
     while true do
         waitOrSignal(depositReadySignal, 10)
+
+        -- ✅ Timeout cleanup: clear any deposit processingIds stuck > 5 minutes
+        local now = tick()
+        for id, startTime in pairs(processingStartTime) do
+            if now - startTime > PROCESSING_TIMEOUT then
+                warn("⏱️ [BOT1 DEPOSIT] timeout — clearing stuck record:", id)
+                processingIds[id]       = nil
+                acceptedIds[id]         = nil
+                processingStartTime[id] = nil
+            end
+        end
 
         if getgenv().IN_TRADE == false then
             local ok, err = pcall(function()
@@ -1002,16 +1063,17 @@ task.spawn(function()
                         return
                     end
 
-                    processingIds[pData.id] = true
-                    acceptedIds[pData.id]   = false
-                    getgenv().CURRENT_PDATA = pData
-                    getgenv().IN_TRADE      = true
-                    getgenv().IN_TRADE_BOT2 = false
+                    processingIds[pData.id]       = true
+                    processingStartTime[pData.id] = tick()
+                    acceptedIds[pData.id]          = false
+                    getgenv().CURRENT_PDATA        = pData
+                    getgenv().IN_TRADE             = true
+                    getgenv().IN_TRADE_BOT2        = false
 
                     local tries = 0
                     while not acceptedIds[pData.id] and tries < 5 do
                         tries = tries + 1
-                        print("SENDING trade request to bot 2")
+                        print("SENDING trade request to bot 2 (attempt " .. tries .. "/5)")
                         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/SendTradeRequest"):FireServer(
                             game:GetService("Players"):WaitForChild(getgenv().BOT2_NAME)
                         )
@@ -1020,16 +1082,18 @@ task.spawn(function()
 
                     if not acceptedIds[pData.id] then
                         warn("Bot2 did not accept after 5 tries, skipping record:", pData.id)
-                        getgenv().IN_TRADE      = false
-                        getgenv().CURRENT_PDATA = nil
-                        -- processingIds[pData.id] = nil
-                        acceptedIds[pData.id]   = nil
+                        getgenv().IN_TRADE             = false
+                        getgenv().CURRENT_PDATA        = nil
+                        processingIds[pData.id]        = nil  -- ✅ FIXED: was commented out
+                        acceptedIds[pData.id]          = nil
+                        processingStartTime[pData.id]  = nil
                         return
                     end
 
                     local successfullyAdded = {}
                     local usedUniques       = {}
 
+                    -- ✅ Add pets instantly — no task.wait before adding
                     for _, petId in pairs(pData.petIds) do
                         local sFindPets, dFindPets, rFindPets = httpJSON(
                             CLIENT_URL .. "/api/pets/find?id=" .. HttpService:UrlEncode(petId), "GET"
@@ -1049,33 +1113,36 @@ task.spawn(function()
                                 game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AddItemToOffer"):FireServer(petUnique)
                                 table.insert(successfullyAdded, petId)
                             else
-                                warn("Pet not found in inventory:", petId)
+                                warn("Pet not found in inventory, skipping:", petId)
                             end
                         else
                             warn("Could not fetch pet data for:", petId, rFindPets)
                         end
                     end
 
+                    -- ✅ Wait 7s before negotiating, then proceed regardless of how many pets were added
                     task.wait(7)
                     print("ACCEPT NEGOTIATION TO BOT 2")
 
                     if #successfullyAdded > 0 then
-                        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
-                        print("✅ Accepted negotiation with", #successfullyAdded, "pets added")
+                        print("✅ Adding " .. #successfullyAdded .. " pets to offer")
                     else
-                        warn("No pets added, declining")
-                        game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
-                        chatBubble("No pets added")
-                        getgenv().IN_TRADE      = false
-                        getgenv().IN_TRADE_BOT2 = false
-                        getgenv().CURRENT_PDATA = nil
-                        processingIds[pData.id] = nil
+                        warn("⚠️ No pets found in inventory — proceeding anyway to unblock record:", pData.id)
                     end
+
+                    game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
+                    print("✅ Accepted negotiation with", #successfullyAdded, "pets")
                 end
             end)
             if not ok then
                 warn("❌ Deposit loop error:", err)
-                getgenv().IN_TRADE = false
+                if getgenv().CURRENT_PDATA then
+                    local id = getgenv().CURRENT_PDATA.id
+                    processingIds[id]       = nil
+                    processingStartTime[id] = nil
+                    acceptedIds[id]         = nil
+                end
+                getgenv().IN_TRADE      = false
                 getgenv().CURRENT_PDATA = nil
                 task.wait(5)
             end
@@ -1085,7 +1152,6 @@ end)
 
 -- ============================================================
 -- POLLING SPAWN — withdraw bot1 -> user
--- 🔥 waitOrSignal replaces task.wait(60) — wakes early when bot2->bot1 finishes
 -- ============================================================
 task.spawn(function()
     while true do
@@ -1098,7 +1164,6 @@ task.spawn(function()
 
                 if data and #data > 0 then
                     print("✅ Withdraw record(s) staged at bot1 — waiting for user to initiate trade")
-                    -- TradeRequestReceived + handleWithdraw handles the rest when user trades bot1
                 end
             end)
             if not ok then
