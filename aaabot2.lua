@@ -575,6 +575,9 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
     end
 end)
 
+
+task.wait(90)
+
 -- ============================================================
 -- POLLING SPAWN — DEPOSIT: bot2 -> bot3
 -- 🔥 waitOrSignal replaces task.wait(60) — wakes early when bot1->bot2 finishes
