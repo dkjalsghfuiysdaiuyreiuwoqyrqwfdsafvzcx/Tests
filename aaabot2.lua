@@ -443,12 +443,16 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
     -- DEPOSIT: BOT2 -> BOT3
     -- -------------------------------------------------------
     if recipientName == getgenv().BOT3_NAME then
-        getgenv().IN_TRADE = true
-
+        -- 🔥 FALLBACK: if pData lookup fails, use CURRENT_PDATA directly
         local pDataNow = pDataByTradeId[tradeId] or getgenv().CURRENT_PDATA
         if pDataNow and pDataNow.id then
             acceptedIds[pDataNow.id] = true
             pDataByTradeId[tradeId]  = pDataNow
+        elseif getgenv().CURRENT_PDATA then
+            -- last resort — bind by current pData even if id lookup failed
+            acceptedIds[getgenv().CURRENT_PDATA.id] = true
+            pDataByTradeId[tradeId] = getgenv().CURRENT_PDATA
+            print("⚠️ pData bound via fallback for tradeId:", tradeId)
         end
 
         if sender.negotiated and recipient.negotiated then
