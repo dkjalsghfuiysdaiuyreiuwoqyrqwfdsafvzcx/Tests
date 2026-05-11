@@ -506,6 +506,7 @@ local function handleWithdraw(username)
     -- ✅ Add pets instantly — no task.wait before adding
     local successfullyAdded = {}
     for _, entry in pairs(resolvedPets) do
+        task.wait(1)
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AddItemToOffer")
             :FireServer(entry.unique)
         table.insert(successfullyAdded, entry.datapet)
@@ -721,6 +722,7 @@ game:GetService("ReplicatedStorage")
             getgenv().IN_TRADE   = true
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptOrDeclineTradeRequest"):InvokeServer(Players:WaitForChild(username), true)
             game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.Visible = false
+            task.wait(5)  -- ✅ this is what's missing
             handleWithdraw(username)
             task.spawn(function()
                 local startTime = tick()
