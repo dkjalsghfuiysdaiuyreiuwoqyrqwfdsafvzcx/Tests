@@ -508,7 +508,47 @@ task.spawn(function()
                     getgenv().CURRENT_PDATA = pData
                     getgenv().IN_TRADE      = true
                     getgenv().IN_TRADE_BOT2 = false
+                    -- 🔥 SAFETY: verify all pets are actually in Bot3's inventory before sending trade
+                    local allPetsFound = true
+                    local verifyUniques = {}
+                    for _, petId in pairs(pData.petIds) do
+                        local sFindPets, dFindPets, rFindPets = httpJSON(
+                            CLIENT_URL .. "/api/pets/find?id=" .. HttpService:UrlEncode(petId), "GET"
+                        )
+                        if dFindPets then
+                            local petUnique = findPets(
+                                dFindPets.petkind,
+                                dFindPets.variant,
+                                dFindPets.ride,
+                                dFindPets.fly,
+                                verifyUniques
+                            )
+                            if petUnique then
+                                verifyUniques[petUnique] = true
+                            else
+                                warn("⚠️ Pet not in Bot3 inventory yet, aborting:", petId)
+                                allPetsFound = false
+                                break
+                            end
+                        else
+                            warn("⚠️ Could not fetch pet data for:", petId)
+                            allPetsFound = false
+                            break
+                        end
+                    end
 
+                    if not allPetsFound then
+                        warn("⏳ Not all pets arrived at Bot3 yet — requeueing in 15s")
+                        getgenv().IN_TRADE      = false
+                        getgenv().CURRENT_PDATA = nil
+                        processingIds[pData.id] = nil
+                        acceptedIds[pData.id]   = nil
+                        task.wait(15)
+                        withdrawReadySignal:Fire() -- retry soon
+                        return
+                    end
+
+                    -- only now send the trade request
                     local tries = 0
                     while not acceptedIds[pData.id] and tries < 5 do
                         tries = tries + 1
