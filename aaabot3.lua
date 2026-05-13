@@ -23,66 +23,66 @@ table.foreach(debug.getupvalue(router.get_remote_from_cache, 1), rename)
 -- ============================================================
 -- HIDE UI + PLAY SOUND ON STARTUP
 -- ============================================================
--- task.wait(10)
--- local sound = require(game:GetService("ReplicatedStorage"):WaitForChild("Fsys")).load("SoundPlayer")
--- local UI    = require(game:GetService("ReplicatedStorage"):WaitForChild("Fsys")).load("UIManager")
--- sound.FX:play("BambooButton")
--- UI.set_app_visibility("NewsApp", false)
--- UI.set_app_visibility("DialogApp", false)
--- UI.set_app_visibility("DailyLoginApp", false)
--- game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/Collect"):FireServer()
--- game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/DisablePopups"):FireServer()
--- game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
--- task.wait(10)
+task.wait(10)
+local sound = require(game:GetService("ReplicatedStorage"):WaitForChild("Fsys")).load("SoundPlayer")
+local UI    = require(game:GetService("ReplicatedStorage"):WaitForChild("Fsys")).load("UIManager")
+sound.FX:play("BambooButton")
+UI.set_app_visibility("NewsApp", false)
+UI.set_app_visibility("DialogApp", false)
+UI.set_app_visibility("DailyLoginApp", false)
+game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/Collect"):FireServer()
+game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("PayAPI/DisablePopups"):FireServer()
+game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TeamAPI/Spawn"):InvokeServer()
+task.wait(10)
 
--- local function teleportPlayerNeeds(x, y, z)
---     if x == 0 and y == 350 and z == 0 then
---         x = math.random(10, 20)
---     end
---     local Player = game.Players.LocalPlayer
---     if Player and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
---         Player.Character.HumanoidRootPart.CFrame = CFrame.new(x, y, z)
---     end
--- end
+local function teleportPlayerNeeds(x, y, z)
+    if x == 0 and y == 350 and z == 0 then
+        x = math.random(10, 20)
+    end
+    local Player = game.Players.LocalPlayer
+    if Player and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+        Player.Character.HumanoidRootPart.CFrame = CFrame.new(x, y, z)
+    end
+end
 
--- local function createPlatform()
---         local Player = game.Players.LocalPlayer
---         local character = Player.Character or Player.CharacterAdded:Wait()
---         local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local function createPlatform()
+        local Player = game.Players.LocalPlayer
+        local character = Player.Character or Player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
---         -- Count existing platforms in the workspace
---         local existingPlatforms = 0
---         for _, object in pairs(workspace:GetChildren()) do
---             if object.Name == "CustomPlatform" then
---                 existingPlatforms += 1
---             end
---         end
+        -- Count existing platforms in the workspace
+        local existingPlatforms = 0
+        for _, object in pairs(workspace:GetChildren()) do
+            if object.Name == "CustomPlatform" then
+                existingPlatforms += 1
+            end
+        end
 
---         -- Check if the number of platforms exceeds 5
---         if existingPlatforms >= 5 then
---             --print("Maximum number of platforms reached, skipping creation.")
---             return
---         end
+        -- Check if the number of platforms exceeds 5
+        if existingPlatforms >= 5 then
+            --print("Maximum number of platforms reached, skipping creation.")
+            return
+        end
 
---         -- Debug message
---         --print("Teleport successful, creating platform...")
+        -- Debug message
+        --print("Teleport successful, creating platform...")
 
---         -- Create the platform part
---         local platform = Instance.new("Part")
---         platform.Name = "CustomPlatform" -- Unique name to identify the platform
---         platform.Size = Vector3.new(1100, 1, 1100) -- Size of the platform
---         platform.Anchored = true -- Make sure the platform doesn't fall
---         platform.CFrame = humanoidRootPart.CFrame * CFrame.new(0, -5, 0) -- Place 5 studs below the player
+        -- Create the platform part
+        local platform = Instance.new("Part")
+        platform.Name = "CustomPlatform" -- Unique name to identify the platform
+        platform.Size = Vector3.new(1100, 1, 1100) -- Size of the platform
+        platform.Anchored = true -- Make sure the platform doesn't fall
+        platform.CFrame = humanoidRootPart.CFrame * CFrame.new(0, -5, 0) -- Place 5 studs below the player
 
---         -- Set part properties
---         platform.BrickColor = BrickColor.new("Bright yellow") -- You can change the color
---         platform.Parent = workspace -- Parent to the workspace so it's visible
--- end
+        -- Set part properties
+        platform.BrickColor = BrickColor.new("Bright yellow") -- You can change the color
+        platform.Parent = workspace -- Parent to the workspace so it's visible
+end
 
--- print("Created Platform")
--- teleportPlayerNeeds(0, 350, 0)
--- createPlatform()
--- task.wait(5)
+print("Created Platform")
+teleportPlayerNeeds(0, 350, 0)
+createPlatform()
+task.wait(5)
 
 -- ============================================================
 -- SERVICES & CONSTANTS
