@@ -69,6 +69,10 @@ local acceptedIds          = {}
 local pDataByTradeId       = {}
 local botNegotiatedByTrade = {}
 
+local withdrawLockByUser = {}  -- username -> true if withdraw in progress
+local WITHDRAW_LOCK_TIMEOUT = 90  -- seconds before auto-clearing a stuck lock
+local withdrawLockTime = {}
+
 -- ✅ Timeout tracker to auto-clear stuck deposit records
 local processingStartTime = {}
 local PROCESSING_TIMEOUT  = 60  -- 5 minutes
@@ -451,6 +455,29 @@ local function isDepositStillInPipeline(username)
 end
 
 local function handleWithdraw(username)
+    -- ✅ Per-user withdraw lock — blocks duplicate withdraws
+    local now = tick()
+    if withdrawLockByUser[username] then
+        local lockAge = now - (withdrawLockTime[username] or 0)
+        if lockAge < WITHDRAW_LOCK_TIMEOUT then
+            warn("🔒 Withdraw already in progress for: " .. username .. " (locked " .. math.floor(lockAge) .. "s ago)")
+            task.wait(1)
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
+            chatBubble("Your withdrawal is still processing. Please wait before trading again.")
+            getgenv().IN_TRADE   = false
+            getgenv().TRADE_TYPE = nil
+            return false
+        else
+            -- Lock expired — clear it
+            warn("⏱️ Withdraw lock expired for: " .. username .. " — clearing")
+            withdrawLockByUser[username] = nil
+            withdrawLockTime[username]   = nil
+        end
+    end
+
+    withdrawLockByUser[username] = true
+    withdrawLockTime[username]   = now
+
     -- ✅ Block withdraw if deposit hasn't fully completed yet
     if isDepositStillInPipeline(username) then
         warn("🚫 Blocking withdraw for " .. username .. " — deposit still in pipeline")
@@ -459,6 +486,8 @@ local function handleWithdraw(username)
         chatBubble("Your deposit is still processing... Please wait a moment and try again.")
         getgenv().IN_TRADE   = false
         getgenv().TRADE_TYPE = nil
+        withdrawLockByUser[username] = nil
+        withdrawLockTime[username]   = nil
         return false
     end
 
@@ -473,6 +502,8 @@ local function handleWithdraw(username)
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
         chatBubble("Pets Not found... Try again later.")
         notifyBackendDone(username, "No withdraw pets found")
+        withdrawLockByUser[username] = nil
+        withdrawLockTime[username]   = nil
         return false
     end
 
@@ -496,6 +527,8 @@ local function handleWithdraw(username)
             game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
             chatBubble("Pet not in bot inventory... Try again later.")
             notifyBackendDone(username, "Pet not in bot inventory: " .. tostring(datapet.pet_type.petkind))
+            withdrawLockByUser[username] = nil
+            withdrawLockTime[username]   = nil
             return false
         end
 
@@ -526,7 +559,29 @@ local function confirmWithdrawByTrade(tradeId, username, withdrawItems)
 
     if withdrawSentByTrade[tradeId] then
         print("Already sent for trade:", tradeId)
+        -- ✅ Also release lock on duplicate detection
+        withdrawLockByUser[username] = nil
+        withdrawLockTime[username]   = nil
         return true
+    end
+
+    -- ✅ DOUBLE-CHECK: Ask backend if this user still has a pending withdraw
+    local chkStatus, chkData, chkRaw = httpJSON(
+        CLIENT_URL .. "/api/roblox/withdraw?username=" .. username, "GET"
+    )
+    if chkStatus ~= 200 or not chkData or not chkData.data or chkData.data.type ~= "WITHDRAW" then
+        warn("🚫 Backend says no active withdraw for: " .. username .. " — possible duplicate, declining!")
+        withdrawLockByUser[username] = nil
+        withdrawLockTime[username]   = nil
+        return false
+    end
+
+    -- ✅ Also verify the withdraw record isn't already DONE
+    if chkData.data.progress == "DONE" then
+        warn("🚫 Withdraw already marked DONE for: " .. username .. " — duplicate detected, declining!")
+        withdrawLockByUser[username] = nil
+        withdrawLockTime[username]   = nil
+        return false
     end
 
     local pending = pendingWithdrawByTrade[tradeId] or pendingWithdrawByUser[username]
@@ -594,6 +649,10 @@ local function confirmWithdrawByTrade(tradeId, username, withdrawItems)
     print("----- confirmWithdrawByTrade END (SUCCESS) -----")
     pendingWithdrawByTrade[tradeId] = nil
     pendingWithdrawByUser[username] = nil
+
+    -- At the very end, after withdrawSentByTrade[tradeId] = true:
+    withdrawLockByUser[username] = nil
+    withdrawLockTime[username]   = nil
 
     return true
 end
