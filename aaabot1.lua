@@ -75,7 +75,7 @@ local withdrawLockTime = {}
 
 -- ✅ Timeout tracker to auto-clear stuck deposit records
 local processingStartTime = {}
-local PROCESSING_TIMEOUT  = 60  -- 5 minutes
+local PROCESSING_TIMEOUT  = 60
 
 -- ============================================================
 -- 🔥 FORCE-POLL SIGNALS
@@ -1092,7 +1092,19 @@ task.spawn(function()
     while true do
         waitOrSignal(depositReadySignal, 10)
 
-        -- ✅ Timeout cleanup: clear any deposit processingIds stuck > 5 minutes
+        -- 🔥 ADD THIS
+        if getgenv().IN_TRADE == false and getgenv().CURRENT_PDATA == nil then
+            for id, _ in pairs(processingIds) do
+                processingIds[id]       = nil
+                acceptedIds[id]         = nil
+                processingStartTime[id] = nil
+                print("🧹 [BOT1 DEPOSIT] Cleared ghost lock for:", id)
+            end
+        end
+
+        -- existing timeout cleanup below...
+
+        -- ✅ Timeout cleanup runs REGARDLESS of IN_TRADE state
         local now = tick()
         for id, startTime in pairs(processingStartTime) do
             if now - startTime > PROCESSING_TIMEOUT then
@@ -1100,6 +1112,13 @@ task.spawn(function()
                 processingIds[id]       = nil
                 acceptedIds[id]         = nil
                 processingStartTime[id] = nil
+                -- ✅ Also reset trade state if this was the active record
+                if getgenv().CURRENT_PDATA and getgenv().CURRENT_PDATA.id == id then
+                    getgenv().IN_TRADE      = false
+                    getgenv().CURRENT_PDATA = nil
+                    getgenv().IN_TRADE_BOT2 = false
+                    warn("⏱️ Force-reset IN_TRADE due to stuck record:", id)
+                end
             end
         end
 
