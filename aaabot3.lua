@@ -498,6 +498,15 @@ task.spawn(function()
         waitOrSignal(withdrawReadySignal, 10)
 
         if getgenv().IN_TRADE == false then
+            -- 🔥 ADD THIS: clear processingIds if we're not in a trade
+            -- This prevents ghost locks from failed previous attempts
+            if getgenv().CURRENT_PDATA == nil then
+                for id, _ in pairs(processingIds) do
+                    processingIds[id] = nil
+                    print("🧹 Cleared ghost lock for:", id)
+                end
+            end
+
             local ok, err = pcall(function()
                 local urlPoll = CLIENT_URL .. "/api/bot/progress?stageAt=bot3&from=website&type=WITHDRAW&progress=IN_PROGRESS"
                 local s, data, r = httpJSON(urlPoll, "GET")
