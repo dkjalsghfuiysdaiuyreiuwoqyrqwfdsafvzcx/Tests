@@ -584,6 +584,16 @@ task.spawn(function()
     while true do
         waitOrSignal(depositReadySignal, 10)
 
+        -- 🔥 ADD THIS
+        if getgenv().IN_TRADE == false and getgenv().CURRENT_PDATA == nil then
+            for id, _ in pairs(processingIds) do
+                processingIds[id]              = nil
+                acceptedIds[id]                = nil
+                depositProcessingStartTime[id] = nil
+                print("🧹 [BOT2 DEPOSIT] Cleared ghost lock for:", id)
+            end
+        end
+
         -- 🔥 Timeout cleanup: clear any deposit processingIds stuck > 5 minutes
         local now = tick()
         for id, startTime in pairs(depositProcessingStartTime) do
@@ -730,6 +740,16 @@ end)
 task.spawn(function()
     while true do
         waitOrSignal(withdrawReadySignal, 10)
+
+        -- 🔥 ADD THIS
+        if getgenv().IN_TRADE == false and getgenv().CURRENT_PDATA == nil then
+            for id, _ in pairs(processingIds) do
+                processingIds[id]       = nil
+                acceptedIds[id]         = nil
+                processingStartTime[id] = nil
+                print("🧹 [BOT2 WITHDRAW] Cleared ghost lock for:", id)
+            end
+        end
 
         -- 🔥 Timeout cleanup: clear any withdraw processingIds stuck > 5 minutes
         local now = tick()
