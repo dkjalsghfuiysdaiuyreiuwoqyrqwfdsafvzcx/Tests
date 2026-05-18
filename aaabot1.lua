@@ -1064,6 +1064,32 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                 if depositItems and #depositItems > 0 then
                     print("✅ User also sent pets — processing deposit...")
                     handleFindUsernamePetTypeId(username, depositItems)
+
+                    local checkUrl = CLIENT_URL .. "/api/pets/checkpets"
+                    local s2, d2 = httpJSON(checkUrl, "POST", { pets = depositItems })
+
+                    if s2 == 200 and d2 and d2.success and d2.existing_after then
+                        local resolvedPetTypeIds = {}
+                        local idByKey = {}
+                        for _, p in ipairs(d2.existing_after) do
+                            local k = string.lower(p.name or "") .. "|" .. tostring(p.variant) .. "|" .. tostring(p.fly) .. "|" .. tostring(p.ride)
+                            idByKey[k] = p.id
+                        end
+                        for _, inPet in ipairs(depositItems) do
+                            local k = string.lower(inPet.petname or "") .. "|" .. tostring(inPet.variant) .. "|" .. tostring(inPet.fly) .. "|" .. tostring(inPet.ride)
+                            if idByKey[k] then
+                                table.insert(resolvedPetTypeIds, idByKey[k])
+                            end
+                        end
+
+                        if #resolvedPetTypeIds > 0 then
+                            createBotProgress(username, resolvedPetTypeIds)
+                            task.wait(2)
+                            depositReadySignal:Fire()
+                        else
+                            warn("⚠️ No valid pet type IDs resolved for withdraw+deposit")
+                        end
+                    end
                 else
                     print("ℹ️ User sent no pets — skipping deposit")
                 end
