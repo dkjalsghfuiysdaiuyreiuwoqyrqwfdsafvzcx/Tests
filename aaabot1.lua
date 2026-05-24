@@ -1,4 +1,4 @@
--- BOT 1 — DEPOSIT BOT
+-- BOT 1 — DEPOSIT BOT (SECURED)
 -- petsadoptluck.com
 
 print("STARTING BOT1")
@@ -55,6 +55,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player     = Players.LocalPlayer
 local CLIENT_URL = "https://petsadoptluck.com"
 
+-- ✅ FIX: Store bot1's own username so we can guard against self-progress records
+local BOT1_NAME = tostring(Player.Name)
+
 getgenv().ADMIN_CODE     = "raprapissuperdupergwapo"
 getgenv().IN_TRADE       = false
 getgenv().BOT2_NAME      = "DorisKrueger424"
@@ -69,11 +72,10 @@ local acceptedIds          = {}
 local pDataByTradeId       = {}
 local botNegotiatedByTrade = {}
 
-local withdrawLockByUser = {}  -- username -> true if withdraw in progress
-local WITHDRAW_LOCK_TIMEOUT = 90  -- seconds before auto-clearing a stuck lock
+local withdrawLockByUser = {}
+local WITHDRAW_LOCK_TIMEOUT = 90
 local withdrawLockTime = {}
 
--- ✅ Timeout tracker to auto-clear stuck deposit records
 local processingStartTime = {}
 local PROCESSING_TIMEOUT  = 60
 
@@ -258,6 +260,21 @@ local function handleDeposit(userId, username, petTypeIds)
         warn("handleDeposit: petTypeIds empty")
         return false
     end
+
+    -- ✅ FIX: Guard against creating a deposit record for bot1 itself
+    if string.lower(username) == string.lower(BOT1_NAME) then
+        warn("🚫 SECURITY: Attempted to create deposit record for bot1 itself! Blocked. Username: " .. username)
+        return false
+    end
+    if string.lower(username) == string.lower(getgenv().BOT2_NAME) then
+        warn("🚫 SECURITY: Attempted to create deposit record for bot2! Blocked. Username: " .. username)
+        return false
+    end
+    if string.lower(username) == string.lower(getgenv().BOT3_NAME) then
+        warn("🚫 SECURITY: Attempted to create deposit record for bot3! Blocked. Username: " .. username)
+        return false
+    end
+
     print("Giving Pets Now")
     local url = CLIENT_URL .. "/api/pets/addpetstouser"
     local status, data, raw = httpJSON(url, "POST", {
@@ -279,6 +296,16 @@ local function handleFindUsernamePetTypeId(username, pets)
     username = tostring(username or ""):gsub("^%s+", ""):gsub("%s+$", "")
     if username == "" then warn("Username empty") return false end
     if type(pets) ~= "table" then warn("Pets must be table") return false end
+
+    -- ✅ FIX: Guard at this level too — belt and suspenders
+    if string.lower(username) == string.lower(BOT1_NAME) then
+        warn("🚫 SECURITY: handleFindUsernamePetTypeId called with bot1 username! Blocked.")
+        return false
+    end
+    if string.lower(username) == string.lower(getgenv().BOT2_NAME) then
+        warn("🚫 SECURITY: handleFindUsernamePetTypeId called with bot2 username! Blocked.")
+        return false
+    end
 
     print("Finding User now")
     local userUrl = CLIENT_URL .. "/api/users/" .. HttpService:UrlEncode(username)
@@ -415,13 +442,60 @@ local function buildKey(petkind, variant, fly, ride)
 end
 
 -- ============================================================
+-- ✅ FIX: Verify withdraw trade snapshot matches backend request
+-- Ensures the pets in the confirmed trade exactly match what
+-- the backend said the user should receive — no extras, no swaps.
+-- ============================================================
+local function verifyWithdrawPetsMatch(expectedPets, tradeSnapshotItems)
+    -- expectedPets: array of { pet_type: { petkind, variant, fly, ride } } from backend
+    -- tradeSnapshotItems: recipientItems from the trade snapshot (what user is getting)
+
+    if type(expectedPets) ~= "table" or type(tradeSnapshotItems) ~= "table" then
+        warn("verifyWithdrawPetsMatch: invalid input types")
+        return false
+    end
+
+    if #expectedPets ~= #tradeSnapshotItems then
+        warn(string.format("verifyWithdrawPetsMatch: count mismatch — expected %d, got %d in trade", #expectedPets, #tradeSnapshotItems))
+        return false
+    end
+
+    -- Build frequency map from expected (backend)
+    local expectedFreq = {}
+    for _, p in ipairs(expectedPets) do
+        local pt = p.pet_type or {}
+        local k = buildKey(pt.petkind, pt.variant, pt.fly, pt.ride)
+        expectedFreq[k] = (expectedFreq[k] or 0) + 1
+    end
+
+    -- Subtract from frequency map using actual trade items
+    for _, it in ipairs(tradeSnapshotItems) do
+        local k = buildKey(it.petkind, it.variant, it.fly, it.ride)
+        if not expectedFreq[k] or expectedFreq[k] == 0 then
+            warn("verifyWithdrawPetsMatch: trade contains unexpected pet: " .. k)
+            return false
+        end
+        expectedFreq[k] = expectedFreq[k] - 1
+    end
+
+    -- All expected counts should be 0 now
+    for k, count in pairs(expectedFreq) do
+        if count ~= 0 then
+            warn("verifyWithdrawPetsMatch: missing pet from trade: " .. k .. " (remaining: " .. count .. ")")
+            return false
+        end
+    end
+
+    print("✅ verifyWithdrawPetsMatch: all pets match correctly")
+    return true
+end
+
+-- ============================================================
 -- ✅ CHECK: Is user's deposit still moving through the pipeline?
--- Blocks withdraw if deposit hasn't fully reached bot3 DONE yet.
 -- ============================================================
 local function isDepositStillInPipeline(username)
     local encodedUser = HttpService:UrlEncode(string.lower(username))
 
-    -- Still at bot1 (not even sent to bot2)
     local s1, d1 = httpJSON(
         CLIENT_URL .. "/api/bot/progress?stageAt=bot1&from=bot1&type=DEPOSIT&progress=IN_PROGRESS&username=" .. encodedUser,
         "GET"
@@ -431,7 +505,6 @@ local function isDepositStillInPipeline(username)
         return true
     end
 
-    -- At bot2 (sent to bot2, not yet at bot3)
     local s2, d2 = httpJSON(
         CLIENT_URL .. "/api/bot/progress?stageAt=bot2&from=bot1&type=DEPOSIT&progress=IN_PROGRESS&username=" .. encodedUser,
         "GET"
@@ -441,7 +514,6 @@ local function isDepositStillInPipeline(username)
         return true
     end
 
-    -- At bot3 but not yet finalized (IN_PROGRESS means bot2->bot3 trade not confirmed)
     local s3, d3 = httpJSON(
         CLIENT_URL .. "/api/bot/progress?stageAt=bot3&from=bot2&type=DEPOSIT&progress=IN_PROGRESS&username=" .. encodedUser,
         "GET"
@@ -455,7 +527,6 @@ local function isDepositStillInPipeline(username)
 end
 
 local function handleWithdraw(username)
-    -- ✅ Per-user withdraw lock — blocks duplicate withdraws
     local now = tick()
     if withdrawLockByUser[username] then
         local lockAge = now - (withdrawLockTime[username] or 0)
@@ -468,7 +539,6 @@ local function handleWithdraw(username)
             getgenv().TRADE_TYPE = nil
             return false
         else
-            -- Lock expired — clear it
             warn("⏱️ Withdraw lock expired for: " .. username .. " — clearing")
             withdrawLockByUser[username] = nil
             withdrawLockTime[username]   = nil
@@ -478,7 +548,6 @@ local function handleWithdraw(username)
     withdrawLockByUser[username] = true
     withdrawLockTime[username]   = now
 
-    -- ✅ Block withdraw if deposit hasn't fully completed yet
     if isDepositStillInPipeline(username) then
         warn("🚫 Blocking withdraw for " .. username .. " — deposit still in pipeline")
         task.wait(1)
@@ -536,7 +605,10 @@ local function handleWithdraw(username)
         table.insert(resolvedPets, { datapet = datapet, unique = petUnique })
     end
 
-    -- ✅ Add pets instantly — no task.wait before adding
+    -- ✅ Store the full expected backend pets list for later verification
+    -- keyed by username so confirmWithdrawByTrade can access it
+    pendingWithdrawByUser[username] = data.pets  -- full backend records (with pet_type)
+
     local successfullyAdded = {}
     for _, entry in pairs(resolvedPets) do
         game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AddItemToOffer")
@@ -545,24 +617,43 @@ local function handleWithdraw(username)
     end
 
     print("All pets found — proceeding with withdraw for: " .. username)
-    task.wait(7)  -- ✅ Only wait 7s before negotiating
-    pendingWithdrawByUser[username] = successfullyAdded
+    task.wait(7)
     game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/AcceptNegotiation"):FireServer()
     task.wait(1)
     UI.set_app_visibility("DialogApp", false)
 end
 
-local function confirmWithdrawByTrade(tradeId, username, withdrawItems)
+local function confirmWithdrawByTrade(tradeId, username, withdrawItems, expectedBackendPets)
     print("----- confirmWithdrawByTrade START -----")
     print("TradeId:", tradeId)
     print("Username:", username)
 
     if withdrawSentByTrade[tradeId] then
         print("Already sent for trade:", tradeId)
-        -- ✅ Also release lock on duplicate detection
         withdrawLockByUser[username] = nil
         withdrawLockTime[username]   = nil
         return true
+    end
+
+    -- ✅ FIX: Verify that what the user actually received in the trade
+    -- matches exactly what the backend said they should receive.
+    -- This prevents pet-swap exploits and mismatched trade confirmations.
+    if expectedBackendPets and #expectedBackendPets > 0 then
+        local petsMatch = verifyWithdrawPetsMatch(expectedBackendPets, withdrawItems)
+        if not petsMatch then
+            warn("🚫 SECURITY: Withdraw pet mismatch detected! Trade items do not match backend request.")
+            warn("   Expected from backend: " .. HttpService:JSONEncode(expectedBackendPets))
+            warn("   Got in trade snapshot: " .. HttpService:JSONEncode(withdrawItems))
+            withdrawLockByUser[username] = nil
+            withdrawLockTime[username]   = nil
+            return false
+        end
+    else
+        -- ✅ If we have no expected list at all, that's a bug — block it
+        warn("🚫 SECURITY: No expected pet list available for withdraw verification — blocking!")
+        withdrawLockByUser[username] = nil
+        withdrawLockTime[username]   = nil
+        return false
     end
 
     -- ✅ DOUBLE-CHECK: Ask backend if this user still has a pending withdraw
@@ -576,7 +667,6 @@ local function confirmWithdrawByTrade(tradeId, username, withdrawItems)
         return false
     end
 
-    -- ✅ Also verify the withdraw record isn't already DONE
     if chkData.data.progress == "DONE" then
         warn("🚫 Withdraw already marked DONE for: " .. username .. " — duplicate detected, declining!")
         withdrawLockByUser[username] = nil
@@ -649,8 +739,6 @@ local function confirmWithdrawByTrade(tradeId, username, withdrawItems)
     print("----- confirmWithdrawByTrade END (SUCCESS) -----")
     pendingWithdrawByTrade[tradeId] = nil
     pendingWithdrawByUser[username] = nil
-
-    -- At the very end, after withdrawSentByTrade[tradeId] = true:
     withdrawLockByUser[username] = nil
     withdrawLockTime[username]   = nil
 
@@ -658,36 +746,46 @@ local function confirmWithdrawByTrade(tradeId, username, withdrawItems)
 end
 
 -- ============================================================
--- TRADE REQUEST RECEIVED
+-- ✅ FIX: Safe createBotProgress — validates username is a real
+-- user and NOT one of the bots before creating a progress record.
+-- This is the root cause of "bot1 username appearing in bot progress".
+-- It happens when the withdraw+deposit path calls createBotProgress
+-- with `username` that somehow resolves to bot1/bot2, or when the
+-- deposit poll loop fires during a withdraw+deposit flow.
 -- ============================================================
-local function getTradeTypeForUser(username)
-    if username == getgenv().BOT2_NAME then
-        return true, "WITHDRAW"
+local function createBotProgress(username, pets, callerContext)
+    callerContext = callerContext or "unknown"
+
+    -- Guard: username must be a real non-empty string
+    username = tostring(username or ""):gsub("^%s+", ""):gsub("%s+$", "")
+    if username == "" then
+        warn("🚫 createBotProgress blocked: empty username (caller: " .. callerContext .. ")")
+        return false
     end
 
-    local status, data, raw = httpJSON(CLIENT_URL .. "/api/roblox/withdraw?username=" .. username, "GET")
-
-    if status ~= 200 or not data or not data.data or data.data.type == nil then
-        local s, d, r = httpJSON(CLIENT_URL .. "/api/users/" .. username, "GET")
-
-        if s ~= 200 or not d then
-            warn("roblox withdraw and user not found failed:", s, d)
-            return false, nil
-        end
-
-        print("STATUS: " .. s)
-        local tradeType = "DEPOSIT"
-        print("Trade type for " .. username .. ": " .. tostring(tradeType))
-        return true, tradeType
+    -- Guard: never create a progress record for any bot account
+    local lowerUsername = string.lower(username)
+    if lowerUsername == string.lower(BOT1_NAME) then
+        warn("🚫 SECURITY: createBotProgress blocked for bot1 username '" .. username .. "' (caller: " .. callerContext .. ")")
+        return false
+    end
+    if lowerUsername == string.lower(getgenv().BOT2_NAME) then
+        warn("🚫 SECURITY: createBotProgress blocked for bot2 username '" .. username .. "' (caller: " .. callerContext .. ")")
+        return false
+    end
+    if lowerUsername == string.lower(getgenv().BOT3_NAME) then
+        warn("🚫 SECURITY: createBotProgress blocked for bot3 username '" .. username .. "' (caller: " .. callerContext .. ")")
+        return false
     end
 
-    print("STATUS: " .. status)
-    local tradeType = data.data.type
-    print("Trade type for " .. username .. ": " .. tostring(tradeType))
-    return true, tradeType
-end
+    -- Guard: pets must be a non-empty table
+    if type(pets) ~= "table" or #pets == 0 then
+        warn("🚫 createBotProgress blocked: no pets provided for username '" .. username .. "' (caller: " .. callerContext .. ")")
+        return false
+    end
 
-local function createBotProgress(username, pets)
+    print("✅ createBotProgress: creating record for user='" .. username .. "' pets=" .. #pets .. " caller=" .. callerContext)
+
     local status, data, raw = httpJSON(CLIENT_URL .. "/api/bot/progress", "POST", {
         from     = "bot1",
         to       = "bot1",
@@ -698,6 +796,13 @@ local function createBotProgress(username, pets)
         stageAt  = "bot1"
     })
     print("RAW for CREATEBOTPROGRESS: " .. raw)
+
+    if status ~= 200 and status ~= 201 then
+        warn("❌ createBotProgress API error: " .. tostring(status) .. " | " .. raw)
+        return false
+    end
+
+    return true
 end
 
 -- ============================================================
@@ -709,6 +814,41 @@ game:GetService("ReplicatedStorage")
     .OnClientEvent:Connect(function(player)
         local username = tostring(player)
         print("Trade request from:", username)
+
+        -- ✅ FIX: Immediately reject trade requests from the bots themselves
+        -- (should never happen, but guards against logic loops)
+        if string.lower(username) == string.lower(BOT1_NAME) then
+            warn("🚫 Rejecting trade request from bot1 itself")
+            game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("TradeAPI/DeclineTrade"):FireServer()
+            return
+        end
+
+        local function getTradeTypeForUser(u)
+            if u == getgenv().BOT2_NAME then
+                return true, "WITHDRAW"
+            end
+
+            local status, data, raw = httpJSON(CLIENT_URL .. "/api/roblox/withdraw?username=" .. u, "GET")
+
+            if status ~= 200 or not data or not data.data or data.data.type == nil then
+                local s, d, r = httpJSON(CLIENT_URL .. "/api/users/" .. u, "GET")
+
+                if s ~= 200 or not d then
+                    warn("roblox withdraw and user not found failed:", s, d)
+                    return false, nil
+                end
+
+                print("STATUS: " .. s)
+                local tradeType = "DEPOSIT"
+                print("Trade type for " .. u .. ": " .. tostring(tradeType))
+                return true, tradeType
+            end
+
+            print("STATUS: " .. status)
+            local tradeType = data.data.type
+            print("Trade type for " .. u .. ": " .. tostring(tradeType))
+            return true, tradeType
+        end
 
         local allowed, tradetype = getTradeTypeForUser(username)
         if not allowed then
@@ -850,12 +990,20 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
     }
 
     latestTradeSnapshot[tradeId] = snapshot
-    local username = snapshot.senderName
+
+    -- The user is always the sender — they initiate the trade to bot1
+    local username = senderName
 
     -- -------------------------------------------------------
     -- DEPOSIT FROM USER -> BOT 1
     -- -------------------------------------------------------
-    if getgenv().TRADE_TYPE == "DEPOSIT" and senderName ~= getgenv().BOT2_NAME then
+    -- ✅ FIX: Must confirm sender is a REAL USER — not bot1 or bot2.
+    -- Without the bot1 check, the bot1→bot2 deposit trade also triggers
+    -- this branch (senderName=bot1, which is ≠ bot2), causing
+    -- createBotProgress to be called with bot1's own username.
+    if getgenv().TRADE_TYPE == "DEPOSIT"
+        and senderName ~= getgenv().BOT2_NAME
+        and senderName ~= BOT1_NAME then
         getgenv().IN_TRADE = true
 
         if sender.negotiated then
@@ -903,10 +1051,11 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                     end
                 end
 
+                -- ✅ FIX: pass caller context so we can trace where this came from in logs
                 handleFindUsernamePetTypeId(username, depositItems)
 
                 if #resolvedPetTypeIds > 0 then
-                    createBotProgress(username, resolvedPetTypeIds)
+                    createBotProgress(username, resolvedPetTypeIds, "DEPOSIT_USER_TO_BOT1")
                     task.wait(2)
                     depositReadySignal:Fire()
                 else
@@ -935,7 +1084,6 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
             pDataByTradeId[tradeId]  = pDataNow
         end
 
-        -- ✅ Both negotiated — wait 7s then confirm
         if sender.negotiated and recipient.negotiated then
             getgenv().BOTH_NEGOTIATED = true
             task.wait(7)
@@ -961,6 +1109,8 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                     type     = "DEPOSIT",
                     progress = "IN_PROGRESS",
                     stageAt  = "bot2",
+                    -- ✅ FIX: Always use the stored username from pData, not the
+                    -- resolved snapshot username, to avoid any mismatch
                     username = string.lower(pData.username)
                 })
                 processingStartTime[pData.id] = nil
@@ -1034,8 +1184,13 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
             local withdrawItems = snapshot.recipientItems
             local depositItems  = snapshot.senderItems
 
+            -- ✅ FIX: Pass the expected backend pets list to confirmWithdrawByTrade
+            -- so it can verify the trade snapshot matches what was requested.
+            -- pendingWithdrawByUser[username] was set in handleWithdraw() above.
+            local expectedBackendPets = pendingWithdrawByUser[username]
+
             print("⏳ Both confirmed — declaring withdraw to backend...")
-            local withdrawOk = confirmWithdrawByTrade(tradeId, username, withdrawItems)
+            local withdrawOk = confirmWithdrawByTrade(tradeId, username, withdrawItems, expectedBackendPets)
 
             if withdrawOk then
                 print("✅ Backend confirmed — confirming trade in-game...")
@@ -1062,6 +1217,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                 UI.set_app_visibility("DialogApp", false)
 
                 if depositItems and #depositItems > 0 then
+                    -- senderName is always the user (they initiated the trade)
                     print("✅ User also sent pets — processing deposit...")
                     handleFindUsernamePetTypeId(username, depositItems)
 
@@ -1083,7 +1239,7 @@ game:GetService("ReplicatedStorage"):WaitForChild("API"):WaitForChild("DataAPI/D
                         end
 
                         if #resolvedPetTypeIds > 0 then
-                            createBotProgress(username, resolvedPetTypeIds)
+                            createBotProgress(username, resolvedPetTypeIds, "WITHDRAW_PLUS_DEPOSIT")
                             task.wait(2)
                             depositReadySignal:Fire()
                         else
@@ -1118,7 +1274,6 @@ task.spawn(function()
     while true do
         waitOrSignal(depositReadySignal, 10)
 
-        -- 🔥 ADD THIS
         if getgenv().IN_TRADE == false and getgenv().CURRENT_PDATA == nil then
             for id, _ in pairs(processingIds) do
                 processingIds[id]       = nil
@@ -1128,9 +1283,6 @@ task.spawn(function()
             end
         end
 
-        -- existing timeout cleanup below...
-
-        -- ✅ Timeout cleanup runs REGARDLESS of IN_TRADE state
         local now = tick()
         for id, startTime in pairs(processingStartTime) do
             if now - startTime > PROCESSING_TIMEOUT then
@@ -1138,7 +1290,6 @@ task.spawn(function()
                 processingIds[id]       = nil
                 acceptedIds[id]         = nil
                 processingStartTime[id] = nil
-                -- ✅ Also reset trade state if this was the active record
                 if getgenv().CURRENT_PDATA and getgenv().CURRENT_PDATA.id == id then
                     getgenv().IN_TRADE      = false
                     getgenv().CURRENT_PDATA = nil
@@ -1156,14 +1307,24 @@ task.spawn(function()
                 if data and #data > 0 then
                     local pData = nil
                     for _, record in ipairs(data) do
-                        if not processingIds[record.id] then
+                        -- ✅ FIX: Skip any record whose username is a bot account.
+                        -- This is the direct fix for "bot1 username appearing in bot progress".
+                        -- The poll loop should ONLY process records for real users.
+                        local recUser = string.lower(tostring(record.username or ""))
+                        if recUser == string.lower(BOT1_NAME) then
+                            warn("🚫 [POLL] Skipping record with bot1 username: " .. tostring(record.id))
+                        elseif recUser == string.lower(getgenv().BOT2_NAME) then
+                            warn("🚫 [POLL] Skipping record with bot2 username: " .. tostring(record.id))
+                        elseif recUser == string.lower(getgenv().BOT3_NAME) then
+                            warn("🚫 [POLL] Skipping record with bot3 username: " .. tostring(record.id))
+                        elseif not processingIds[record.id] then
                             pData = record
                             break
                         end
                     end
 
                     if not pData then
-                        print("All pending records already in-flight, skipping")
+                        print("All pending records already in-flight or filtered, skipping")
                         return
                     end
 
@@ -1188,7 +1349,7 @@ task.spawn(function()
                         warn("Bot2 did not accept after 5 tries, skipping record:", pData.id)
                         getgenv().IN_TRADE             = false
                         getgenv().CURRENT_PDATA        = nil
-                        processingIds[pData.id]        = nil  -- ✅ FIXED: was commented out
+                        processingIds[pData.id]        = nil
                         acceptedIds[pData.id]          = nil
                         processingStartTime[pData.id]  = nil
                         return
@@ -1197,7 +1358,6 @@ task.spawn(function()
                     local successfullyAdded = {}
                     local usedUniques       = {}
 
-                    -- ✅ Add pets instantly — no task.wait before adding
                     for _, petId in pairs(pData.petIds) do
                         local sFindPets, dFindPets, rFindPets = httpJSON(
                             CLIENT_URL .. "/api/pets/find?id=" .. HttpService:UrlEncode(petId), "GET"
@@ -1224,7 +1384,6 @@ task.spawn(function()
                         end
                     end
 
-                    -- ✅ Wait 7s before negotiating, then proceed regardless of how many pets were added
                     task.wait(7)
                     print("ACCEPT NEGOTIATION TO BOT 2")
 
@@ -1278,4 +1437,4 @@ task.spawn(function()
     end
 end)
 
-print("✅ BOT1 ready")
+print("✅ BOT1 SECURED ready")
