@@ -59,7 +59,8 @@ local BOT1_NAME = tostring(Player.Name)
 
 getgenv().ADMIN_CODE     = "raprapissuperdupergwapo"
 getgenv().IN_TRADE       = false
-getgenv().BOT2_NAME      = "DorisKrueger424"
+getgenv().BOT1_NAME      = "Adoptluck_1"
+getgenv().BOT2_NAME      = "DorisKrueger1"
 getgenv().BOT3_NAME      = "JessicaVelazquez706"
 getgenv().TRADE_TYPE     = nil
 getgenv().TRADE_BOT2     = false
