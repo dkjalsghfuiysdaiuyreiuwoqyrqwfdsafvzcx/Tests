@@ -52,14 +52,14 @@ local TARGET_PET_NAMES = {
     -- "Pupcake",
 }
 
-local RUN_FEED_NORMAL = true
+local RUN_FEED_NORMAL = false
 local RUN_FUSE_NORMAL = true
-local RUN_FEED_NEON   = true
+local RUN_FEED_NEON   = false
 local RUN_FUSE_NEON   = true
 local RUN_TRADE       = true
 print("Done TARGET")
 local allowedRotation = {
-    { name = "GHITTOYAH", mode = { "mega_neon", "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 800 },
+    { name = "Kalvin21b9", mode = { "mega_neon", "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 800 },
     -- { name = "PenelopeFrostAlpha43", mode = { "normal_under6" }, maxAmount = 2000 },
     -- { name = "bubblerice1", mode = { "mega_neon", "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 999999999 },
     -- { name = "NoraPixel437", mode = { "neon_under6", "neon_full", "normal_full" }, maxAmount = 99999999 },
