@@ -1,5 +1,4 @@
 
-
 -- ============================================================
 --  FEED & FUSE → TRADE SCRIPT
 -- ============================================================
@@ -39,30 +38,6 @@ local TRADE_COOLDOWN = 5
 -- You can put EITHER the kind (e.g. "sugarfest_2026_dark_choccybunny")
 -- OR the display name (e.g. "Dark Choccybunny") — both will work
 print("Done TARGET")
-local allowedRotation = {
-    { name = "GHITTOYAH", mode = { "mega_neon", "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 800 },
-    -- { name = "PenelopeFrostAlpha43", mode = { "normal_under6" }, maxAmount = 2000 },
-    -- { name = "bubblerice1", mode = { "mega_neon", "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 999999999 },
-    -- { name = "NoraPixel437", mode = { "neon_under6", "neon_full", "normal_full" }, maxAmount = 99999999 },
-    -- { name = "Upton0JO9z", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-    -- { name = "Xandra7TBWOB", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-    -- { name = "AdenaJ5CoY8", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-    -- { name = "NicoyiVW4", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-    -- { name = "KentarozjbRTU", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-    -- { name = "RendaDGGRh2", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-    -- { name = "HazelKcFAD", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-    -- { name = "Lionel73IKwt", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-    -- { name = "TannerzHGPGo", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-    -- { name = "AneliaN3MMC", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-    -- { name = "ChesterdD8B7n", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-    -- { name = "RusdiEHCTi", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-    -- { name = "Johanna9Roc8I", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-    -- { name = "YannBVklz", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-    -- { name = "Carter_Light861", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-    -- { name = "ParisaHX7QsR", mode = { "neon_under6", "neon_full", "normal_full", "normal_under6" }, maxAmount = 120 },
-
-
-}
 -- ─────────────────────────────────────────────────────────────
 
 -- ── API refs ─────────────────────────────────────────────────
