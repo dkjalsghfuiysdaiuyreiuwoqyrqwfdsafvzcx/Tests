@@ -37,9 +37,9 @@ local TRADE_COOLDOWN = 5
 -- You can put EITHER the kind (e.g. "sugarfest_2026_dark_choccybunny")
 -- OR the display name (e.g. "Dark Choccybunny") — both will work
 local TARGET_PET_NAMES = {
-    "Dire Wolf"
-    -- "Dark Choccybunny",
-    -- "White Choccybunny",
+    "Dire Wolf",
+    "Punk Pony",
+    "Sea Angel",
     -- "Milk Choccybunny",
     -- "Gummy Guana"
     -- "Pupcake",
