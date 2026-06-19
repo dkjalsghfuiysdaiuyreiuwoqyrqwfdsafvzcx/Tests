@@ -42,7 +42,7 @@ local TARGET_PET_NAMES = {
     "Sea Angel",
     "Pupcake",
     "Lionfish",
-    "Ghost Chick"
+    "Ghost Chick",
     "Zombie Chick",
     -- "Easter Bunny",
     -- "Candicorn",
