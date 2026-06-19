@@ -52,9 +52,9 @@ local TARGET_PET_NAMES = {
     -- "Latte Kitsune",
 }
 
-local RUN_FEED_NORMAL = true
+local RUN_FEED_NORMAL = false
 local RUN_FUSE_NORMAL = true
-local RUN_FEED_NEON   = true
+local RUN_FEED_NEON   = false
 local RUN_FUSE_NEON   = true
 local RUN_TRADE       = true
 print("Done TARGET")
