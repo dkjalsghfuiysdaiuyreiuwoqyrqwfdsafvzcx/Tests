@@ -18,6 +18,8 @@ local UI = require(game.ReplicatedStorage:WaitForChild("Fsys")).load("UIManager"
 sound.FX:play("BambooButton")
 UI.set_app_visibility("NewsApp", false)
 
+task.wait(5)
+
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local virtualUser = game:GetService("VirtualUser")
