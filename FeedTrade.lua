@@ -38,7 +38,9 @@ local TRADE_COOLDOWN = 5
 -- OR the display name (e.g. "Dark Choccybunny") — both will work
 local TARGET_PET_NAMES = {
     "Violet Friend",
-    "Sunflower Friend"
+    "Sunflower Friend",
+    "Pilot Gull",
+    "Gecko Ducky"
     -- "Dark Choccybunny",
     -- "White Choccybunny",
     -- "Milk Choccybunny",
